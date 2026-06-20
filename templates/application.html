@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY1409 - Разрешение на выход</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link href="/static/fonts/fonts.css" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/static/tg.js"></script>
+    <script src="/static/lib/lucide.min.js"></script>
+    <script src="/static/lib/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: rgba(255, 255, 255, 0.08);
+            --bg-tertiary: rgba(255, 255, 255, 0.06);
+            --bg-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --border-light: rgba(255, 255, 255, 0.15);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --cloud1-color1: rgba(68, 70, 225, 0.4);
+            --cloud1-color2: rgba(220, 53, 69, 0.35);
+            --cloud2-color1: rgba(100, 102, 255, 0.3);
+            --cloud2-color2: rgba(255, 80, 100, 0.25);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent: #4446E1;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: rgba(255, 255, 255, 0.9);
+            --bg-tertiary: rgba(255, 255, 255, 0.95);
+            --bg-hover: rgba(255, 255, 255, 1);
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(26, 26, 46, 0.7);
+            --text-muted: rgba(26, 26, 46, 0.5);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-light: rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --cloud1-color1: rgba(68, 70, 225, 0.8);
+            --cloud1-color2: rgba(220, 53, 69, 0.75);
+            --cloud2-color1: rgba(100, 102, 255, 0.7);
+            --cloud2-color2: rgba(255, 80, 100, 0.65);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background:
+                radial-gradient(ellipse 80% 60% at 30% 20%, var(--cloud1-color1) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
+            z-index: -1;
+            animation: cloudFloat 20s ease-in-out infinite;
+            transition: background 0.3s ease;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -30%; left: -30%;
+            width: 160%; height: 160%;
+            background:
+                radial-gradient(ellipse 50% 40% at 60% 25%, var(--cloud2-color1) 0%, transparent 45%),
+                radial-gradient(ellipse 40% 35% at 40% 35%, var(--cloud2-color2) 0%, transparent 40%);
+            z-index: -1;
+            animation: cloudFloat2 25s ease-in-out infinite reverse;
+            transition: background 0.3s ease;
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(5%, 3%) scale(1.05); }
+            50% { transform: translate(-3%, 5%) scale(0.98); }
+            75% { transform: translate(-5%, -2%) scale(1.02); }
+        }
+
+        @keyframes cloudFloat2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-4%, 4%) rotate(2deg); }
+            66% { transform: translate(4%, -3%) rotate(-2deg); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            align-items: stretch;
+        }
+
+        .nav-close {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 { font-size: 1.8rem; font-weight: 700; }
+
+        .card {
+            background: var(--bg-tertiary);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            margin-bottom: 20px;
+        }
+
+        /* Student info */
+        .student-info {
+            text-align: center;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .student-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .student-meta {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 4px 0;
+        }
+
+        .cause-badge {
+            display: inline-block;
+            background: rgba(68, 70, 225, 0.15);
+            border: 1px solid rgba(68, 70, 225, 0.3);
+            color: #7b7ef5;
+            padding: 5px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        /* Action button */
+        .button-container { margin-bottom: 0; }
+
+        .button-wrapper {
+            position: relative;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+
+        .action-btn {
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            border: none;
+            padding: 16px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+        .action-btn:active:not(:disabled) { transform: scale(0.98); }
+
+        .progress-bar {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            background: linear-gradient(135deg, #4446E1 0%, #2E3192 100%);
+            z-index: 1;
+            transition: width 1s linear;
+            box-shadow: 0 0 20px rgba(68, 70, 225, 0.5);
+        }
+
+        .warning-text {
+            color: rgba(255, 77, 77, 0.9);
+            font-size: 0.8rem;
+            margin-top: 10px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        [data-theme="light"] .warning-text { color: #cc2200; }
+
+        .time-info {
+            display: none;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+
+        .time-info span { color: var(--accent); font-weight: 700; }
+
+        /* QR section */
+        .qr-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .qr-toggle-btn {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .qr-toggle-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+        .qr-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .qr-content.expanded {
+            max-height: 300px;
+            opacity: 1;
+            margin-top: 20px;
+        }
+
+        #qrcode {
+            background: white;
+            padding: 12px;
+            border-radius: 15px;
+            margin-bottom: 12px;
+        }
+
+        .qr-help {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            max-width: 240px;
+            line-height: 1.4;
+        }
+
+        /* Popup */
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .popup {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .popup h3 { font-size: 1.1rem; margin-bottom: 12px; }
+        .popup p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px; line-height: 1.5; }
+
+        .popup-btns { display: flex; gap: 12px; }
+
+        .popup-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .popup-btn.confirm { background: linear-gradient(135deg, #4446E1, #2E3192); color: white; }
+        .popup-btn.confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(68,70,225,0.4); }
+        .popup-btn.cancel { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-light); }
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;
+            z-index: 3000; transition: all 0.3s ease; opacity: 0; visibility: hidden;
+            backdrop-filter: blur(20px); white-space: nowrap;
+        }
+        .toast.success { background: rgba(40,167,69,0.9); color: white; }
+        .toast.error { background: rgba(220,53,69,0.9); color: white; }
+        .toast.shown { opacity: 1; visibility: visible; }
+
+        @media (max-width: 480px) {
+            .container { padding: 0.8rem; }
+            .card { padding: 18px; }
+            .header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <a href="/create_application" class="nav-close" title="Назад">
+                <i data-lucide="arrow-left"></i>
+            </a>
+        </div>
+
+        <div class="header">
+            <h1>Разрешение на выход</h1>
+        </div>
+
+        <div class="card">
+            <div class="student-info">
+                <div class="student-name" id="studentName">Загрузка...</div>
+                <div class="student-meta" id="studentGroup">Класс: —</div>
+                <div class="student-meta" id="teacherName">Учитель: —</div>
+                <div class="cause-badge" id="causeBadge" style="display:none;"></div>
+            </div>
+
+            <div class="button-container">
+                <div class="button-wrapper">
+                    <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+                    <button class="action-btn" id="showButton" onclick="showToGuard()" disabled>
+                        <i data-lucide="shield-check" style="width:18px;height:18px;"></i>
+                        <span id="buttonText">Я около выхода</span>
+                    </button>
+                </div>
+                <p class="warning-text">Активируй ТОЛЬКО когда будешь около охраны — иначе заявку удалят</p>
+                <p class="time-info" id="timeInfo">
+                    Выход разрешён после <span id="allowedTime"></span>
+                </p>
+            </div>
+
+            <div class="qr-section">
+                <button class="qr-toggle-btn" onclick="toggleQR()">
+                    <i data-lucide="qr-code" style="width:16px;height:16px;"></i>
+                    QR для администратора
+                    <i data-lucide="chevron-down" id="qrChevron" style="width:16px;height:16px;transition:transform 0.3s;"></i>
+                </button>
+                <div class="qr-content" id="qrContent">
+                    <div id="qrcode"></div>
+                    <p class="qr-help">Этот QR-код может понадобиться, если администратор попросит проверить разрешение</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup" id="popupBox">
+            <h3>Подтверждение</h3>
+            <p>Вы уверены, что находитесь около пункта охраны? Если нет — заявку удалят.</p>
+            <div class="popup-btns">
+                <button class="popup-btn cancel" onclick="closePopup()">Отмена</button>
+                <button class="popup-btn confirm" onclick="confirmShow()">Да, я тут</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+        }
+        initTheme();
+        lucide.createIcons();
+
+        const applicationId = window.location.pathname.split('/').filter(Boolean).pop();
+        let countdownInterval;
+
+        // Генерируем QR сразу
+        if (applicationId) {
+            new QRCode(document.getElementById('qrcode'), {
+                text: `exitqr${applicationId}`,
+                width: 140,
+                height: 140,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = message;
+            t.className = `toast ${type} shown`;
+            setTimeout(() => t.classList.remove('shown'), 3000);
+        }
+
+        function updateData() {
+            if (!applicationId) return redirectToError();
+            fetch(`/api/student/application/${applicationId}`)
+                .then(res => {
+                    if (res.status === 404) redirectToError();
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById('studentName').textContent = data.name || 'Имя не указано';
+                    document.getElementById('studentGroup').textContent = `Класс: ${data.group || '—'}`;
+                    document.getElementById('teacherName').textContent = `Учитель: ${data.teacher_name || '—'}`;
+                    if (data.cause) {
+                        const badge = document.getElementById('causeBadge');
+                        badge.textContent = data.cause;
+                        badge.style.display = 'inline-block';
+                    }
+                    if (data.allowed_exit_time) initTimer(data.allowed_exit_time);
+                })
+                .catch(() => {
+                    document.getElementById('studentName').textContent = 'Ошибка загрузки';
+                });
+        }
+
+        function initTimer(allowedExitTime) {
+            const [h, m, s] = allowedExitTime.split(':').map(Number);
+            const exitTime = new Date();
+            exitTime.setHours(h, m, s || 0, 0);
+
+            const btn = document.getElementById('showButton');
+            const info = document.getElementById('timeInfo');
+            document.getElementById('allowedTime').textContent = allowedExitTime;
+
+            if (new Date() < exitTime) {
+                btn.disabled = true;
+                info.style.display = 'block';
+                startCountdown(exitTime);
+            } else {
+                btn.disabled = false;
+                info.style.display = 'none';
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('buttonText').textContent = 'Я около выхода';
+                clearInterval(countdownInterval);
+            }
+        }
+
+        function startCountdown(exitTime) {
+            clearInterval(countdownInterval);
+            const btn = document.getElementById('showButton');
+            const text = document.getElementById('buttonText');
+            const bar = document.getElementById('progressBar');
+            const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
+            const total = exitTime - startOfDay;
+
+            function tick() {
+                const diff = exitTime - new Date();
+                if (diff <= 0) {
+                    clearInterval(countdownInterval);
+                    btn.disabled = false;
+                    text.textContent = 'Я около выхода';
+                    bar.style.width = '100%';
+                    document.getElementById('timeInfo').style.display = 'none';
+                    return;
+                }
+                const hrs = String(Math.floor(diff / 3600000)).padStart(2, '0');
+                const mins = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+                const secs = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+                text.textContent = `${hrs}:${mins}:${secs}`;
+                bar.style.width = `${((total - diff) / total) * 100}%`;
+            }
+            tick();
+            countdownInterval = setInterval(tick, 1000);
+        }
+
+        function showToGuard() {
+            document.getElementById('popupOverlay').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('popupOverlay').style.display = 'none';
+        }
+
+        function confirmShow() {
+            const btn = document.getElementById('showButton');
+            btn.disabled = true;
+            closePopup();
+
+            fetch(`/api/student/application/${applicationId}/show?mode=true`, { method: 'POST' })
+                .then(res => { if (!res.ok) throw new Error(); })
+                .then(() => showToast('Уведомление отправлено охране'))
+                .catch(() => showToast('Не удалось отправить данные', 'error'))
+                .finally(() => setTimeout(() => btn.disabled = false, 5000));
+        }
+
+        function toggleQR() {
+            const content = document.getElementById('qrContent');
+            const chevron = document.getElementById('qrChevron');
+            const expanded = content.classList.toggle('expanded');
+            chevron.style.transform = expanded ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+
+        function redirectToError() {
+            window.location.href = '/application-404';
+        }
+
+        updateData();
+        setInterval(updateData, 5000);
+        initTelegramWebApp();
+    </script>
+</body>
+</html>

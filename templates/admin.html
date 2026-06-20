@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY1409 — Админ панель</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link href="/static/fonts/fonts.css" rel="stylesheet">
+    <script src="/static/lib/lucide.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #08090f;
+            --sidebar: #0d0e1a;
+            --card: rgba(255,255,255,0.04);
+            --card-border: rgba(255,255,255,0.08);
+            --accent: #4446E1;
+            --accent2: #6466ff;
+            --text: #ffffff;
+            --text2: rgba(255,255,255,0.6);
+            --text3: rgba(255,255,255,0.35);
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 240px;
+            min-height: 100vh;
+            background: var(--sidebar);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+
+        .sidebar-logo {
+            padding: 24px 20px 16px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .sidebar-logo .logo-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent2);
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-logo .logo-sub {
+            font-size: 0.72rem;
+            color: var(--text3);
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            padding: 10px 20px 4px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: var(--text2);
+            cursor: pointer;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: rgba(68,70,225,0.12);
+            color: var(--accent2);
+            border-left-color: var(--accent);
+        }
+
+        .nav-item i { width: 16px; height: 16px; flex-shrink: 0; }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(220,53,69,0.8);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 8px 0;
+            transition: color 0.15s;
+        }
+
+        .logout-btn:hover { color: var(--danger); }
+
+        /* ── Main ── */
+        .main {
+            margin-left: 240px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 56px;
+            background: rgba(13,14,26,0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.82rem;
+            color: var(--text2);
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* ── Content ── */
+        .content {
+            padding: 24px;
+            flex: 1;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px 22px;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ── Stats grid ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 18px 20px;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text3);
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-sub {
+            font-size: 0.75rem;
+            color: var(--text3);
+            margin-top: 4px;
+        }
+
+        .stat-card.blue .stat-value { color: var(--accent2); }
+        .stat-card.green .stat-value { color: #4cdb7a; }
+        .stat-card.red .stat-value { color: #ff5b70; }
+        .stat-card.yellow .stat-value { color: #ffc107; }
+
+        /* ── Table ── */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th {
+            padding: 10px 14px;
+            text-align: left;
+            color: var(--text3);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: var(--text2);
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-pending  { background: rgba(255,193,7,0.15);  color: #ffc107; }
+        .badge-approved { background: rgba(40,167,69,0.15);  color: #4cdb7a; }
+        .badge-rejected { background: rgba(220,53,69,0.15);  color: #ff5b70; }
+        .badge-used     { background: rgba(100,102,255,0.15); color: var(--accent2); }
+        .badge-expired  { background: rgba(255,255,255,0.07); color: var(--text3); }
+
+        /* ── Empty state ── */
+        .empty {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text3);
+        }
+
+        .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .empty p { font-size: 0.9rem; }
+
+        /* ── Form ── */
+        .form-group { margin-bottom: 16px; }
+
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 11px 14px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        input::placeholder, textarea::placeholder { color: var(--text3); }
+
+        select option { background: #1a1a2e; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, #4446E1, #2E3192); color: #fff; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(68,70,225,0.4); }
+
+        .btn-danger { background: rgba(220,53,69,0.18); color: #ff5b70; border: 1px solid rgba(220,53,69,0.3); }
+        .btn-danger:hover { background: rgba(220,53,69,0.28); }
+
+        .btn-ghost { background: rgba(255,255,255,0.06); color: var(--text2); border: 1px solid var(--card-border); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+        /* ── Settings toggles ── */
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .setting-row:last-child { border-bottom: none; }
+
+        .setting-info .setting-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .setting-info .setting-desc {
+            font-size: 0.78rem;
+            color: var(--text3);
+            margin-top: 2px;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.12);
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            left: 3px; top: 3px;
+            width: 18px; height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle input:checked + .toggle-slider { background: var(--accent); }
+        .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+        /* ── Two-col layout ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .two-col { grid-template-columns: 1fr; }
+        }
+
+        /* ── App info pill ── */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--card-border);
+            font-size: 0.85rem;
+        }
+
+        .info-row:last-child { border-bottom: none; }
+        .info-row .key { color: var(--text3); }
+        .info-row .val { font-weight: 600; }
+
+        /* ── Mobile ── */
+        .menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .menu-btn { display: flex; }
+            .content { padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-title">STUDY1409</div>
+        <div class="logo-sub">Панель администратора</div>
+    </div>
+
+    <div class="sidebar-nav">
+        <div class="nav-section">Обзор</div>
+        <div class="nav-item active" onclick="showSection('dashboard')">
+            <i data-lucide="layout-dashboard"></i> Главная
+        </div>
+
+        <div class="nav-section">Заявки</div>
+        <div class="nav-item" onclick="showSection('passes')">
+            <i data-lucide="door-open"></i> Заявки на выход
+        </div>
+        <div class="nav-item" onclick="showSection('cards')">
+            <i data-lucide="credit-card"></i> Карты МЭШ
+        </div>
+
+        <div class="nav-section">Управление</div>
+        <div class="nav-item" onclick="showSection('students')">
+            <i data-lucide="users"></i> Ученики
+        </div>
+        <div class="nav-item" onclick="showSection('announcements')">
+            <i data-lucide="megaphone"></i> Объявления
+        </div>
+
+        <div class="nav-section">Система</div>
+        <div class="nav-item" onclick="showSection('app_settings')">
+            <i data-lucide="settings"></i> Настройки приложения
+        </div>
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="/admin/logout" class="logout-btn">
+            <i data-lucide="log-out" style="width:16px;height:16px;"></i> Выйти
+        </a>
+    </div>
+</nav>
+
+<!-- Main -->
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <button class="menu-btn" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
+            <span class="topbar-title" id="topbar-title">Главная</span>
+        </div>
+        <div class="topbar-right">
+            <span class="status-dot"></span> Сервер запущен
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ── Dashboard ── -->
+        <section class="section active" id="s-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-label">Заявок на выход</div>
+                    <div class="stat-value" id="stat-passes">—</div>
+                    <div class="stat-sub">За всё время</div>
+                </div>
+                <div class="stat-card yellow">
+                    <div class="stat-label">Ожидают одобрения</div>
+                    <div class="stat-value" id="stat-pending">—</div>
+                    <div class="stat-sub">Заявок на выход</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Карты МЭШ</div>
+                    <div class="stat-value" id="stat-cards">—</div>
+                    <div class="stat-sub">Заказов карт</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-label">Учеников</div>
+                    <div class="stat-value" id="stat-students">—</div>
+                    <div class="stat-sub">В системе</div>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-title"><i data-lucide="clock" style="width:16px;height:16px;"></i> Последние заявки на выход</div>
+                    <div id="recent-passes">
+                        <div class="empty">
+                            <div class="empty-icon">📋</div>
+                            <p>Заявок пока нет</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i data-lucide="credit-card" style="width:16px;height:16px;"></i> Последние заказы карт</div>
+                    <div id="recent-cards">
+                        <div class="empty">
+                            <div class="empty-icon">💳</div>
+                            <p>Заказов пока нет</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Exit passes ── -->
+        <section class="section" id="s-passes">
+            <div class="card">
+                <div class="card-title"><i data-lucide="door-open" style="width:16px;height:16px;"></i> Заявки на выход</div>
+
+                <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+                    <select id="filter-pass-status" style="width:auto;" onchange="filterPasses()">
+                        <option value="">Все статусы</option>
+                        <option value="pending">Ожидают</option>
+                        <option value="approved">Одобрены</option>
+                        <option value="rejected">Отклонены</option>
+                        <option value="used">Использованы</option>
+                        <option value="expired">Истекли</option>
+                    </select>
+                    <button class="btn btn-ghost" onclick="loadPasses()">
+                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table id="passes-table">
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Класс</th>
+                                <th>Причина</th>
+                                <th>Время</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="passes-tbody">
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty"><div class="empty-icon">📋</div><p>Заявок нет или данные ещё не загружены</p></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Card orders ── -->
+        <section class="section" id="s-cards">
+            <div class="card">
+                <div class="card-title"><i data-lucide="credit-card" style="width:16px;height:16px;"></i> Заказы карт МЭШ</div>
+
+                <div style="display:flex;gap:10px;margin-bottom:16px;">
+                    <button class="btn btn-ghost" onclick="loadCardOrders()">
+                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Класс</th>
+                                <th>Причина</th>
+                                <th>Дата заявки</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cards-tbody">
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty"><div class="empty-icon">💳</div><p>Заказов нет или данные ещё не загружены</p></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Students ── -->
+        <section class="section" id="s-students">
+            <div class="card">
+                <div class="card-title"><i data-lucide="users" style="width:16px;height:16px;"></i> Ученики</div>
+
+                <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+                    <input type="text" id="search-student" placeholder="Поиск по ФИО или классу…" style="max-width:280px;" oninput="searchStudents()">
+                    <button class="btn btn-ghost" onclick="loadStudents()">
+                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Класс</th>
+                                <th>Телефон</th>
+                                <th>Классный рук.</th>
+                                <th>Заявок</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-tbody">
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty"><div class="empty-icon">👤</div><p>Учеников нет или данные ещё не загружены</p></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Announcements ── -->
+        <section class="section" id="s-announcements">
+            <div class="two-col">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div class="card-title"><i data-lucide="megaphone" style="width:16px;height:16px;"></i> Новое объявление</div>
+                    <div class="form-group">
+                        <label>Заголовок</label>
+                        <input type="text" id="ann-title" placeholder="Например: Внимание! Встреча родителей">
+                    </div>
+                    <div class="form-group">
+                        <label>Текст</label>
+                        <textarea id="ann-body" rows="4" placeholder="Текст объявления…"></textarea>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn btn-primary" onclick="postAnnouncement()">Опубликовать</button>
+                        <button class="btn btn-ghost" onclick="document.getElementById('ann-title').value='';document.getElementById('ann-body').value='';">Очистить</button>
+                    </div>
+                </div>
+
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div class="card-title"><i data-lucide="list" style="width:16px;height:16px;"></i> Опубликованные объявления</div>
+                    <div id="announcements-list">
+                        <div class="empty"><div class="empty-icon">📢</div><p>Объявлений пока нет</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── App settings ── -->
+        <section class="section" id="s-app_settings">
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-title"><i data-lucide="info" style="width:16px;height:16px;"></i> Информация о приложении</div>
+                    <div class="info-row"><span class="key">Приложение</span><span class="val">STUDY1409</span></div>
+                    <div class="info-row"><span class="key">Версия</span><span class="val">1.0.0</span></div>
+                    <div class="info-row"><span class="key">Порт</span><span class="val">1090</span></div>
+                    <div class="info-row"><span class="key">Фреймворк</span><span class="val">Flask (Python)</span></div>
+                    <div class="info-row"><span class="key">PWA</span><span class="val">✅ Включено</span></div>
+                    <div class="info-row">
+                        <span class="key">Статус сервера</span>
+                        <span class="val" style="color:#4cdb7a;">● Работает</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i data-lucide="toggle-left" style="width:16px;height:16px;"></i> Функции приложения</div>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <div class="setting-name">Заявки на выход</div>
+                            <div class="setting-desc">Ученики могут создавать заявки</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" checked onchange="saveSetting('passes_enabled', this.checked)"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <div class="setting-name">Заказ карт МЭШ</div>
+                            <div class="setting-desc">Форма заказа карты доступна</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" checked onchange="saveSetting('cards_enabled', this.checked)"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <div class="setting-name">Тема «Наизнанку»</div>
+                            <div class="setting-desc">Stranger Things оформление</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" checked onchange="saveSetting('stranger_enabled', this.checked)"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <div class="setting-name">Режим обслуживания</div>
+                            <div class="setting-desc">Закрыть доступ для учеников</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" onchange="saveSetting('maintenance', this.checked)"><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div class="card-title"><i data-lucide="book-open" style="width:16px;height:16px;"></i> Расписание звонков</div>
+                    <p style="font-size:0.82rem;color:var(--text3);margin-bottom:16px;">Текущее расписание используется виджетом на главной странице ученика</p>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>#</th><th>Начало</th><th>Конец</th><th>Тип</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td>08:30</td><td>09:15</td><td><span class="badge badge-approved">Урок</span></td></tr>
+                                <tr><td>—</td><td>09:15</td><td>09:25</td><td><span class="badge badge-used">Перемена</span></td></tr>
+                                <tr><td>2</td><td>09:25</td><td>10:10</td><td><span class="badge badge-approved">Урок</span></td></tr>
+                                <tr><td>—</td><td>10:10</td><td>10:25</td><td><span class="badge badge-used">Перемена</span></td></tr>
+                                <tr><td>3</td><td>10:25</td><td>11:10</td><td><span class="badge badge-approved">Урок</span></td></tr>
+                                <tr><td>—</td><td>11:10</td><td>11:25</td><td><span class="badge badge-used">Перемена</span></td></tr>
+                                <tr><td>4</td><td>11:25</td><td>12:10</td><td><span class="badge badge-approved">Урок</span></td></tr>
+                                <tr><td>—</td><td>12:10</td><td>12:55</td><td><span class="badge badge-used">Перемена (обед)</span></td></tr>
+                                <tr><td>5</td><td>12:55</td><td>13:40</td><td><span class="badge badge-approved">Урок</span></td></tr>
+                                <tr><td>—</td><td>13:40</td><td>13:50</td><td><span class="badge badge-used">Перемена</span></td></tr>
+                                <tr><td>6</td><td>13:50</td><td>14:35</td><td><span class="badge badge-approved">Урок</span></td></tr>
+                                <tr><td>—</td><td>14:35</td><td>14:45</td><td><span class="badge badge-used">Перемена</span></td></tr>
+                                <tr><td>7</td><td>14:45</td><td>15:30</td><td><span class="badge badge-approved">Урок</span></td></tr>
+                                <tr><td>—</td><td>15:30</td><td>15:40</td><td><span class="badge badge-used">Перемена</span></td></tr>
+                                <tr><td>8</td><td>15:40</td><td>16:25</td><td><span class="badge badge-approved">Урок</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+    lucide.createIcons();
+
+    const sectionTitles = {
+        dashboard:     'Главная',
+        passes:        'Заявки на выход',
+        cards:         'Карты МЭШ',
+        students:      'Ученики',
+        announcements: 'Объявления',
+        app_settings:  'Настройки приложения'
+    };
+
+    function showSection(name) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('s-' + name).classList.add('active');
+        document.getElementById('topbar-title').textContent = sectionTitles[name] || name;
+        event.currentTarget.classList.add('active');
+
+        // Load data on section open
+        if (name === 'passes') loadPasses();
+        if (name === 'cards') loadCardOrders();
+        if (name === 'students') loadStudents();
+        if (name === 'dashboard') loadDashboard();
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // ── Data loaders (calls real API endpoints if they exist) ──
+
+    function loadDashboard() {
+        fetchJSON('/api/admin/stats', data => {
+            if (!data) return;
+            setText('stat-passes',   data.total_passes ?? '—');
+            setText('stat-pending',  data.pending_passes ?? '—');
+            setText('stat-cards',    data.total_cards ?? '—');
+            setText('stat-students', data.total_students ?? '—');
+        });
+    }
+
+    function loadPasses() {
+        const status = document.getElementById('filter-pass-status').value;
+        const url = '/api/admin/passes' + (status ? '?status=' + status : '');
+        fetchJSON(url, data => {
+            if (!data || !data.items) return;
+            const tbody = document.getElementById('passes-tbody');
+            if (!data.items.length) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📋</div><p>Заявок нет</p></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.items.map(r => `
+                <tr>
+                    <td>${r.name || '—'}</td>
+                    <td>${r.class || '—'}</td>
+                    <td>${r.reason || '—'}</td>
+                    <td>${r.time || '—'}</td>
+                    <td>${badgeHtml(r.status)}</td>
+                    <td>
+                        ${r.status === 'pending' ? `
+                        <button class="btn btn-primary" style="padding:5px 12px;font-size:0.78rem;" onclick="approvePass(${r.id})">✓</button>
+                        <button class="btn btn-danger" style="padding:5px 12px;font-size:0.78rem;margin-left:6px;" onclick="rejectPass(${r.id})">✗</button>
+                        ` : '—'}
+                    </td>
+                </tr>
+            `).join('');
+        });
+    }
+
+    function filterPasses() { loadPasses(); }
+
+    function approvePass(id) {
+        postJSON('/api/admin/passes/' + id + '/approve', {}, () => loadPasses());
+    }
+
+    function rejectPass(id) {
+        postJSON('/api/admin/passes/' + id + '/reject', {}, () => loadPasses());
+    }
+
+    function loadCardOrders() {
+        fetchJSON('/api/admin/cards', data => {
+            if (!data || !data.items) return;
+            const tbody = document.getElementById('cards-tbody');
+            if (!data.items.length) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">💳</div><p>Заказов нет</p></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.items.map(r => `
+                <tr>
+                    <td>${r.fio || '—'}</td>
+                    <td>${r.class || '—'}</td>
+                    <td>${r.reason || '—'}</td>
+                    <td>${r.created_at || '—'}</td>
+                    <td>${badgeHtml(r.status || 'pending')}</td>
+                    <td>
+                        <button class="btn btn-primary" style="padding:5px 12px;font-size:0.78rem;" onclick="completeCard(${r.id})">Выдана</button>
+                    </td>
+                </tr>
+            `).join('');
+        });
+    }
+
+    function completeCard(id) {
+        postJSON('/api/admin/cards/' + id + '/complete', {}, () => loadCardOrders());
+    }
+
+    function loadStudents() {
+        fetchJSON('/api/admin/students', data => {
+            if (!data || !data.items) return;
+            const tbody = document.getElementById('students-tbody');
+            if (!data.items.length) {
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">👤</div><p>Учеников нет</p></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.items.map(s => `
+                <tr>
+                    <td>${s.full_name || '—'}</td>
+                    <td>${s.class || '—'}</td>
+                    <td>${s.phone || '—'}</td>
+                    <td>${s.teacher || '—'}</td>
+                    <td>${s.passes_count ?? 0}</td>
+                </tr>
+            `).join('');
+        });
+    }
+
+    function searchStudents() {
+        const q = document.getElementById('search-student').value.toLowerCase();
+        document.querySelectorAll('#students-tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+
+    function postAnnouncement() {
+        const title = document.getElementById('ann-title').value.trim();
+        const body  = document.getElementById('ann-body').value.trim();
+        if (!title || !body) { alert('Заполните заголовок и текст'); return; }
+        postJSON('/api/admin/announcements', { title, body }, () => {
+            document.getElementById('ann-title').value = '';
+            document.getElementById('ann-body').value = '';
+            alert('Объявление опубликовано');
+        });
+    }
+
+    function saveSetting(key, value) {
+        postJSON('/api/admin/settings', { key, value }, null);
+    }
+
+    // ── Helpers ──
+
+    function badgeHtml(status) {
+        const map = {
+            pending:  ['badge-pending',  'Ожидает'],
+            approved: ['badge-approved', 'Одобрено'],
+            rejected: ['badge-rejected', 'Отклонено'],
+            used:     ['badge-used',     'Использовано'],
+            expired:  ['badge-expired',  'Истекло'],
+            done:     ['badge-approved', 'Готово'],
+        };
+        const [cls, label] = map[status] || ['badge-expired', status];
+        return `<span class="badge ${cls}">${label}</span>`;
+    }
+
+    function setText(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    }
+
+    function fetchJSON(url, cb) {
+        fetch(url)
+            .then(r => r.ok ? r.json() : null)
+            .catch(() => null)
+            .then(cb);
+    }
+
+    function postJSON(url, body, cb) {
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null)
+        .then(data => { if (cb) cb(data); });
+    }
+
+    // Initial load
+    loadDashboard();
+
+    // Загружаем актуальное состояние настроек (maintenance и др.)
+    fetchJSON('/api/admin/settings/state', data => {
+        if (!data) return;
+        const maintToggle = document.querySelector('[onchange="saveSetting(\'maintenance\', this.checked)"]');
+        if (maintToggle && data.maintenance !== undefined) {
+            maintToggle.checked = data.maintenance;
+        }
+    });
+</script>
+</body>
+</html>

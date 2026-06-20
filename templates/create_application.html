@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY1409 - Заявка на выход</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link href="/static/fonts/fonts.css" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/static/tg.js"></script>
+    <script src="/static/lib/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: rgba(255, 255, 255, 0.08);
+            --bg-tertiary: rgba(255, 255, 255, 0.06);
+            --bg-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --border-light: rgba(255, 255, 255, 0.15);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --cloud1-color1: rgba(68, 70, 225, 0.4);
+            --cloud1-color2: rgba(220, 53, 69, 0.35);
+            --cloud2-color1: rgba(100, 102, 255, 0.3);
+            --cloud2-color2: rgba(255, 80, 100, 0.25);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent: #4446E1;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: rgba(255, 255, 255, 0.9);
+            --bg-tertiary: rgba(255, 255, 255, 0.95);
+            --bg-hover: rgba(255, 255, 255, 1);
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(26, 26, 46, 0.7);
+            --text-muted: rgba(26, 26, 46, 0.5);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-light: rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --cloud1-color1: rgba(68, 70, 225, 0.8);
+            --cloud1-color2: rgba(220, 53, 69, 0.75);
+            --cloud2-color1: rgba(100, 102, 255, 0.7);
+            --cloud2-color2: rgba(255, 80, 100, 0.65);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background:
+                radial-gradient(ellipse 80% 60% at 30% 20%, var(--cloud1-color1) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
+            z-index: -1;
+            animation: cloudFloat 20s ease-in-out infinite;
+            transition: background 0.3s ease;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -30%; left: -30%;
+            width: 160%; height: 160%;
+            background:
+                radial-gradient(ellipse 50% 40% at 60% 25%, var(--cloud2-color1) 0%, transparent 45%),
+                radial-gradient(ellipse 40% 35% at 40% 35%, var(--cloud2-color2) 0%, transparent 40%);
+            z-index: -1;
+            animation: cloudFloat2 25s ease-in-out infinite reverse;
+            transition: background 0.3s ease;
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(5%, 3%) scale(1.05); }
+            50% { transform: translate(-3%, 5%) scale(0.98); }
+            75% { transform: translate(-5%, -2%) scale(1.02); }
+        }
+
+        @keyframes cloudFloat2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-4%, 4%) rotate(2deg); }
+            66% { transform: translate(4%, -3%) rotate(-2deg); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-spin { animation: spin 1s linear infinite; }
+
+        .container {
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.5s ease-out;
+            align-items: stretch;
+        }
+
+        .nav-close {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .header h1 { font-size: 1.8rem; font-weight: 700; }
+
+        .card {
+            background: var(--bg-tertiary);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group { margin-bottom: 16px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        select:focus { border-color: var(--accent); outline: none; background: var(--bg-hover); }
+        select option { background: #1a1a2e; }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, #4446E1 0%, #2E3192 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(68,70,225,0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .history-item { padding: 14px 0; border-bottom: 1px solid var(--border-color); }
+        .history-item:last-child { border-bottom: none; }
+
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .history-date { font-size: 0.78rem; color: var(--text-muted); }
+
+        .history-status { padding: 3px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; }
+        .status-pending { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .status-rejected { background: rgba(220,53,69,0.2); color: #ff4d4d; }
+        .status-approved { background: rgba(40,167,69,0.2); color: #4CAF50; }
+        .status-used { background: rgba(23,162,184,0.2); color: #17a2b8; }
+        .status-expired { background: rgba(220,53,69,0.15); color: rgba(255,77,77,0.8); }
+
+        .history-cause { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+        .history-details { font-size: 0.78rem; color: var(--text-muted); }
+        .history-actions { margin-top: 10px; }
+
+        .btn-open {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px;
+            background: rgba(68,70,225,0.2); color: #7b7ef5;
+            border: 1px solid rgba(68,70,225,0.3); border-radius: 8px;
+            font-size: 0.8rem; font-weight: 600; font-family: 'Montserrat', sans-serif;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-open:hover { background: rgba(68,70,225,0.3); }
+
+        .show-all-btn {
+            width: 100%; padding: 10px;
+            background: var(--bg-secondary); color: var(--text-secondary);
+            border: 1px solid var(--border-light); border-radius: 10px;
+            font-size: 0.875rem; font-weight: 600; font-family: 'Montserrat', sans-serif;
+            cursor: pointer; transition: all 0.3s; margin-top: 14px;
+        }
+        .show-all-btn:hover { background: var(--bg-hover); }
+
+        .empty-state { text-align: center; color: var(--text-muted); font-style: italic; padding: 20px; font-size: 0.875rem; }
+
+        .refresh-btn {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; padding: 4px; display: flex; align-items: center; transition: color 0.2s;
+        }
+        .refresh-btn:hover { color: var(--text-primary); }
+
+        .lift-item { padding: 14px 0; border-bottom: 1px solid var(--border-color); }
+        .lift-item:last-child { border-bottom: none; }
+
+        .lift-badge { display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; background: rgba(40,167,69,0.2); color: #4CAF50; }
+
+        .btn-lift {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; background: linear-gradient(135deg, #4446E1, #2E3192);
+            color: white; border: none; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600; font-family: 'Montserrat', sans-serif;
+            cursor: pointer; transition: all 0.2s; margin-top: 10px;
+        }
+        .btn-lift:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(68,70,225,0.4); }
+
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;
+            z-index: 3000; transition: all 0.3s ease; opacity: 0; visibility: hidden; backdrop-filter: blur(20px);
+        }
+        .toast.success { background: rgba(40,167,69,0.9); color: white; }
+        .toast.error { background: rgba(220,53,69,0.9); color: white; }
+        .toast.shown { opacity: 1; visibility: visible; }
+
+        @media (max-width: 480px) {
+            .container { padding: 0.8rem; }
+            .card { padding: 18px; }
+            .header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <a href="/apps" class="nav-close">
+                <i data-lucide="home"></i>
+            </a>
+        </div>
+
+        <div class="header">
+            <h1>Заявка на выход</h1>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <i data-lucide="door-open"></i> Новая заявка
+            </div>
+            <form id="exitForm">
+                <div class="form-group">
+                    <label>Причина</label>
+                    <select id="cause" required>
+                        <option value="" disabled selected>Выберите причину</option>
+                        <option value="Семейные обстоятельства">Семейные обстоятельства</option>
+                        <option value="Прием у врача">Прием у врача</option>
+                        <option value="Мероприятие">Мероприятие</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Время выхода</label>
+                    <select id="exitTime" required>
+                        <option value="" disabled selected>Выберите время</option>
+                        <option value="09:15">09:15</option>
+                        <option value="10:10">10:10</option>
+                        <option value="11:10">11:10</option>
+                        <option value="12:00">12:00</option>
+                        <option value="13:15">13:15</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i data-lucide="send"></i> Отправить классному руководителю
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="section-title" style="justify-content: space-between;">
+                <span style="display:flex;align-items:center;gap:8px;">
+                    <i data-lucide="history"></i> История разрешений
+                </span>
+                <button class="refresh-btn" onclick="loadHistory()" title="Обновить">
+                    <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i>
+                </button>
+            </div>
+            <div id="historyList"><div class="empty-state">Загрузка...</div></div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <i data-lucide="arrow-up-square"></i> Разрешения на лифт
+            </div>
+            <div id="liftList"><div class="empty-state">Загрузка...</div></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+        initTheme();
+        lucide.createIcons();
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} shown`;
+            setTimeout(() => toast.classList.remove('shown'), 3000);
+        }
+
+        let _requests = [], _history = [];
+
+        document.getElementById('exitForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const cause = document.getElementById('cause').value;
+            const exitTime = document.getElementById('exitTime').value;
+            if (!cause || !exitTime) return;
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Отправка...';
+            lucide.createIcons();
+
+            try {
+                const r = await fetch('/api/student/exit-request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cause, exit_time: exitTime })
+                });
+                const data = await r.json();
+                if (r.ok) {
+                    document.getElementById('exitForm').reset();
+                    showToast('Заявка отправлена на рассмотрение');
+                    loadHistory();
+                } else {
+                    showToast(data.message || 'Ошибка при создании заявки', 'error');
+                }
+            } catch {
+                showToast('Ошибка при создании заявки', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="send"></i> Отправить классному руководителю';
+                lucide.createIcons();
+            }
+        });
+
+        async function loadHistory() {
+            try {
+                const [hr, rr] = await Promise.all([
+                    fetch('/api/student/exit-history'),
+                    fetch('/api/student/exit-requests')
+                ]);
+                _history = await hr.json();
+                _requests = await rr.json();
+                renderHistory(false);
+            } catch {
+                document.getElementById('historyList').innerHTML = '<div class="empty-state">Ошибка загрузки</div>';
+            }
+        }
+
+        function renderHistory(showAll) {
+            const el = document.getElementById('historyList');
+            const total = _requests.length + _history.length;
+            if (total === 0) { el.innerHTML = '<div class="empty-state">История пуста</div>'; return; }
+
+            const limit = showAll ? Infinity : 2;
+            let count = 0, html = '';
+
+            for (const req of _requests) {
+                if (count >= limit) break;
+                const sc = req.is_rejected ? 'status-rejected' : 'status-pending';
+                const st = req.is_rejected ? 'Отклонено' : 'Ожидает одобрения';
+                html += itemHtml(req.created_at, sc, st, req.cause, `Время: ${req.allowed_exit_time} | КР: ${req.teacher_name}`, '');
+                count++;
+            }
+
+            for (const item of _history) {
+                if (count >= limit) break;
+                let sc, st;
+                if (item.is_used) { sc = 'status-used'; st = 'Использовано'; }
+                else if (item.is_expired) { sc = 'status-expired'; st = 'Просрочено'; }
+                else { sc = 'status-approved'; st = 'Одобрено'; }
+                const extra = (!item.is_used && !item.is_expired)
+                    ? `<div class="history-actions"><button class="btn-open" onclick="window.location.href='/application/${item.id}'"><i data-lucide="external-link" style="width:14px;height:14px;"></i> Открыть</button></div>` : '';
+                const det = `Время: ${item.allowed_exit_time} | Учитель: ${item.teacher_name}${item.used_at ? ' | ' + item.used_at : ''}`;
+                html += itemHtml(item.created_at, sc, st, item.cause, det, extra);
+                count++;
+            }
+
+            if (!showAll && total > 2) html += `<button class="show-all-btn" onclick="renderHistory(true)">Показать все (${total})</button>`;
+            el.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function itemHtml(date, statusCls, statusText, cause, details, extra) {
+            return `<div class="history-item">
+                <div class="history-header">
+                    <span class="history-date">${date}</span>
+                    <span class="history-status ${statusCls}">${statusText}</span>
+                </div>
+                <div class="history-cause">${cause}</div>
+                <div class="history-details">${details}</div>
+                ${extra}
+            </div>`;
+        }
+
+        async function loadLiftPermissions() {
+            const el = document.getElementById('liftList');
+            try {
+                const r = await fetch('/api/student/lift-permissions');
+                const perms = await r.json();
+                if (perms.length === 0) {
+                    el.innerHTML = '<div class="empty-state">Разрешений нет. Обратитесь к классному руководителю.</div>';
+                    return;
+                }
+                el.innerHTML = perms.map(p => `
+                    <div class="lift-item">
+                        <div class="history-header">
+                            <span class="history-date">Создано: ${p.created_at}</span>
+                            <span class="lift-badge">Активно</span>
+                        </div>
+                        <div class="history-cause">${p.cause}</div>
+                        <div class="history-details">До: ${p.deadline} | Поездок: ${p.remaining_rides} из ${p.total_rides} | ${p.teacher_name}</div>
+                        <button class="btn-lift" onclick="window.location.href='/lift-application/${p.id}'">
+                            <i data-lucide="arrow-up-square" style="width:16px;height:16px;"></i> Использовать лифт
+                        </button>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            } catch {
+                el.innerHTML = '<div class="empty-state">Ошибка загрузки</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { loadHistory(); loadLiftPermissions(); });
+        initTelegramWebApp();
+    </script>
+</body>
+</html>

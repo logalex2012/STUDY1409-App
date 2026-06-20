@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY1409 - Заказ карты МЭШ</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link href="/static/fonts/fonts.css" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/static/tg.js"></script>
+    <script src="/static/lib/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: rgba(255, 255, 255, 0.08);
+            --bg-tertiary: rgba(255, 255, 255, 0.06);
+            --bg-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --border-light: rgba(255, 255, 255, 0.15);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --cloud1-color1: rgba(68, 70, 225, 0.4);
+            --cloud1-color2: rgba(220, 53, 69, 0.35);
+            --cloud2-color1: rgba(100, 102, 255, 0.3);
+            --cloud2-color2: rgba(255, 80, 100, 0.25);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent: #4446E1;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: rgba(255, 255, 255, 0.9);
+            --bg-tertiary: rgba(255, 255, 255, 0.95);
+            --bg-hover: rgba(255, 255, 255, 1);
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(26, 26, 46, 0.7);
+            --text-muted: rgba(26, 26, 46, 0.5);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-light: rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --cloud1-color1: rgba(68, 70, 225, 0.8);
+            --cloud1-color2: rgba(220, 53, 69, 0.75);
+            --cloud2-color1: rgba(100, 102, 255, 0.7);
+            --cloud2-color2: rgba(255, 80, 100, 0.65);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background:
+                radial-gradient(ellipse 80% 60% at 30% 20%, var(--cloud1-color1) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
+            z-index: -1;
+            animation: cloudFloat 20s ease-in-out infinite;
+            transition: background 0.3s ease;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -30%; left: -30%;
+            width: 160%; height: 160%;
+            background:
+                radial-gradient(ellipse 50% 40% at 60% 25%, var(--cloud2-color1) 0%, transparent 45%),
+                radial-gradient(ellipse 40% 35% at 40% 35%, var(--cloud2-color2) 0%, transparent 40%);
+            z-index: -1;
+            animation: cloudFloat2 25s ease-in-out infinite reverse;
+            transition: background 0.3s ease;
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(5%, 3%) scale(1.05); }
+            50% { transform: translate(-3%, 5%) scale(0.98); }
+            75% { transform: translate(-5%, -2%) scale(1.02); }
+        }
+
+        @keyframes cloudFloat2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-4%, 4%) rotate(2deg); }
+            66% { transform: translate(4%, -3%) rotate(-2deg); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.5s ease-out;
+            align-items: stretch;
+        }
+
+        .nav-close {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .header img {
+            height: 120px;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 8px 20px rgba(68, 70, 225, 0.4));
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .card {
+            background: var(--bg-tertiary);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .card h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]::placeholder { color: var(--text-muted); }
+
+        input:focus, select:focus {
+            border-color: var(--accent);
+            outline: none;
+            background: var(--bg-hover);
+        }
+
+        select option { background: #1a1a2e; color: #fff; }
+
+        .hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4446E1 0%, #2E3192 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(68, 70, 225, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Done layer */
+        #done-layer { display: none; text-align: center; }
+        #done-layer .done-icon { font-size: 4rem; margin-bottom: 1rem; }
+        #done-layer h1 { margin-bottom: 1rem; }
+        #done-layer p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6; }
+        #done-layer img { max-width: 180px; margin: 0 auto 1.5rem; display: block; filter: drop-shadow(0 8px 20px rgba(68,70,225,0.3)); }
+        #done-layer .actions { justify-content: center; }
+
+        @media (max-width: 480px) {
+            .container { padding: 0.8rem; }
+            .header h1 { font-size: 1.5rem; }
+            .card { padding: 18px; }
+            .actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <a href="/apps" class="nav-close">
+                <i data-lucide="home"></i>
+            </a>
+        </div>
+
+        <div class="header">
+            <img src="/static/card_faviocn.png" alt="Карта МЭШ">
+            <h1>Заказ карты МЭШ</h1>
+        </div>
+
+        <div class="card">
+            <!-- Слой 1: форма -->
+            <section id="order-layer">
+                <h1>Заявка на выпуск карты «МЭШ»</h1>
+                <p class="subtitle">Заполните поля ниже. После отправки заявка уйдёт системному администратору.</p>
+
+                <form id="mesh-form">
+                    <div class="form-group">
+                        <label for="fio">ФИО</label>
+                        <input id="fio" type="text" placeholder="Иванов Иван Иванович" value="{{ full_name or '' }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="class">Класс</label>
+                        <input id="class" type="text" placeholder="10А" value="{{ student_class or '' }}" required>
+                        <div class="hint">Например: 7Б, 9В, 11А</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reason">Причина замены</label>
+                        <select id="reason" required>
+                            <option value="" disabled selected>Выберите причину</option>
+                            <option>Потеря</option>
+                            <option>Повреждение</option>
+                            <option>Зачисление в школу</option>
+                        </select>
+                    </div>
+
+                    <div class="actions">
+                        <a href="/" class="btn btn-secondary">Назад</a>
+                        <button type="submit" class="btn btn-primary">Отправить</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Слой 2: успех -->
+            <section id="done-layer">
+                <div class="done-icon">✅</div>
+                <h1>Заявка отправлена</h1>
+                <p>Карта будет готова на следующий день и будет ждать в специальной зоне на охране.<br>Старая карта перестанет действовать.</p>
+                <img src="/static/card.png" alt="Карта МЭШ">
+                <div class="actions">
+                    <a href="/" class="btn btn-secondary">На главную</a>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+        initTheme();
+        lucide.createIcons();
+
+        document.getElementById('mesh-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (this.checkValidity()) {
+                const fio = document.getElementById('fio').value;
+                const student_class = document.getElementById('class').value;
+                const reason = document.getElementById('reason').value;
+
+                fetch('/api/card/new', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fio, class: student_class, reason })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('order-layer').style.display = 'none';
+                        document.getElementById('done-layer').style.display = 'block';
+                    } else {
+                        alert('Ошибка: ' + data.message);
+                    }
+                })
+                .catch(() => alert('Произошла ошибка при отправке заявки.'));
+            }
+        });
+
+        initTelegramWebApp();
+    </script>
+</body>
+</html>

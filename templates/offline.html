@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY1409 — Нет соединения</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link rel="manifest" href="/static/manifest.json">
+    <link href="/static/fonts/fonts.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000;
+            --accent: #4446E1;
+            --text: #fff;
+            --muted: rgba(255,255,255,0.55);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background:
+                radial-gradient(ellipse 80% 60% at 30% 20%, rgba(68,70,225,0.35) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 30%, rgba(220,53,69,0.28) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%,100% { transform: translate(0,0) scale(1); }
+            50%      { transform: translate(-3%, 5%) scale(0.98); }
+        }
+        .icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            opacity: 0.85;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        p {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 300px;
+            margin-bottom: 32px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity .2s;
+        }
+        .btn:hover { opacity: .85; }
+    </style>
+</head>
+<body>
+    <div class="icon">📡</div>
+    <h1>Нет соединения</h1>
+    <p>Проверь подключение к интернету и попробуй снова. Кэшированные страницы доступны в офлайн-режиме.</p>
+    <button class="btn" onclick="location.reload()">↻ Повторить</button>
+</body>
+</html>

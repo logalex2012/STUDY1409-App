@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY1409 - Приложение</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link rel="apple-touch-icon" href="/static/favicon.png">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#4446E1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="STUDY1409">
+    <link href="/static/fonts/fonts.css" rel="stylesheet">
+    <link href="/static/lib/font-awesome/all.min.css" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/static/tg.js"></script>
+    <style>
+        :root {
+            --bg-primary: #000;
+            --glass-bg: rgba(255,255,255,0.08);
+            --glass-border: rgba(255,255,255,0.15);
+            --text-primary: #fff;
+            --text-secondary: rgba(255,255,255,0.7);
+            --accent: #4446E1;
+            --accent-hover: #5a5cf5;
+            --cloud1-color1: rgba(68, 70, 225, 0.4);
+            --cloud1-color2: rgba(220, 53, 69, 0.35);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --glass-bg: rgba(255,255,255,0.8);
+            --glass-border: rgba(0,0,0,0.1);
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(26,26,46,0.7);
+            --accent: #4446E1;
+            --accent-hover: #3335c8;
+            --cloud1-color1: rgba(68,70,225,0.5);
+            --cloud1-color2: rgba(220,53,69,0.4);
+        }
+
+        [data-theme="stranger"] {
+            --bg-primary: #050005;
+            --glass-bg: rgba(180, 0, 15, 0.12);
+            --glass-border: rgba(220, 20, 20, 0.45);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 160, 160, 0.85);
+            --accent: #cc1500;
+            --accent-hover: #a81000;
+            --cloud1-color1: rgba(210, 0, 15, 0.6);
+            --cloud1-color2: rgba(100, 0, 140, 0.5);
+        }
+
+        [data-theme="stranger"] body::before {
+            background:
+                radial-gradient(ellipse 80% 60% at 30% 20%, rgba(210,0,15,0.6) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 30%, rgba(100,0,140,0.5) 0%, transparent 50%);
+        }
+
+        [data-theme="stranger"] .card {
+            box-shadow: 0 0 25px rgba(200,0,20,0.25), 0 10px 30px rgba(0,0,0,0.7);
+            border-color: rgba(200,0,20,0.35);
+        }
+
+        [data-theme="stranger"] .profile h1 {
+            font-family: 'Special Elite', cursive;
+            text-shadow: 0 0 12px rgba(220,20,20,0.9), 0 0 35px rgba(200,0,10,0.5);
+        }
+
+        [data-theme="stranger"] .schedule-name {
+            text-shadow: 0 0 10px rgba(220,20,20,0.7);
+        }
+
+        [data-theme="stranger"] .apps-menu a:hover {
+            background: rgba(200,0,20,0.5);
+            border-color: rgba(220,20,20,0.8);
+            box-shadow: 0 0 15px rgba(200,0,20,0.4);
+        }
+
+        [data-theme="stranger"] .schedule-progress-bar {
+            background: #cc1500;
+            box-shadow: 0 0 8px rgba(200,0,20,0.8);
+        }
+
+        [data-theme="stranger"] .sidebar {
+            border-right-color: rgba(200,0,20,0.35);
+        }
+
+        [data-theme="stranger"] .sidebar-link.active {
+            background: rgba(200,0,20,0.2);
+            color: #ff6060;
+        }
+
+        [data-theme="stranger"] .event-badge { background: rgba(200,0,20,0.2); color: #ff8080; }
+
+        /* Stranger vine border */
+        [data-theme="stranger"].vines-on::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+            background-image:
+                radial-gradient(ellipse 3px 40px at 5% 20%, rgba(80,0,20,0.6) 0%, transparent 100%),
+                radial-gradient(ellipse 3px 60px at 95% 60%, rgba(80,0,20,0.5) 0%, transparent 100%),
+                radial-gradient(ellipse 50px 3px at 20% 98%, rgba(80,0,20,0.4) 0%, transparent 100%),
+                radial-gradient(ellipse 80px 3px at 70% 2%, rgba(80,0,20,0.4) 0%, transparent 100%);
+        }
+
+        @keyframes stFlicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.6; }
+        }
+
+        [data-theme="stranger"].flicker-on .profile h1 { animation: stFlicker 5s infinite; }
+        [data-theme="stranger"].flicker-on .card h2    { animation: stFlicker 7s infinite 1s; }
+
+        #stParticles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            display: none;
+        }
+        [data-theme="stranger"] #stParticles { display: block; }
+
+        .container { position: relative; z-index: 1; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(ellipse 80% 60% at 30% 20%, var(--cloud1-color1) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
+            z-index: -1;
+            animation: cloudFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25%  { transform: translate(5%, 3%) scale(1.05); }
+            50%  { transform: translate(-3%, 5%) scale(0.98); }
+            75%  { transform: translate(-5%, -2%) scale(1.02); }
+        }
+
+        /* ── Base container ──────────────────────────────────── */
+        .container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        /* ── Profile ─────────────────────────────────────────── */
+        .profile {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .profile h1 {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .profile-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: background .2s, color .2s, transform .15s;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            transform: scale(1.1) rotate(20deg);
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 72px;
+            height: 72px;
+        }
+        .avatar-wrap img {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.15);
+            display: block;
+            transition: opacity .3s;
+        }
+        .avatar-skel {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.07);
+            animation: skel-pulse 1.4s ease-in-out infinite;
+        }
+
+        /* ── Cards ───────────────────────────────────────────── */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .card h2 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        /* ── Schedule widget ─────────────────────────────────── */
+        .schedule-widget { text-align: center; }
+
+        .schedule-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .schedule-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .schedule-time-left {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .schedule-next {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .schedule-progress-wrap {
+            height: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .schedule-progress-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 1s linear;
+        }
+
+        .schedule-progress-wrap.break-mode .schedule-progress-bar {
+            background: rgba(255,193,7,0.8);
+        }
+
+        /* ── Apps / Сервисы ──────────────────────────────────── */
+        .apps-menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .apps-menu a {
+            text-decoration: none;
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 16px;
+            text-align: center;
+            transition: all .2s ease;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        [data-theme="light"] .apps-menu a {
+            background: rgba(68,70,225,0.06);
+            border-color: rgba(68,70,225,0.12);
+        }
+
+        .apps-menu a i {
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        .apps-menu a span {
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        .apps-menu a:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        /* ── Weather widget ──────────────────────────────────── */
+        .weather-inner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .weather-icon {
+            font-size: 40px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .weather-info { flex: 1; }
+
+        .weather-temp {
+            font-size: 34px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+
+        .weather-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .weather-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 20px;
+            background: rgba(68,70,225,0.15);
+            color: var(--accent);
+        }
+
+        .weather-hint.warm  { background: rgba(255,193,7,0.15); color: rgba(255,193,7,0.9); }
+        .weather-hint.cold  { background: rgba(100,180,255,0.15); color: #60b0ff; }
+        .weather-hint.windy { background: rgba(255,255,255,0.1); color: var(--text-secondary); }
+
+        .weather-city {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* ── News / Объявления ───────────────────────────────── */
+        .news-item {
+            display: block;
+            padding: 11px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: opacity .15s;
+        }
+
+        [data-theme="light"] .news-item { border-bottom-color: rgba(0,0,0,0.07); }
+        .news-item:last-child { border-bottom: none; }
+        .news-item:hover { opacity: .75; }
+
+        .news-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.35;
+            margin-bottom: 3px;
+        }
+
+        .news-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ── Push-баннер ─────────────────────────────────────── */
+        .push-banner {
+            background: rgba(68,70,225,0.15);
+            border: 1px solid rgba(68,70,225,0.35);
+            border-radius: 18px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .push-banner i { font-size: 20px; color: var(--accent); flex-shrink: 0; }
+        .push-banner-text { flex: 1; }
+        .push-banner-text strong { display: block; font-size: 14px; font-weight: 600; }
+        .push-banner-text small  { font-size: 12px; color: var(--text-secondary); }
+        .push-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+        .push-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+        .push-btn:hover { opacity: .85; }
+
+        .push-btn-dismiss {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* ── Registrations ───────────────────────────────────── */
+        .registrations { margin-top: 10px; }
+
+        .empty {
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .events-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .events-header h2 { margin-bottom: 0; }
+
+        .events-all-link {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: background .2s;
+        }
+        .events-all-link:hover { background: var(--glass-bg); color: var(--text-primary); }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: opacity .15s;
+        }
+        [data-theme="light"] .event-item { border-bottom-color: rgba(0,0,0,0.07); }
+        .event-item:last-child { border-bottom: none; }
+        .event-item:hover { opacity: .75; }
+
+        .event-name {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        .event-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 3px;
+        }
+        .event-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            background: rgba(68,70,225,0.2);
+            color: #9a9dff;
+        }
+
+        /* ── my1409 error banner ─────────────────────────────── */
+        .my1409-error {
+            background: rgba(255,193,7,0.1);
+            border: 1px solid rgba(255,193,7,0.28);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: rgba(255,193,7,0.9);
+            font-weight: 500;
+        }
+        .my1409-error i { flex-shrink: 0; }
+
+        /* ── Pull-to-refresh ─────────────────────────────────── */
+        .ptr-spinner {
+            position: fixed;
+            top: -56px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 42px;
+            height: 42px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            z-index: 3000;
+            transition: top 0.25s cubic-bezier(.34,1.56,.64,1), opacity 0.25s;
+            opacity: 0;
+            box-shadow: 0 4px 20px rgba(68,70,225,0.45);
+            pointer-events: none;
+        }
+        .ptr-spinner.visible { top: 12px; opacity: 1; }
+        @keyframes ptr-spin { to { transform: rotate(360deg); } }
+        .ptr-spinner.spinning i { animation: ptr-spin 0.7s linear infinite; }
+
+        /* ── Skeleton ────────────────────────────────────────── */
+        .skel-line {
+            height: 14px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            animation: skel-pulse 1.4s ease-in-out infinite;
+        }
+        .skel-line.short  { width: 55%; height: 11px; }
+        .skel-line.medium { width: 75%; }
+        @keyframes skel-pulse {
+            0%,100% { opacity: .5; }
+            50%      { opacity: 1; }
+        }
+
+        /* ── Sidebar (mobile: скрыт) ─────────────────────────── */
+        .sidebar { display: none; }
+
+        /* ════════════════════════════════════════════════════════
+           DESKTOP  ≥ 768px
+        ════════════════════════════════════════════════════════ */
+        @media (min-width: 768px) {
+            body {
+                padding: 0;
+                justify-content: flex-start;
+            }
+
+            /* Sidebar */
+            .sidebar {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: fixed;
+                left: 0; top: 0;
+                width: 72px;
+                height: 100vh;
+                background: var(--glass-bg);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                border-right: 1px solid var(--glass-border);
+                padding: 18px 0 20px;
+                gap: 6px;
+                z-index: 200;
+            }
+
+            .sidebar > img {
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+                object-fit: cover;
+                margin-bottom: 16px;
+                flex-shrink: 0;
+            }
+
+            .sidebar-link {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 46px;
+                height: 46px;
+                border-radius: 14px;
+                color: var(--text-secondary);
+                text-decoration: none;
+                font-size: 17px;
+                transition: background .18s, color .18s, transform .15s;
+            }
+
+            .sidebar-link:hover {
+                background: var(--accent);
+                color: #fff;
+                transform: scale(1.08);
+            }
+
+            .sidebar-link.active {
+                background: rgba(68,70,225,0.18);
+                color: var(--accent);
+            }
+
+            /* Tooltip справа от иконки */
+            .sidebar-link::after {
+                content: attr(data-tip);
+                position: absolute;
+                left: calc(100% + 10px);
+                top: 50%;
+                transform: translateY(-50%);
+                background: var(--glass-bg);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid var(--glass-border);
+                color: var(--text-primary);
+                font-size: 12px;
+                font-weight: 600;
+                white-space: nowrap;
+                padding: 6px 12px;
+                border-radius: 10px;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity .15s;
+                z-index: 300;
+            }
+            .sidebar-link:hover::after { opacity: 1; }
+
+            .sidebar-spacer { flex: 1; }
+
+            .sidebar-theme-btn {
+                width: 46px;
+                height: 46px;
+                border-radius: 14px;
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                font-size: 17px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background .18s, color .18s, border-color .18s;
+                position: relative;
+            }
+            .sidebar-theme-btn:hover {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+            }
+            .sidebar-theme-btn::after {
+                content: 'Тема';
+                position: absolute;
+                left: calc(100% + 10px);
+                top: 50%;
+                transform: translateY(-50%);
+                background: var(--glass-bg);
+                backdrop-filter: blur(12px);
+                border: 1px solid var(--glass-border);
+                color: var(--text-primary);
+                font-size: 12px;
+                font-weight: 600;
+                white-space: nowrap;
+                padding: 6px 12px;
+                border-radius: 10px;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity .15s;
+                z-index: 300;
+            }
+            .sidebar-theme-btn:hover::after { opacity: 1; }
+
+            /* Container со смещением от сайдбара */
+            .container {
+                max-width: 1060px;
+                width: calc(100% - 72px);
+                margin-left: 72px;
+                padding: 32px 28px;
+            }
+
+            .profile {
+                margin-bottom: 28px;
+            }
+
+            .profile h1 { font-size: 40px; }
+
+            /* На десктопе тема/аватар — горизонтально */
+            .profile-right {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .avatar-wrap,
+            .avatar-wrap img {
+                width: 80px;
+                height: 80px;
+            }
+
+            .theme-toggle {
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+                display: none; /* тема теперь в сайдбаре */
+            }
+
+            /* Двухколоночный грид */
+            .desktop-grid {
+                display: grid;
+                grid-template-columns: 55% 1fr;
+                gap: 16px;
+                align-items: start;
+            }
+
+            .left-col {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .right-col {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .left-col .card,
+            .right-col .card {
+                margin-bottom: 0;
+            }
+
+            .card {
+                padding: 28px;
+                border-radius: 28px;
+            }
+
+            .card h2 { font-size: 22px; }
+
+            .schedule-name  { font-size: 26px; }
+            .schedule-time-left { font-size: 15px; }
+
+            /* 4 колонки для сервисов */
+            .apps-menu {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+
+            .apps-menu a {
+                padding: 18px 10px;
+                border-radius: 20px;
+            }
+
+            .apps-menu a i   { font-size: 26px; }
+            .apps-menu a span { font-size: 12px; }
+
+            .push-banner {
+                border-radius: 20px;
+                padding: 16px 22px;
+            }
+
+            .event-name { font-size: 15px; }
+            .news-title { font-size: 15px; }
+
+            .weather-temp { font-size: 38px; }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1200px;
+            }
+
+            .desktop-grid {
+                grid-template-columns: 58% 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Боковая навигация (desktop) ────────────────────────── -->
+<nav class="sidebar">
+    <img src="/static/favicon.png">
+
+    <a class="sidebar-link active" href="/" data-tip="Главная">
+        <i class="fa-solid fa-house"></i>
+    </a>
+    <a class="sidebar-link" href="/create_application" data-tip="Заявка на выход">
+        <i class="fa-solid fa-person-walking-arrow-right"></i>
+    </a>
+    <a class="sidebar-link" href="/new_card" data-tip="Заказ карты">
+        <i class="fa-solid fa-id-card"></i>
+    </a>
+    <a class="sidebar-link" href="https://my1409.ru/vote/ballot" data-tip="Выборы в1409" target="_blank">
+        <i class="fa-solid fa-square-poll-vertical"></i>
+    </a>
+    <a class="sidebar-link" href="/account" data-tip="Настройки">
+        <i class="fa-solid fa-gear"></i>
+    </a>
+
+    <div class="sidebar-spacer"></div>
+
+    <button class="sidebar-theme-btn" id="sidebarThemeBtn" onclick="cycleTheme()">
+        <i class="fa-solid fa-moon" id="sidebarThemeIcon"></i>
+    </button>
+</nav>
+
+<!-- Pull-to-refresh spinner -->
+<div class="ptr-spinner" id="ptrSpinner"><i class="fa-solid fa-rotate" id="ptrIcon"></i></div>
+
+<canvas id="stParticles"></canvas>
+<div class="container">
+
+    <!-- Баннер недоступности my1409 -->
+    <div class="my1409-error" id="my1409Error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>my1409.ru недоступен — часть данных не загружена</span>
+    </div>
+
+    <!-- Push-уведомления: баннер -->
+    <div class="push-banner" id="pushBanner" style="display:none;">
+        <i class="fa-solid fa-bell"></i>
+        <div class="push-banner-text">
+            <strong>Включить уведомления?</strong>
+            <small>Напоминания об уроках и статусе заявок</small>
+        </div>
+        <div class="push-banner-actions">
+            <button class="push-btn" onclick="requestPush()">Включить</button>
+            <button class="push-btn-dismiss" onclick="dismissPushBanner()" title="Не сейчас">✕</button>
+        </div>
+    </div>
+
+    <div class="profile">
+        <div class="profile-info">
+            <h1>{% if user and user.name %}{{ user.name }}{% else %}Главная{% endif %}</h1>
+            {% if user and user.group_number %}
+            <div style="font-size:14px;color:var(--text-secondary);margin-top:2px;">{{ user.group_number }}{{ user.group_letter }} класс</div>
+            {% endif %}
+        </div>
+        <div class="profile-right">
+            <button class="theme-toggle" id="themeToggle" onclick="cycleTheme()" title="Сменить тему">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+            </button>
+            <div class="avatar-wrap" id="avatarWrap">
+                <img id="avatarImg" alt="Аватар" onclick="location.href='/account'" style="cursor:pointer;" title="Настройки аккаунта">
+            </div>
+        </div>
+    </div>
+
+    <div class="desktop-grid">
+        <div class="left-col">
+
+            <!-- Расписание -->
+            <div class="card">
+                <div class="schedule-widget">
+                    <div class="schedule-label" id="schedLabel">Расписание</div>
+                    <div class="schedule-name" id="schedName">—</div>
+                    <div class="schedule-time-left" id="schedTimeLeft"></div>
+                    <div class="schedule-next" id="schedNext"></div>
+                    <div class="schedule-progress-wrap" id="schedProgressWrap">
+                        <div class="schedule-progress-bar" id="schedBar" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Погода -->
+            <div class="card">
+                <div id="weatherWidget">
+                    <div class="skel-line medium"></div>
+                    <div class="skel-line short"></div>
+                </div>
+            </div>
+
+            <!-- Сервисы -->
+            <div class="card services-card">
+                <h2>Сервисы</h2>
+                <div class="apps-menu">
+                    <a href="/create_application">
+                        <i class="fa-solid fa-person-walking-arrow-right"></i>
+                        <span>Заявка на выход</span>
+                    </a>
+                    <a href="/new_card">
+                        <i class="fa-solid fa-id-card"></i>
+                        <span>Заказ карты</span>
+                    </a>
+                    <a href="/account">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Настройки</span>
+                    </a>
+                    <a href="https://my1409.ru/vote/ballot">
+                        <i class="fa-solid fa-square-poll-vertical"></i>
+                        <span>Выборы в1409</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="right-col">
+
+            <!-- Мои регистрации -->
+            <div class="card registrations">
+                <div class="events-header">
+                    <h2>Мои регистрации</h2>
+                    <a href="https://my1409.ru/events" target="_blank" class="events-all-link" title="Все события">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+                <div id="eventsList">
+                    <div class="skel-line medium"></div>
+                    <div class="skel-line short"></div>
+                    <div class="skel-line medium"></div>
+                    <div class="skel-line short"></div>
+                </div>
+            </div>
+
+            <!-- Объявления школы -->
+            <div class="card">
+                <div class="events-header">
+                    <h2>Объявления</h2>
+                    <a href="https://my1409.ru/news" target="_blank" class="events-all-link" title="Все объявления">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+                <div id="newsList">
+                    <div class="skel-line medium"></div>
+                    <div class="skel-line short"></div>
+                    <div class="skel-line medium"></div>
+                    <div class="skel-line short"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const SCHEDULE = [
+        { start: '08:30', end: '09:15', type: 'lesson', name: '1 урок' },
+        { start: '09:15', end: '09:25', type: 'break',  name: 'Перемена' },
+        { start: '09:25', end: '10:10', type: 'lesson', name: '2 урок' },
+        { start: '10:10', end: '10:25', type: 'break',  name: 'Перемена' },
+        { start: '10:25', end: '11:10', type: 'lesson', name: '3 урок' },
+        { start: '11:10', end: '11:25', type: 'break',  name: 'Перемена' },
+        { start: '11:25', end: '12:10', type: 'lesson', name: '4 урок' },
+        { start: '12:10', end: '12:30', type: 'break',  name: 'Большая перемена' },
+        { start: '12:30', end: '13:15', type: 'lesson', name: '5 урок' },
+        { start: '13:15', end: '13:25', type: 'break',  name: 'Перемена' },
+        { start: '13:25', end: '14:10', type: 'lesson', name: '6 урок' },
+        { start: '14:10', end: '14:20', type: 'break',  name: 'Перемена' },
+        { start: '14:20', end: '15:05', type: 'lesson', name: '7 урок' },
+        { start: '15:05', end: '15:10', type: 'break',  name: 'Перемена' },
+        { start: '15:10', end: '15:55', type: 'lesson', name: '8 урок' },
+    ];
+
+    function toMinutes(str) {
+        const [h, m] = str.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    function formatLeft(seconds) {
+        if (seconds <= 0) return '0 мин';
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        if (m === 0) return `${s} сек`;
+        return s > 0 ? `${m} мин ${s} сек` : `${m} мин`;
+    }
+
+    let _schedBarInited = false;
+
+    function updateSchedule() {
+        const now = new Date();
+        const cur = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+
+        const label  = document.getElementById('schedLabel');
+        const name   = document.getElementById('schedName');
+        const tLeft  = document.getElementById('schedTimeLeft');
+        const nextEl = document.getElementById('schedNext');
+        const bar    = document.getElementById('schedBar');
+        const wrap   = document.getElementById('schedProgressWrap');
+
+        if (!_schedBarInited) bar.style.transition = 'none';
+
+        let slot = null, slotIdx = -1;
+        for (let i = 0; i < SCHEDULE.length; i++) {
+            const st = toMinutes(SCHEDULE[i].start), en = toMinutes(SCHEDULE[i].end);
+            if (cur >= st && cur < en) { slot = { ...SCHEDULE[i], st, en }; slotIdx = i; break; }
+        }
+
+        const nextSlot = slotIdx >= 0 && slotIdx + 1 < SCHEDULE.length ? SCHEDULE[slotIdx + 1] : null;
+
+        if (!slot) {
+            const firstStart = toMinutes(SCHEDULE[0].start);
+            if (cur < firstStart) {
+                const secLeft = Math.round((firstStart - cur) * 60);
+                label.textContent = 'До начала занятий';
+                name.textContent  = 'Скоро 1 урок';
+                tLeft.textContent = formatLeft(secLeft);
+                bar.style.width   = '0%';
+                wrap.classList.remove('break-mode');
+            } else {
+                label.textContent = '';
+                name.textContent  = 'Уроки окончены';
+                tLeft.textContent = 'Хорошего вечера!';
+                bar.style.width   = '100%';
+                wrap.classList.remove('break-mode');
+            }
+            if (nextEl) nextEl.style.display = 'none';
+        } else {
+            const totalSec   = (slot.en - slot.st) * 60;
+            const elapsedSec = Math.round((cur - slot.st) * 60);
+            const leftSec    = Math.max(0, totalSec - elapsedSec);
+            const progress   = Math.min(100, (elapsedSec / totalSec) * 100);
+
+            if (slot.type === 'lesson') {
+                label.textContent = 'Идёт урок';
+                wrap.classList.remove('break-mode');
+            } else {
+                label.textContent = 'Перемена';
+                wrap.classList.add('break-mode');
+            }
+
+            name.textContent  = slot.name;
+            tLeft.textContent = `До конца: ${formatLeft(leftSec)}`;
+            bar.style.width   = progress + '%';
+
+            if (nextEl && nextSlot) {
+                nextEl.textContent = `Следующий: ${nextSlot.name} · ${nextSlot.start}`;
+                nextEl.style.display = '';
+            } else if (nextEl) {
+                nextEl.style.display = 'none';
+            }
+        }
+
+        if (!_schedBarInited) {
+            requestAnimationFrame(() => { bar.style.transition = ''; });
+            _schedBarInited = true;
+        }
+    }
+
+    // ── Тема ──────────────────────────────────────────────────
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        const body = document.body;
+        body.classList.toggle('flicker-on', theme === 'stranger' && localStorage.getItem('st_flicker') !== 'false');
+        body.classList.toggle('vines-on',   theme === 'stranger' && localStorage.getItem('st_vines')   !== 'false');
+
+        const icons = {
+            light:   'fa-solid fa-sun',
+            stranger:'fa-solid fa-ghost',
+            dark:    'fa-solid fa-moon',
+        };
+        const cls = icons[theme] || icons.dark;
+        ['themeIcon', 'sidebarThemeIcon'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.className = cls;
+        });
+    }
+
+    function cycleTheme() {
+        const cur = localStorage.getItem('theme') || 'dark';
+        applyTheme(cur === 'dark' ? 'light' : cur === 'light' ? 'stranger' : 'dark');
+    }
+
+    function initTheme() {
+        applyTheme(localStorage.getItem('theme') || 'dark');
+    }
+
+    // ── Аватар + skeleton ──────────────────────────────────────
+    (function loadAvatar() {
+        const img  = document.getElementById('avatarImg');
+        const wrap = document.getElementById('avatarWrap');
+        const skel = document.createElement('div');
+        skel.className = 'avatar-skel';
+        wrap.appendChild(skel);
+        img.style.opacity = '0';
+
+        const src = localStorage.getItem('user_avatar') || localStorage.getItem('tg_avatar') || '/static/default_avatar.png';
+        const onReady = () => { img.style.opacity = '1'; skel.remove(); };
+        img.addEventListener('load',  onReady, { once: true });
+        img.addEventListener('error', onReady, { once: true });
+        img.src = src;
+    })();
+
+    initTheme();
+
+    // ── Частицы «Мир Наизнанку» ───────────────────────────────
+    (function initParticles() {
+        const canvas = document.getElementById('stParticles');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const pts = Array.from({length: 70}, () => ({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            r: Math.random() * 1.8 + 0.4,
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: -(Math.random() * 0.4 + 0.05),
+            a: Math.random() * 0.45 + 0.1
+        }));
+
+        function tick() {
+            requestAnimationFrame(tick);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const isStranger   = document.documentElement.getAttribute('data-theme') === 'stranger';
+            const particlesOn  = localStorage.getItem('st_particles') !== 'false';
+            if (!isStranger || !particlesOn) return;
+            pts.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,180,180,${p.a})`;
+                ctx.fill();
+                p.x += p.vx; p.y += p.vy;
+                if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+                if (p.x < -10) p.x = canvas.width + 10;
+                if (p.x > canvas.width + 10) p.x = -10;
+            });
+        }
+        tick();
+    })();
+
+    updateSchedule();
+    setInterval(updateSchedule, 1000);
+
+    // ── Telegram Web App ──────────────────────────────────────
+    initTelegramWebApp({ backButton: false });
+
+    // ── Service Worker ────────────────────────────────────────
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    // ── Push-уведомления ──────────────────────────────────────
+    const PUSH_DISMISSED_KEY = 'push_banner_dismissed';
+
+    function dismissPushBanner() {
+        document.getElementById('pushBanner').style.display = 'none';
+        localStorage.setItem(PUSH_DISMISSED_KEY, '1');
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64  = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const raw     = atob(base64);
+        return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+    }
+
+    async function requestPush() {
+        if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') { dismissPushBanner(); return; }
+        try {
+            const keyRes  = await fetch('/api/push/vapid-public-key');
+            const { key } = await keyRes.json();
+            if (!key) { dismissPushBanner(); return; }
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.subscribe({
+                userVisibleOnly     : true,
+                applicationServerKey: urlBase64ToUint8Array(key),
+            });
+            await fetch('/api/push/subscribe', {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify(sub.toJSON()),
+            });
+            localStorage.setItem('push_subscribed', '1');
+        } catch {}
+        dismissPushBanner();
+    }
+
+    (function initPushBanner() {
+        if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+        if (Notification.permission === 'granted') return;
+        if (localStorage.getItem(PUSH_DISMISSED_KEY)) return;
+        if (Notification.permission === 'denied') return;
+        document.getElementById('pushBanner').style.display = 'flex';
+    })();
+
+    // ── Уведомления расписания (клиентские) ───────────────────
+    let _lastSchedNotif = null;
+
+    function scheduleNotify(slot, leftSec) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        if (slot.type !== 'lesson') return;
+        const key = `${slot.name}-5min`;
+        if (leftSec > 295 || leftSec < 235) return;
+        if (_lastSchedNotif === key) return;
+        _lastSchedNotif = key;
+        new Notification('STUDY1409 — Расписание', {
+            body : `${slot.name} заканчивается через 5 минут`,
+            icon : '/static/favicon.png',
+            badge: '/static/favicon.png',
+            tag  : 'schedule-reminder',
+        });
+    }
+
+    // ── Мои регистрации на события ────────────────────────────
+    const STATUS_LABELS = {
+        registered: 'Зарегистрирован',
+        confirmed:  'Подтверждено',
+        pending:    'Ожидание',
+        cancelled:  'Отменено',
+        attended:   'Посетил',
+    };
+
+    function _fmtDate(str) {
+        if (!str) return '';
+        try {
+            const d = new Date(str);
+            return d.toLocaleDateString('ru', { day: 'numeric', month: 'short' })
+                + (d.getHours() ? `, ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}` : '');
+        } catch { return str; }
+    }
+
+    function _renderEvents(items) {
+        const el = document.getElementById('eventsList');
+        if (!items || items.length === 0) {
+            el.innerHTML = '<p class="empty" style="padding:16px 0;">Регистраций на события нет</p>';
+            return;
+        }
+        el.innerHTML = items.map(ev => {
+            const name   = ev.title || ev.name || 'Событие';
+            const date   = _fmtDate(ev.date || ev.event_date || ev.start_date || '');
+            const status = ev.status || 'registered';
+            const href   = ev.url || ev.link || `https://my1409.ru/events/${ev.id || ''}`;
+            const badge  = STATUS_LABELS[status] || status;
+            return `<a class="event-item" href="${href}" target="_blank">
+                <div>
+                    <div class="event-name">${name}</div>
+                    ${date ? `<div class="event-meta">${date}</div>` : ''}
+                </div>
+                <span class="event-badge">${badge}</span>
+            </a>`;
+        }).join('');
+    }
+
+    async function loadEvents() {
+        try {
+            const res = await fetch('/api/events/registrations');
+            if (res.status === 502 || res.status === 503) {
+                document.getElementById('my1409Error').style.display = 'flex';
+                document.getElementById('eventsList').innerHTML =
+                    '<p class="empty" style="padding:16px 0;">Сервер недоступен</p>';
+                return;
+            }
+            const data  = await res.json();
+            const items = data.registrations || data.items || data.data || data.events || [];
+            _renderEvents(Array.isArray(items) ? items : []);
+            document.getElementById('my1409Error').style.display = 'none';
+        } catch {
+            document.getElementById('my1409Error').style.display = 'flex';
+            document.getElementById('eventsList').innerHTML =
+                '<p class="empty" style="padding:16px 0;">Нет соединения</p>';
+        }
+    }
+
+    // ── Объявления школы ─────────────────────────────────────
+    function _renderNews(items) {
+        const el = document.getElementById('newsList');
+        if (!items || items.length === 0) {
+            el.innerHTML = '<p class="empty" style="padding:16px 0;">Объявлений нет</p>';
+            return;
+        }
+        el.innerHTML = items.slice(0, 5).map(n => {
+            const title = n.title || n.name || n.subject || 'Объявление';
+            const date  = _fmtDate(n.date || n.created_at || n.published_at || '');
+            const href  = n.url || n.link || `https://my1409.ru/news/${n.id || ''}`;
+            return `<a class="news-item" href="${href}" target="_blank">
+                <div class="news-title">${title}</div>
+                ${date ? `<div class="news-meta">${date}</div>` : ''}
+            </a>`;
+        }).join('');
+    }
+
+    async function loadNews() {
+        try {
+            const res = await fetch('/api/news');
+            if (!res.ok) throw new Error('not ok');
+            const data  = await res.json();
+            const items = data.news || data.items || data.data || data.announcements || [];
+            _renderNews(Array.isArray(items) ? items : []);
+        } catch {
+            document.getElementById('newsList').innerHTML =
+                '<p class="empty" style="padding:16px 0;">Нет данных</p>';
+        }
+    }
+
+    // ── Погода (Open-Meteo, без API-ключа) ───────────────────
+    const WMO_ICONS = {
+        0:  { icon: 'fa-sun',                label: 'Ясно' },
+        1:  { icon: 'fa-cloud-sun',          label: 'Преимущественно ясно' },
+        2:  { icon: 'fa-cloud-sun',          label: 'Переменная облачность' },
+        3:  { icon: 'fa-cloud',              label: 'Пасмурно' },
+        45: { icon: 'fa-smog',              label: 'Туман' },
+        48: { icon: 'fa-smog',              label: 'Туман с изморозью' },
+        51: { icon: 'fa-cloud-drizzle',     label: 'Лёгкая морось' },
+        53: { icon: 'fa-cloud-drizzle',     label: 'Морось' },
+        55: { icon: 'fa-cloud-drizzle',     label: 'Сильная морось' },
+        61: { icon: 'fa-cloud-rain',        label: 'Лёгкий дождь' },
+        63: { icon: 'fa-cloud-rain',        label: 'Дождь' },
+        65: { icon: 'fa-cloud-showers-heavy', label: 'Сильный дождь' },
+        71: { icon: 'fa-snowflake',         label: 'Лёгкий снег' },
+        73: { icon: 'fa-snowflake',         label: 'Снег' },
+        75: { icon: 'fa-snowflake',         label: 'Сильный снег' },
+        77: { icon: 'fa-snowflake',         label: 'Снежные зёрна' },
+        80: { icon: 'fa-cloud-showers-heavy', label: 'Ливень' },
+        81: { icon: 'fa-cloud-showers-heavy', label: 'Сильный ливень' },
+        82: { icon: 'fa-cloud-showers-heavy', label: 'Очень сильный ливень' },
+        85: { icon: 'fa-snowflake',         label: 'Снегопад' },
+        86: { icon: 'fa-snowflake',         label: 'Сильный снегопад' },
+        95: { icon: 'fa-bolt',              label: 'Гроза' },
+        96: { icon: 'fa-bolt',              label: 'Гроза с градом' },
+        99: { icon: 'fa-bolt',              label: 'Сильная гроза с градом' },
+    };
+
+    function _weatherHint(temp, wind) {
+        if (temp < 5)  return { cls: 'cold',  text: 'Оденьтесь теплее!' };
+        if (temp < 12) return { cls: 'cold',  text: 'Возьмите куртку' };
+        if (temp > 25) return { cls: 'warm',  text: 'Жарко на улице' };
+        if (wind > 9)  return { cls: 'windy', text: 'Ветрено' };
+        return null;
+    }
+
+    async function loadWeather() {
+        const widget = document.getElementById('weatherWidget');
+        try {
+            let lat = 55.75, lon = 37.62, city = 'Москва';
+
+            // Пробуем геолокацию (таймаут 3 сек)
+            await new Promise(resolve => {
+                if (!navigator.geolocation) { resolve(); return; }
+                const t = setTimeout(resolve, 3000);
+                navigator.geolocation.getCurrentPosition(pos => {
+                    lat  = pos.coords.latitude;
+                    lon  = pos.coords.longitude;
+                    city = 'Ваш город';
+                    clearTimeout(t);
+                    resolve();
+                }, () => { clearTimeout(t); resolve(); });
+            });
+
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
+                + `&current=temperature_2m,weathercode,windspeed_10m`
+                + `&wind_speed_unit=ms&timezone=Europe%2FMoscow`;
+
+            const res  = await fetch(url);
+            const data = await res.json();
+            const cur  = data.current;
+            const temp = Math.round(cur.temperature_2m);
+            const wind = Math.round(cur.windspeed_10m);
+            const code = cur.weathercode;
+            const wmo  = WMO_ICONS[code] || WMO_ICONS[Math.floor(code / 10) * 10] || { icon: 'fa-cloud', label: 'Облачно' };
+            const hint = _weatherHint(temp, wind);
+            const sign = temp > 0 ? '+' : '';
+
+            widget.innerHTML = `
+                <div class="weather-inner">
+                    <div class="weather-icon"><i class="fa-solid ${wmo.icon}"></i></div>
+                    <div class="weather-info">
+                        <div class="weather-temp">${sign}${temp}°</div>
+                        <div class="weather-desc">${wmo.label} · ветер ${wind} м/с</div>
+                        ${hint ? `<span class="weather-hint ${hint.cls}"><i class="fa-solid fa-circle-info"></i>${hint.text}</span>` : ''}
+                        <div class="weather-city">${city}</div>
+                    </div>
+                </div>`;
+        } catch {
+            widget.innerHTML = '<p class="empty">Погода недоступна</p>';
+        }
+    }
+
+    loadEvents();
+    loadNews();
+    loadWeather();
+
+    // ── Pull-to-refresh ────────────────────────────────────────
+    (function initPTR() {
+        const spinner = document.getElementById('ptrSpinner');
+        const icon    = document.getElementById('ptrIcon');
+        let startY = 0, active = false;
+        const THRESHOLD = 75;
+
+        document.addEventListener('touchstart', e => {
+            if (window.scrollY > 0) return;
+            startY = e.touches[0].clientY;
+            active = true;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', e => {
+            if (!active) return;
+            if (e.touches[0].clientY - startY > 20) spinner.classList.add('visible');
+        }, { passive: true });
+
+        document.addEventListener('touchend', e => {
+            if (!active) return;
+            active = false;
+            const dy = e.changedTouches[0].clientY - startY;
+            if (dy >= THRESHOLD) {
+                spinner.classList.add('spinning');
+                icon.className = 'fa-solid fa-rotate';
+                Promise.all([loadEvents(), loadNews(), loadWeather()])
+                    .finally(() => {
+                        updateSchedule();
+                        setTimeout(() => spinner.classList.remove('visible', 'spinning'), 700);
+                    });
+            } else {
+                spinner.classList.remove('visible');
+            }
+        }, { passive: true });
+    })();
+
+    // Патчим updateSchedule для уведомлений
+    const _origUpdate = updateSchedule;
+    updateSchedule = function () {
+        _origUpdate();
+        const now = new Date();
+        const cur = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+        for (const s of SCHEDULE) {
+            const st = toMinutes(s.start), en = toMinutes(s.end);
+            if (cur >= st && cur < en) {
+                const totalSec   = (en - st) * 60;
+                const elapsedSec = Math.round((cur - st) * 60);
+                const leftSec    = Math.max(0, totalSec - elapsedSec);
+                scheduleNotify({ ...s, st, en }, leftSec);
+                break;
+            }
+        }
+    };
+</script>
+</body>
+</html>

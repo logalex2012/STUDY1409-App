@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY1409 - Настройки аккаунта</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link href="/static/fonts/fonts.css" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/static/tg.js"></script>
+    <script src="/static/lib/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: rgba(255, 255, 255, 0.08);
+            --bg-tertiary: rgba(255, 255, 255, 0.06);
+            --bg-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --border-light: rgba(255, 255, 255, 0.15);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --cloud1-color1: rgba(68, 70, 225, 0.4);
+            --cloud1-color2: rgba(220, 53, 69, 0.35);
+            --cloud2-color1: rgba(100, 102, 255, 0.3);
+            --cloud2-color2: rgba(255, 80, 100, 0.25);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent: #4446E1;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: rgba(255, 255, 255, 0.9);
+            --bg-tertiary: rgba(255, 255, 255, 0.95);
+            --bg-hover: rgba(255, 255, 255, 1);
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(26, 26, 46, 0.7);
+            --text-muted: rgba(26, 26, 46, 0.5);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-light: rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --cloud1-color1: rgba(68, 70, 225, 0.8);
+            --cloud1-color2: rgba(220, 53, 69, 0.75);
+            --cloud2-color1: rgba(100, 102, 255, 0.7);
+            --cloud2-color2: rgba(255, 80, 100, 0.65);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="stranger"] {
+            --bg-primary: #050005;
+            --bg-secondary: rgba(180, 0, 15, 0.12);
+            --bg-tertiary: rgba(150, 0, 10, 0.09);
+            --bg-hover: rgba(200, 0, 20, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 160, 160, 0.85);
+            --text-muted: rgba(255, 100, 100, 0.6);
+            --border-color: rgba(180, 0, 20, 0.28);
+            --border-light: rgba(200, 0, 30, 0.42);
+            --glass-bg: rgba(180, 0, 15, 0.12);
+            --glass-border: rgba(220, 20, 20, 0.45);
+            --cloud1-color1: rgba(210, 0, 15, 0.6);
+            --cloud1-color2: rgba(100, 0, 140, 0.5);
+            --cloud2-color1: rgba(160, 0, 10, 0.4);
+            --cloud2-color2: rgba(70, 0, 100, 0.35);
+            --shadow-color: rgba(180, 0, 20, 0.5);
+            --accent: #cc1500;
+        }
+
+        [data-theme="stranger"] .card {
+            box-shadow: 0 0 25px rgba(200,0,20,0.2), 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        [data-theme="stranger"] .header h1 {
+            font-family: 'Special Elite', cursive;
+            text-shadow: 0 0 12px rgba(220,20,20,0.9), 0 0 35px rgba(200,0,10,0.4);
+        }
+
+        [data-theme="stranger"] .btn-primary {
+            background: linear-gradient(135deg, #cc1500 0%, #8b0000 100%);
+            box-shadow: 0 0 15px rgba(200,0,20,0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background:
+                radial-gradient(ellipse 80% 60% at 30% 20%, var(--cloud1-color1) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
+            z-index: -1;
+            animation: cloudFloat 20s ease-in-out infinite;
+            transition: background 0.3s ease;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -30%; left: -30%;
+            width: 160%; height: 160%;
+            background:
+                radial-gradient(ellipse 50% 40% at 60% 25%, var(--cloud2-color1) 0%, transparent 45%),
+                radial-gradient(ellipse 40% 35% at 40% 35%, var(--cloud2-color2) 0%, transparent 40%);
+            z-index: -1;
+            animation: cloudFloat2 25s ease-in-out infinite reverse;
+            transition: background 0.3s ease;
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(5%, 3%) scale(1.05); }
+            50% { transform: translate(-3%, 5%) scale(0.98); }
+            75% { transform: translate(-5%, -2%) scale(1.02); }
+        }
+
+        @keyframes cloudFloat2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-4%, 4%) rotate(2deg); }
+            66% { transform: translate(4%, -3%) rotate(-2deg); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.5s ease-out;
+            align-items: stretch;
+        }
+
+        .nav-close {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 1rem;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .avatar-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .avatar-edit-hint {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .card {
+            background: var(--bg-tertiary);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .form-group { margin-bottom: 16px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent);
+            outline: none;
+            background: var(--bg-hover);
+        }
+
+        select option { background: #1a1a2e; }
+
+        .class-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .class-row select:first-child { flex: 1; }
+        .class-row select:last-child { width: 90px; }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4446E1 0%, #2E3192 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(68, 70, 225, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-danger {
+            background: rgba(220, 53, 69, 0.15);
+            color: #ff4d4d;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover { background: rgba(220, 53, 69, 0.25); }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 3000;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .toast.success { background: rgba(40, 167, 69, 0.9); color: white; }
+        .toast.error { background: rgba(220, 53, 69, 0.9); color: white; }
+        .toast.shown { opacity: 1; visibility: visible; }
+
+        /* Значки */
+        .badges-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .badge-pin {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-pin.voter_2026 {
+            background: linear-gradient(135deg, #4446E1, #7b7ef5);
+            color: white;
+            box-shadow: 0 3px 12px rgba(68, 70, 225, 0.3);
+        }
+
+        .empty-badges {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+
+        /* Toggle / Светлая тема */
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            margin-bottom: 10px;
+        }
+
+        .toggle-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .toggle-hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .theme-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 8px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .theme-btn:hover { background: var(--bg-hover); border-color: var(--accent); }
+        .theme-btn.active { background: rgba(68,70,225,0.2); border-color: var(--accent); }
+        [data-theme="stranger"] .theme-btn.active { background: rgba(200,0,20,0.2); border-color: rgba(220,20,20,0.7); }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-light);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 2px;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background: var(--accent); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        @media (max-width: 480px) {
+            .container { padding: 0.8rem; }
+            .header h1 { font-size: 1.4rem; }
+            .card { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <a href="/apps" class="nav-close">
+                <i data-lucide="home"></i>
+            </a>
+        </div>
+
+        <div class="header">
+            <div class="avatar-container">
+                <div class="avatar-img" onclick="document.getElementById('avatarInput').click()" title="Сменить фото">
+                    <img id="avatarPreview" src="/static/default_avatar.png" alt="Аватар" style="display:none;">
+                    <i data-lucide="user" id="avatarIcon" style="width: 48px; height: 48px; color: var(--text-muted);"></i>
+                </div>
+                <span class="avatar-edit-hint">Нажмите для смены</span>
+                <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="changeAvatar(this)">
+            </div>
+            <h1>{{ student.surname }} {{ student.name }}</h1>
+            <p>{{ student.group_number }}{{ student.group_letter }} класс</p>
+        </div>
+
+        <!-- Значки -->
+        <div class="card" id="badgesCard" style="display:none;">
+            <div class="section-title">
+                <i data-lucide="award"></i> Значки
+            </div>
+            <div class="badges-list" id="badgesList"></div>
+        </div>
+
+        <!-- Данные аккаунта -->
+        <div class="card">
+            <div class="section-title">
+                <i data-lucide="user"></i> Данные аккаунта
+            </div>
+            <div class="info-row">
+                <span class="info-label">ФИО</span>
+                <span class="info-value">{{ student.surname }} {{ student.name }} {{ student.lastname or '' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Класс</span>
+                <span class="info-value" id="classDisplay">{{ student.group_number }}{{ student.group_letter }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Классный руководитель</span>
+                <span class="info-value">{{ class_teacher_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Телефон</span>
+                <span class="info-value">{{ student.phone or 'Не указан' }}</span>
+            </div>
+        </div>
+
+        <!-- Изменить класс -->
+        <div class="card">
+            <div class="section-title">
+                <i data-lucide="edit"></i> Изменить класс
+            </div>
+            <div class="form-group">
+                <label>Новый класс</label>
+                <div class="class-row">
+                    <select id="newGroupNumber">
+                        <option value="5" {% if student.group_number == 5 %}selected{% endif %}>5</option>
+                        <option value="6" {% if student.group_number == 6 %}selected{% endif %}>6</option>
+                        <option value="7" {% if student.group_number == 7 %}selected{% endif %}>7</option>
+                        <option value="8" {% if student.group_number == 8 %}selected{% endif %}>8</option>
+                        <option value="9" {% if student.group_number == 9 %}selected{% endif %}>9</option>
+                        <option value="10" {% if student.group_number == 10 %}selected{% endif %}>10</option>
+                        <option value="11" {% if student.group_number == 11 %}selected{% endif %}>11</option>
+                    </select>
+                    <select id="newGroupLetter">
+                        {% for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ" %}
+                        <option value="{{ letter }}" {% if student.group_letter == letter %}selected{% endif %}>{{ letter }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="saveClassBtn" onclick="updateClass()">
+                <i data-lucide="save"></i> Сохранить класс
+            </button>
+        </div>
+
+        <!-- Оформление -->
+        <div class="card">
+            <div class="section-title">
+                <i data-lucide="palette"></i> Оформление
+            </div>
+
+            <!-- Выбор темы -->
+            <label style="margin-bottom:12px; display:block;">Тема</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+                <button class="theme-btn" id="btnDark" onclick="setTheme('dark')">
+                    <span style="font-size:1.4rem;">🌑</span>
+                    <span>Тёмная</span>
+                </button>
+                <button class="theme-btn" id="btnLight" onclick="setTheme('light')">
+                    <span style="font-size:1.4rem;">☀️</span>
+                    <span>Светлая</span>
+                </button>
+                <button class="theme-btn" id="btnStranger" onclick="setTheme('stranger')">
+                    <span style="font-size:1.4rem;">🔴</span>
+                    <span>Наизнанку</span>
+                </button>
+            </div>
+
+            <!-- Настройки Stranger Things (видны только в этой теме) -->
+            <div id="strangerSettings" style="display:none;">
+                <div style="height:1px; background:var(--border-color); margin-bottom:16px;"></div>
+                <label style="margin-bottom:12px; display:block; color:rgba(220,20,20,0.9);">
+                    ⬛ Настройки «Мира Наизнанку»
+                </label>
+
+                <div class="toggle-item">
+                    <div>
+                        <div class="toggle-title">🌫️ Споры</div>
+                        <div class="toggle-hint">Плавающие частицы как из Наизнанки</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="stParticlesToggle" onchange="stSetting('st_particles', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-item">
+                    <div>
+                        <div class="toggle-title">💡 Мерцание</div>
+                        <div class="toggle-hint">Мигающий текст как лампочки Уилла</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="stFlickerToggle" onchange="stSetting('st_flicker', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-item">
+                    <div>
+                        <div class="toggle-title">🌿 Лозы</div>
+                        <div class="toggle-hint">Тёмные лозы по краям экрана</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="stVinesToggle" onchange="stSetting('st_vines', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Действия -->
+        <div style="display: grid; gap: 10px;">
+            <button class="btn btn-secondary" onclick="window.open('https://t.me/dit1409_bot', '_blank')">
+                <i data-lucide="message-circle"></i> Техническая поддержка
+            </button>
+            <button class="btn btn-danger" onclick="logout()">
+                <i data-lucide="log-out"></i> Выйти из аккаунта
+            </button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            // кнопки
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            const map = { dark: 'btnDark', light: 'btnLight', stranger: 'btnStranger' };
+            if (map[theme]) document.getElementById(map[theme]).classList.add('active');
+            // секция настроек ST
+            const stSection = document.getElementById('strangerSettings');
+            if (stSection) stSection.style.display = theme === 'stranger' ? 'block' : 'none';
+            // body классы для лоз/мерцания
+            document.body.classList.toggle('flicker-on', theme === 'stranger' && localStorage.getItem('st_flicker') !== 'false');
+            document.body.classList.toggle('vines-on',   theme === 'stranger' && localStorage.getItem('st_vines')   !== 'false');
+        }
+
+        function setTheme(theme) { applyTheme(theme); }
+
+        function stSetting(key, value) {
+            localStorage.setItem(key, value);
+            applyTheme(document.documentElement.getAttribute('data-theme'));
+        }
+
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'dark';
+            // восстановить чекбоксы ST
+            ['st_particles','st_flicker','st_vines'].forEach(k => {
+                const el = document.getElementById(k === 'st_particles' ? 'stParticlesToggle' : k === 'st_flicker' ? 'stFlickerToggle' : 'stVinesToggle');
+                if (el) el.checked = localStorage.getItem(k) !== 'false';
+            });
+            applyTheme(saved);
+        }
+
+        // ── Аватар ────────────────────────────────────────────
+        function loadAvatar() {
+            const saved   = localStorage.getItem('user_avatar') || localStorage.getItem('tg_avatar');
+            const preview = document.getElementById('avatarPreview');
+            const icon    = document.getElementById('avatarIcon');
+            if (saved) {
+                preview.src = saved;
+                preview.style.display = 'block';
+                icon.style.display = 'none';
+            } else {
+                preview.style.display = 'none';
+                icon.style.display = '';
+            }
+        }
+
+        function changeAvatar(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Файл слишком большой (макс. 5 МБ)', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                localStorage.setItem('user_avatar', e.target.result);
+                loadAvatar();
+                showToast('Фото обновлено', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        initTheme();
+        loadAvatar();
+        lucide.createIcons();
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} shown`;
+            setTimeout(() => toast.classList.remove('shown'), 3000);
+        }
+
+        const BADGE_META = {
+            voter_2026: { emoji: '🗳️', label: 'Участник выборов 2026', cls: 'voter_2026' }
+        };
+
+        async function loadBadges() {
+            try {
+                const res = await fetch('/api/vote/my_badges');
+                const data = await res.json();
+                if (!data.badges || data.badges.length === 0) return;
+                const card = document.getElementById('badgesCard');
+                const list = document.getElementById('badgesList');
+                card.style.display = 'block';
+                list.innerHTML = data.badges.map(key => {
+                    const m = BADGE_META[key];
+                    if (!m) return '';
+                    return `<span class="badge-pin ${m.cls}">${m.emoji} ${m.label}</span>`;
+                }).join('');
+            } catch (e) {}
+        }
+
+        async function updateClass() {
+            const number = document.getElementById('newGroupNumber').value;
+            const letter = document.getElementById('newGroupLetter').value;
+            const btn = document.getElementById('saveClassBtn');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2"></i> Сохранение...';
+            lucide.createIcons();
+
+            try {
+                const r = await fetch('/api/student/update-class', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ group_number: number, group_letter: letter })
+                });
+                const data = await r.json();
+
+                if (r.ok) {
+                    document.getElementById('classDisplay').textContent = `${number}${letter}`;
+                    showToast(data.message || 'Класс сохранён', 'success');
+                } else {
+                    showToast(data.message || 'Ошибка', 'error');
+                }
+            } catch {
+                showToast('Ошибка при сохранении', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="save"></i> Сохранить класс';
+                lucide.createIcons();
+            }
+        }
+
+        function logout() {
+            if (confirm('Выйти из аккаунта?')) window.location.href = '/logout';
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBadges);
+        initTelegramWebApp();   // показать кнопку «назад» в TG
+    </script>
+</body>
+</html>
