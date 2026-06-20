@@ -2,6 +2,8 @@ import config
 import hashlib
 import json
 import os
+import psycopg2
+import psycopg2.extras
 import requests as http
 from datetime import timedelta
 from functools import wraps
@@ -13,26 +15,67 @@ app = Flask(__name__)
 app.config.update(SECRET_KEY=config.SECRET_KEY)
 app.permanent_session_lifetime = timedelta(days=365)
 
-MY1409_BASE = config.MY1409_BASE
-_ADMIN_PW_HASH = hashlib.sha256(b"Lesha123#$@)*&v").hexdigest()
+MY1409_BASE    = config.MY1409_BASE
+_ADMIN_PW_HASH = config.ADMIN_PW_HASH
 
 _MAINTENANCE_FILE = os.path.join(os.path.dirname(__file__), "maintenance.lock")
 
 VAPID_PUBLIC_KEY   = os.environ.get("VAPID_PUBLIC_KEY", "")
 VAPID_PRIVATE_KEY  = os.environ.get("VAPID_PRIVATE_KEY", "")
 VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "admin@study1409.ru")
-_SUBS_FILE = os.path.join(os.path.dirname(__file__), "subscriptions.json")
+
+def _db():
+    conn = psycopg2.connect(config.DATABASE_URL)
+    with conn.cursor() as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS subscriptions (
+                endpoint TEXT PRIMARY KEY,
+                sub_json JSONB NOT NULL,
+                phone    TEXT,
+                grp      TEXT
+            )
+        """)
+    conn.commit()
+    return conn
 
 
 def _load_subs():
-    if not os.path.exists(_SUBS_FILE):
-        return []
-    with open(_SUBS_FILE) as f:
-        return json.load(f)
+    with _db() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT sub_json FROM subscriptions")
+            return [row["sub_json"] for row in cur.fetchall()]
 
-def _save_subs(subs):
-    with open(_SUBS_FILE, "w") as f:
-        json.dump(subs, f)
+
+def _save_sub(sub: dict):
+    u = sub.pop("_user", {})
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO subscriptions (endpoint, sub_json, phone, grp)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (endpoint) DO UPDATE
+                    SET sub_json = EXCLUDED.sub_json,
+                        phone    = EXCLUDED.phone,
+                        grp      = EXCLUDED.grp
+                """,
+                (sub["endpoint"], json.dumps(sub), u.get("phone", ""), u.get("group", "")),
+            )
+
+
+def _delete_sub(endpoint: str):
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM subscriptions WHERE endpoint = %s", (endpoint,))
+
+
+def _delete_dead_subs(endpoints: list):
+    with _db() as conn:
+        with conn.cursor() as cur:
+            psycopg2.extras.execute_batch(
+                cur, "DELETE FROM subscriptions WHERE endpoint = %s",
+                [(e,) for e in endpoints],
+            )
 
 
 # ── Maintenance middleware ─────────────────────────────────────
@@ -203,17 +246,6 @@ def proxy_card(subpath):
         return jsonify({"error": str(e)}), 502
 
 
-# ── DEBUG: проверка сессии (временный маршрут) ───────────────
-@app.route("/debug-session")
-def debug_session():
-    return jsonify({
-        "has_cookie": bool(session.get("my1409_cookie")),
-        "cookie_value": session.get("my1409_cookie", "")[:20] if session.get("my1409_cookie") else None,
-        "has_user": bool(session.get("user")),
-        "permanent": session.permanent,
-    })
-
-
 # ── Главная (сервисы) ─────────────────────────────────────────
 @app.route("/apps")
 @_require_student
@@ -359,15 +391,12 @@ def push_subscribe():
     sub = request.json
     if not sub or not sub.get("endpoint"):
         return jsonify({"error": "invalid subscription"}), 400
-    subs = _load_subs()
-    subs = [s for s in subs if s.get("endpoint") != sub.get("endpoint")]
     u = session.get("user", {})
     sub["_user"] = {
         "phone": u.get("phone", ""),
         "group": f"{u.get('group_number','')}{u.get('group_letter','')}",
     }
-    subs.append(sub)
-    _save_subs(subs)
+    _save_sub(sub)
     return jsonify({"status": "ok"})
 
 
@@ -376,8 +405,7 @@ def push_subscribe():
 @_require_student
 def push_unsubscribe():
     endpoint = (request.json or {}).get("endpoint", "")
-    subs = [s for s in _load_subs() if s.get("endpoint") != endpoint]
-    _save_subs(subs)
+    _delete_sub(endpoint)
     return jsonify({"status": "ok"})
 
 
@@ -399,15 +427,14 @@ def push_send():
     except ImportError:
         return jsonify({"error": "pywebpush not installed"}), 503
 
-    subs    = _load_subs()
-    sent    = 0
-    dead    = []
-    data    = json.dumps({"title": title, "body": body, "url": url, "tag": tag})
+    subs = _load_subs()
+    sent = 0
+    dead = []
+    data = json.dumps({"title": title, "body": body, "url": url, "tag": tag})
     for sub in subs:
-        clean = {k: v for k, v in sub.items() if not k.startswith("_")}
         try:
             webpush(
-                subscription_info=clean,
+                subscription_info=sub,
                 data=data,
                 vapid_private_key=VAPID_PRIVATE_KEY,
                 vapid_claims={"sub": f"mailto:{VAPID_CLAIMS_EMAIL}"},
@@ -417,7 +444,7 @@ def push_send():
             dead.append(sub.get("endpoint"))
 
     if dead:
-        _save_subs([s for s in subs if s.get("endpoint") not in dead])
+        _delete_dead_subs(dead)
 
     return jsonify({"sent": sent, "removed": len(dead)})
 
