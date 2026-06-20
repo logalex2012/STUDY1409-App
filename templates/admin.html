@@ -475,6 +475,9 @@
         </div>
 
         <div class="nav-section">Система</div>
+        <div class="nav-item" onclick="showSection('activity')">
+            <i data-lucide="activity"></i> Журнал активности
+        </div>
         <div class="nav-item" onclick="showSection('app_settings')">
             <i data-lucide="settings"></i> Настройки приложения
         </div>
@@ -515,35 +518,23 @@
                     <div class="stat-sub">Заявок на выход</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-label">Карты МЭШ</div>
-                    <div class="stat-value" id="stat-cards">—</div>
-                    <div class="stat-sub">Заказов карт</div>
+                    <div class="stat-label">Push-подписчики</div>
+                    <div class="stat-value" id="stat-subscribers">—</div>
+                    <div class="stat-sub">Устройств подписано</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-label">Учеников</div>
-                    <div class="stat-value" id="stat-students">—</div>
-                    <div class="stat-sub">В системе</div>
+                    <div class="stat-label">Входов в систему</div>
+                    <div class="stat-value" id="stat-logins">—</div>
+                    <div class="stat-sub">За всё время</div>
                 </div>
             </div>
 
-            <div class="two-col">
-                <div class="card">
-                    <div class="card-title"><i data-lucide="clock" style="width:16px;height:16px;"></i> Последние заявки на выход</div>
-                    <div id="recent-passes">
-                        <div class="empty">
-                            <div class="empty-icon">📋</div>
-                            <p>Заявок пока нет</p>
-                        </div>
-                    </div>
+            <div class="card">
+                <div class="card-title">
+                    <i data-lucide="activity" style="width:16px;height:16px;"></i> Последние события
                 </div>
-                <div class="card">
-                    <div class="card-title"><i data-lucide="credit-card" style="width:16px;height:16px;"></i> Последние заказы карт</div>
-                    <div id="recent-cards">
-                        <div class="empty">
-                            <div class="empty-icon">💳</div>
-                            <p>Заказов пока нет</p>
-                        </div>
-                    </div>
+                <div id="dashboard-activity">
+                    <div class="empty"><div class="empty-icon">📋</div><p>Событий пока нет</p></div>
                 </div>
             </div>
         </section>
@@ -689,6 +680,39 @@
             </div>
         </section>
 
+        <!-- ── Activity log ── -->
+        <section class="section" id="s-activity">
+            <div class="card">
+                <div class="card-title">
+                    <i data-lucide="activity" style="width:16px;height:16px;"></i> Журнал активности
+                </div>
+                <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+                    <button class="btn btn-ghost" onclick="loadActivity()">
+                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                    </button>
+                    <a href="/api/admin/activity/export" class="btn btn-ghost" style="text-decoration:none;">
+                        <i data-lucide="download" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Скачать CSV
+                    </a>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Дата и время</th>
+                                <th>Телефон</th>
+                                <th>Класс</th>
+                                <th>Событие</th>
+                                <th>Детали</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activity-tbody">
+                            <tr><td colspan="5"><div class="empty"><div class="empty-icon">📋</div><p>Событий нет</p></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- ── App settings ── -->
         <section class="section" id="s-app_settings">
             <div class="two-col">
@@ -780,6 +804,7 @@
         cards:         'Карты МЭШ',
         students:      'Ученики',
         announcements: 'Объявления',
+        activity:      'Журнал активности',
         app_settings:  'Настройки приложения'
     };
 
@@ -795,6 +820,7 @@
         if (name === 'cards') loadCardOrders();
         if (name === 'students') loadStudents();
         if (name === 'dashboard') loadDashboard();
+        if (name === 'activity') loadActivity();
     }
 
     function toggleSidebar() {
@@ -803,13 +829,52 @@
 
     // ── Data loaders (calls real API endpoints if they exist) ──
 
+    const actionLabels = {
+        login: 'Вход в систему',
+    };
+
     function loadDashboard() {
         fetchJSON('/api/admin/stats', data => {
             if (!data) return;
-            setText('stat-passes',   data.total_passes ?? '—');
-            setText('stat-pending',  data.pending_passes ?? '—');
-            setText('stat-cards',    data.total_cards ?? '—');
-            setText('stat-students', data.total_students ?? '—');
+            setText('stat-passes',      data.total_passes ?? '—');
+            setText('stat-pending',     data.pending_passes ?? '—');
+            setText('stat-subscribers', data.push_subscribers ?? '—');
+            setText('stat-logins',      data.total_logins ?? '—');
+        });
+        fetchJSON('/api/admin/activity', data => {
+            if (!data || !data.items) return;
+            const el = document.getElementById('dashboard-activity');
+            const items = data.items.slice(0, 10);
+            if (!items.length) return;
+            el.innerHTML = items.map(r => `
+                <div class="info-row">
+                    <span class="key">${r.ts}</span>
+                    <span style="flex:1;padding:0 12px;color:var(--text2);">
+                        ${actionLabels[r.action] || r.action}
+                        ${r.grp ? `<span style="color:var(--text3);margin-left:6px;">${r.grp}</span>` : ''}
+                    </span>
+                    <span class="val" style="font-size:0.8rem;color:var(--text3);">${r.phone}</span>
+                </div>
+            `).join('');
+        });
+    }
+
+    function loadActivity() {
+        fetchJSON('/api/admin/activity', data => {
+            const tbody = document.getElementById('activity-tbody');
+            if (!data || !data.items || !data.items.length) {
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">📋</div><p>Событий нет</p></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.items.map(r => `
+                <tr>
+                    <td>${r.ts}</td>
+                    <td>${r.phone}</td>
+                    <td>${r.grp}</td>
+                    <td>${actionLabels[r.action] || r.action}</td>
+                    <td style="color:var(--text3);">${r.details}</td>
+                </tr>
+            `).join('');
         });
     }
 
@@ -961,13 +1026,18 @@
     // Initial load
     loadDashboard();
 
-    // Загружаем актуальное состояние настроек (maintenance и др.)
+    // Загружаем актуальное состояние всех настроек
     fetchJSON('/api/admin/settings/state', data => {
         if (!data) return;
-        const maintToggle = document.querySelector('[onchange="saveSetting(\'maintenance\', this.checked)"]');
-        if (maintToggle && data.maintenance !== undefined) {
-            maintToggle.checked = data.maintenance;
-        }
+        [
+            ['maintenance',      "saveSetting('maintenance', this.checked)"],
+            ['passes_enabled',   "saveSetting('passes_enabled', this.checked)"],
+            ['cards_enabled',    "saveSetting('cards_enabled', this.checked)"],
+            ['stranger_enabled', "saveSetting('stranger_enabled', this.checked)"],
+        ].forEach(([key, attr]) => {
+            const el = document.querySelector(`[onchange="${attr}"]`);
+            if (el && data[key] !== undefined) el.checked = data[key];
+        });
     });
 </script>
 </body>

@@ -25,18 +25,83 @@ VAPID_PRIVATE_KEY  = os.environ.get("VAPID_PRIVATE_KEY", "")
 VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "admin@study1409.ru")
 
 def _db():
-    conn = psycopg2.connect(config.DATABASE_URL)
-    with conn.cursor() as cur:
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS subscriptions (
-                endpoint TEXT PRIMARY KEY,
-                sub_json JSONB NOT NULL,
-                phone    TEXT,
-                grp      TEXT
+    return psycopg2.connect(config.DATABASE_URL)
+
+
+def _init_db():
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS subscriptions (
+                    endpoint TEXT PRIMARY KEY,
+                    sub_json JSONB NOT NULL,
+                    phone    TEXT,
+                    grp      TEXT
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS app_settings (
+                    key   TEXT PRIMARY KEY,
+                    value TEXT NOT NULL
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS activity_log (
+                    id      SERIAL PRIMARY KEY,
+                    ts      TIMESTAMPTZ DEFAULT NOW(),
+                    phone   TEXT,
+                    grp     TEXT,
+                    action  TEXT NOT NULL,
+                    details TEXT
+                )
+            """)
+        conn.commit()
+
+
+_init_db()
+
+_FLAG_DEFAULTS: dict[str, bool] = {
+    "passes_enabled":   True,
+    "cards_enabled":    True,
+    "stranger_enabled": True,
+}
+
+
+def _get_flag(key: str) -> bool:
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT value FROM app_settings WHERE key = %s", (key,))
+            row = cur.fetchone()
+    return row[0] == "true" if row else _FLAG_DEFAULTS.get(key, True)
+
+
+def _set_flag(key: str, value: bool):
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO app_settings (key, value) VALUES (%s, %s)
+                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+                """,
+                (key, "true" if value else "false"),
             )
-        """)
-    conn.commit()
-    return conn
+        conn.commit()
+
+
+def _log_activity(action: str, details: str = ""):
+    try:
+        u = session.get("user", {}) if session else {}
+        phone = u.get("phone", "")
+        grp   = f"{u.get('group_number','')}{u.get('group_letter','')}"
+        with _db() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO activity_log (phone, grp, action, details) VALUES (%s, %s, %s, %s)",
+                    (phone, grp, action, details),
+                )
+            conn.commit()
+    except Exception:
+        pass
 
 
 def _load_subs():
@@ -162,6 +227,7 @@ def pwa_login_verify():
                 session["my1409_cookie"] = cookie
                 # Данные пользователя (phone-check теперь возвращает их)
                 session["user"] = body.get("user", {})
+                _log_activity("login", phone)
         return jsonify(body), r.status_code
     except Exception:
         return jsonify({"status": "error", "message": "Сервер my1409 недоступен"}), 503
@@ -338,7 +404,7 @@ def err_500(_):
     return render_template("500.html"), 500
 
 
-# ── Admin: settings (maintenance toggle) ─────────────────────
+# ── Admin: settings ───────────────────────────────────────────
 @app.route("/api/admin/settings", methods=["POST"])
 def admin_settings():
     if not session.get("admin"):
@@ -351,6 +417,8 @@ def admin_settings():
             open(_MAINTENANCE_FILE, "w").close()
         elif os.path.exists(_MAINTENANCE_FILE):
             os.remove(_MAINTENANCE_FILE)
+    elif key in _FLAG_DEFAULTS:
+        _set_flag(key, bool(value))
     return jsonify({"status": "ok"})
 
 
@@ -359,8 +427,78 @@ def admin_settings_state():
     if not session.get("admin"):
         return jsonify({"error": "forbidden"}), 403
     return jsonify({
-        "maintenance": os.path.exists(_MAINTENANCE_FILE),
+        "maintenance":      os.path.exists(_MAINTENANCE_FILE),
+        "passes_enabled":   _get_flag("passes_enabled"),
+        "cards_enabled":    _get_flag("cards_enabled"),
+        "stranger_enabled": _get_flag("stranger_enabled"),
     })
+
+
+# ── Admin: статистика ──────────────────────────────────────────
+@app.route("/api/admin/stats")
+def admin_stats():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM subscriptions")
+            subs = cur.fetchone()[0]
+            cur.execute("SELECT COUNT(*) FROM activity_log WHERE action = 'login'")
+            logins = cur.fetchone()[0]
+    return jsonify({"push_subscribers": subs, "total_logins": logins})
+
+
+# ── Admin: журнал активности ───────────────────────────────────
+@app.route("/api/admin/activity")
+def admin_activity():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    with _db() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT ts AT TIME ZONE 'Europe/Moscow' AS ts, phone, grp, action, details
+                FROM activity_log ORDER BY ts DESC LIMIT 100
+            """)
+            rows = cur.fetchall()
+    items = [
+        {
+            "ts":      r["ts"].strftime("%d.%m.%Y %H:%M") if r["ts"] else "",
+            "phone":   r["phone"] or "",
+            "grp":     r["grp"] or "",
+            "action":  r["action"] or "",
+            "details": r["details"] or "",
+        }
+        for r in rows
+    ]
+    return jsonify({"items": items})
+
+
+# ── Admin: экспорт CSV ─────────────────────────────────────────
+@app.route("/api/admin/activity/export")
+def admin_activity_export():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    import csv, io
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT ts AT TIME ZONE 'Europe/Moscow', phone, grp, action, details
+                FROM activity_log ORDER BY ts DESC
+            """)
+            rows = cur.fetchall()
+    out = io.StringIO()
+    w = csv.writer(out)
+    w.writerow(["Дата и время", "Телефон", "Класс", "Действие", "Детали"])
+    for r in rows:
+        w.writerow([
+            r[0].strftime("%d.%m.%Y %H:%M:%S") if r[0] else "",
+            r[1] or "", r[2] or "", r[3] or "", r[4] or "",
+        ])
+    return Response(
+        out.getvalue().encode("utf-8-sig"),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=activity.csv"},
+    )
 
 
 # ── Service Worker (нужен в корне для полного scope) ──────────
