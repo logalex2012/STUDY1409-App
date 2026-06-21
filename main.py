@@ -5,14 +5,25 @@ import os
 import psycopg2
 import psycopg2.extras
 import requests as http
+import time
+from collections import defaultdict
+from contextlib import contextmanager
 from datetime import timedelta
 from functools import wraps
+from threading import Lock
 from flask import (Flask, render_template, redirect, url_for,
                    request, session, jsonify, Response)
 
 # Инициализация Flask приложения #
 app = Flask(__name__)
+_IS_DEV = os.environ.get("FLASK_DEBUG", "0") == "1"
+
 app.config.update(SECRET_KEY=config.SECRET_KEY)
+app.config.update(
+    SESSION_COOKIE_SECURE=not _IS_DEV,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+)
 app.permanent_session_lifetime = timedelta(days=365)
 
 MY1409_BASE    = config.MY1409_BASE
@@ -24,19 +35,107 @@ VAPID_PUBLIC_KEY   = os.environ.get("VAPID_PUBLIC_KEY", "")
 VAPID_PRIVATE_KEY  = os.environ.get("VAPID_PRIVATE_KEY", "")
 VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "admin@study1409.ru")
 
+@contextmanager
 def _db():
     conn = psycopg2.connect(config.DATABASE_URL)
-    with conn.cursor() as cur:
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS subscriptions (
-                endpoint TEXT PRIMARY KEY,
-                sub_json JSONB NOT NULL,
-                phone    TEXT,
-                grp      TEXT
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def _init_db():
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS subscriptions (
+                    endpoint TEXT PRIMARY KEY,
+                    sub_json JSONB NOT NULL,
+                    phone    TEXT,
+                    grp      TEXT
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS app_settings (
+                    key   TEXT PRIMARY KEY,
+                    value TEXT NOT NULL
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS activity_log (
+                    id      SERIAL PRIMARY KEY,
+                    ts      TIMESTAMPTZ DEFAULT NOW(),
+                    phone   TEXT,
+                    grp     TEXT,
+                    action  TEXT NOT NULL,
+                    details TEXT
+                )
+            """)
+
+
+_init_db()
+
+# ── Rate limiting (in-memory) ──────────────────────────────────
+_rl_lock  = Lock()
+_rl_admin = defaultdict(list)   # ip    → [timestamps]
+_rl_sms   = defaultdict(list)   # phone → [timestamps]
+
+
+def _rate_ok(store: dict, key: str, limit: int, window: int) -> bool:
+    """Возвращает True если запрос разрешён, False если лимит превышен."""
+    now = time.time()
+    with _rl_lock:
+        store[key] = [t for t in store[key] if now - t < window]
+        if len(store[key]) >= limit:
+            return False
+        store[key].append(now)
+        return True
+
+
+_FLAG_DEFAULTS: dict[str, bool] = {
+    "passes_enabled":   True,
+    "cards_enabled":    True,
+    "stranger_enabled": True,
+}
+
+
+def _get_flag(key: str) -> bool:
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT value FROM app_settings WHERE key = %s", (key,))
+            row = cur.fetchone()
+    return row[0] == "true" if row else _FLAG_DEFAULTS.get(key, True)
+
+
+def _set_flag(key: str, value: bool):
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO app_settings (key, value) VALUES (%s, %s)
+                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+                """,
+                (key, "true" if value else "false"),
             )
-        """)
-    conn.commit()
-    return conn
+
+
+def _log_activity(action: str, details: str = ""):
+    try:
+        u = session.get("user", {}) if session else {}
+        phone = u.get("phone", "")
+        grp   = f"{u.get('group_number','')}{u.get('group_letter','')}"
+        with _db() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO activity_log (phone, grp, action, details) VALUES (%s, %s, %s, %s)",
+                    (phone, grp, action, details),
+                )
+    except Exception:
+        pass
 
 
 def _load_subs():
@@ -137,6 +236,9 @@ def logout():
 @app.route("/api/pwa/login/send-code", methods=["POST"])
 def pwa_login_send():
     phone = (request.json or {}).get("phone", "")
+    # Rate limit: 3 запроса в 60 секунд на номер телефона
+    if not _rate_ok(_rl_sms, phone, limit=3, window=60):
+        return jsonify({"status": "error", "message": "Слишком много запросов. Подождите минуту."}), 429
     try:
         r = http.post(f"{MY1409_BASE}/api/student/login/phone-send",
                       json={"phone": phone}, timeout=10)
@@ -158,10 +260,13 @@ def pwa_login_verify():
             # Сохраняем сессионную куку my1409.ru
             cookie = r.cookies.get("session")
             if cookie:
+                # Пересоздаём сессию чтобы предотвратить session fixation
+                session.clear()
                 session.permanent = True
                 session["my1409_cookie"] = cookie
                 # Данные пользователя (phone-check теперь возвращает их)
                 session["user"] = body.get("user", {})
+                _log_activity("login", phone)
         return jsonify(body), r.status_code
     except Exception:
         return jsonify({"status": "error", "message": "Сервер my1409 недоступен"}), 503
@@ -175,7 +280,7 @@ def proxy_student(subpath):
     url     = f"{MY1409_BASE}/api/student/{subpath}"
     cookies = _my1409_cookies()
     try:
-        if request.method in ("POST", "PUT"):
+        if request.method in ("POST", "PUT", "DELETE"):
             r = http.request(request.method, url,
                              json=request.get_json(silent=True),
                              cookies=cookies, timeout=15)
@@ -186,8 +291,8 @@ def proxy_student(subpath):
         if new_c:
             session["my1409_cookie"] = new_c
         return jsonify(r.json()), r.status_code
-    except Exception as e:
-        return jsonify({"error": str(e)}), 502
+    except Exception:
+        return jsonify({"error": "upstream error"}), 502
 
 
 @app.route("/api/vote/<path:subpath>", methods=["GET", "POST"])
@@ -203,8 +308,8 @@ def proxy_vote(subpath):
         else:
             r = http.get(url, params=request.args, cookies=cookies, timeout=15)
         return jsonify(r.json()), r.status_code
-    except Exception as e:
-        return jsonify({"error": str(e)}), 502
+    except Exception:
+        return jsonify({"error": "upstream error"}), 502
 
 
 # ── Proxy: /api/events/* → my1409.ru ─────────────────────────
@@ -224,8 +329,22 @@ def proxy_events(subpath):
         if new_c:
             session["my1409_cookie"] = new_c
         return jsonify(r.json()), r.status_code
-    except Exception as e:
-        return jsonify({"error": str(e)}), 502
+    except Exception:
+        return jsonify({"error": "upstream error"}), 502
+
+
+# ── Proxy: /api/news → my1409.ru ─────────────────────────────
+@app.route("/api/news")
+def proxy_news():
+    if not session.get("my1409_cookie"):
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        r = http.get(f"{MY1409_BASE}/api/news",
+                     params=request.args,
+                     cookies=_my1409_cookies(), timeout=15)
+        return jsonify(r.json()), r.status_code
+    except Exception:
+        return jsonify({"error": "upstream error"}), 502
 
 
 # ── Proxy: /api/card/* ────────────────────────────────────────
@@ -242,8 +361,8 @@ def proxy_card(subpath):
         else:
             r = http.get(url, params=request.args, cookies=cookies, timeout=15)
         return jsonify(r.json()), r.status_code
-    except Exception as e:
-        return jsonify({"error": str(e)}), 502
+    except Exception:
+        return jsonify({"error": "upstream error"}), 502
 
 
 # ── Главная (сервисы) ─────────────────────────────────────────
@@ -303,6 +422,11 @@ def settings():
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":
+        ip = request.remote_addr or "unknown"
+        # Rate limit: 5 попыток за 5 минут с одного IP
+        if not _rate_ok(_rl_admin, ip, limit=5, window=300):
+            return render_template("admin_login.html",
+                                   error="Слишком много попыток. Подождите 5 минут."), 429
         pw = request.form.get("password", "")
         if hashlib.sha256(pw.encode()).hexdigest() == _ADMIN_PW_HASH:
             session["admin"] = True
@@ -338,7 +462,7 @@ def err_500(_):
     return render_template("500.html"), 500
 
 
-# ── Admin: settings (maintenance toggle) ─────────────────────
+# ── Admin: settings ───────────────────────────────────────────
 @app.route("/api/admin/settings", methods=["POST"])
 def admin_settings():
     if not session.get("admin"):
@@ -348,9 +472,12 @@ def admin_settings():
     value = data.get("value")
     if key == "maintenance":
         if value:
-            open(_MAINTENANCE_FILE, "w").close()
+            with open(_MAINTENANCE_FILE, "w"):
+                pass
         elif os.path.exists(_MAINTENANCE_FILE):
             os.remove(_MAINTENANCE_FILE)
+    elif key in _FLAG_DEFAULTS:
+        _set_flag(key, bool(value))
     return jsonify({"status": "ok"})
 
 
@@ -359,8 +486,78 @@ def admin_settings_state():
     if not session.get("admin"):
         return jsonify({"error": "forbidden"}), 403
     return jsonify({
-        "maintenance": os.path.exists(_MAINTENANCE_FILE),
+        "maintenance":      os.path.exists(_MAINTENANCE_FILE),
+        "passes_enabled":   _get_flag("passes_enabled"),
+        "cards_enabled":    _get_flag("cards_enabled"),
+        "stranger_enabled": _get_flag("stranger_enabled"),
     })
+
+
+# ── Admin: статистика ──────────────────────────────────────────
+@app.route("/api/admin/stats")
+def admin_stats():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM subscriptions")
+            subs = cur.fetchone()[0]
+            cur.execute("SELECT COUNT(*) FROM activity_log WHERE action = 'login'")
+            logins = cur.fetchone()[0]
+    return jsonify({"push_subscribers": subs, "total_logins": logins})
+
+
+# ── Admin: журнал активности ───────────────────────────────────
+@app.route("/api/admin/activity")
+def admin_activity():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    with _db() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT ts AT TIME ZONE 'Europe/Moscow' AS ts, phone, grp, action, details
+                FROM activity_log ORDER BY ts DESC LIMIT 100
+            """)
+            rows = cur.fetchall()
+    items = [
+        {
+            "ts":      r["ts"].strftime("%d.%m.%Y %H:%M") if r["ts"] else "",
+            "phone":   r["phone"] or "",
+            "grp":     r["grp"] or "",
+            "action":  r["action"] or "",
+            "details": r["details"] or "",
+        }
+        for r in rows
+    ]
+    return jsonify({"items": items})
+
+
+# ── Admin: экспорт CSV ─────────────────────────────────────────
+@app.route("/api/admin/activity/export")
+def admin_activity_export():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    import csv, io
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT ts AT TIME ZONE 'Europe/Moscow', phone, grp, action, details
+                FROM activity_log ORDER BY ts DESC
+            """)
+            rows = cur.fetchall()
+    out = io.StringIO()
+    w = csv.writer(out)
+    w.writerow(["Дата и время", "Телефон", "Класс", "Действие", "Детали"])
+    for r in rows:
+        w.writerow([
+            r[0].strftime("%d.%m.%Y %H:%M:%S") if r[0] else "",
+            r[1] or "", r[2] or "", r[3] or "", r[4] or "",
+        ])
+    return Response(
+        out.getvalue().encode("utf-8-sig"),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=activity.csv"},
+    )
 
 
 # ── Service Worker (нужен в корне для полного scope) ──────────
@@ -423,7 +620,7 @@ def push_send():
     tag     = payload.get("tag", "study1409")
 
     try:
-        from pywebpush import webpush, WebPushException
+        from pywebpush import webpush
     except ImportError:
         return jsonify({"error": "pywebpush not installed"}), 503
 
@@ -450,4 +647,4 @@ def push_send():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=1090)
+    app.run(debug=os.environ.get("FLASK_DEBUG", "0") == "1", port=1090)
