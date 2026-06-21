@@ -396,7 +396,8 @@
                 if (r.ok) {
                     document.getElementById('exitForm').reset();
                     showToast('Заявка отправлена на рассмотрение');
-                    loadHistory();
+                    loadHistory()                } else if (r.status === 401) {
+                    window.location.href = '/';
                 } else {
                     showToast(data.message || 'Ошибка при создании заявки', 'error');
                 }
@@ -411,10 +412,10 @@
 
         async function loadHistory() {
             try {
-                const [hr, rr] = await Promise.all([
-                    fetch('/api/student/exit-history'),
-                    fetch('/api/student/exit-requests')
-                ]);
+                const hr = await fetch('/api/student/exit-history');
+                if (hr.status === 401) { window.location.href = '/'; return; }
+                const rr = await fetch('/api/student/exit-requests');
+                if (rr.status === 401) { window.location.href = '/'; return; }
                 _history = await hr.json();
                 _requests = await rr.json();
                 renderHistory(false);

@@ -848,12 +848,12 @@
             if (!items.length) return;
             el.innerHTML = items.map(r => `
                 <div class="info-row">
-                    <span class="key">${r.ts}</span>
+                    <span class="key">${escapeHtml(r.ts)}</span>
                     <span style="flex:1;padding:0 12px;color:var(--text2);">
-                        ${actionLabels[r.action] || r.action}
-                        ${r.grp ? `<span style="color:var(--text3);margin-left:6px;">${r.grp}</span>` : ''}
+                        ${escapeHtml(actionLabels[r.action] || r.action)}
+                        ${r.grp ? `<span style="color:var(--text3);margin-left:6px;">${escapeHtml(r.grp)}</span>` : ''}
                     </span>
-                    <span class="val" style="font-size:0.8rem;color:var(--text3);">${r.phone}</span>
+                    <span class="val" style="font-size:0.8rem;color:var(--text3);">${escapeHtml(r.phone)}</span>
                 </div>
             `).join('');
         });
@@ -868,11 +868,11 @@
             }
             tbody.innerHTML = data.items.map(r => `
                 <tr>
-                    <td>${r.ts}</td>
-                    <td>${r.phone}</td>
-                    <td>${r.grp}</td>
-                    <td>${actionLabels[r.action] || r.action}</td>
-                    <td style="color:var(--text3);">${r.details}</td>
+                    <td>${escapeHtml(r.ts)}</td>
+                    <td>${escapeHtml(r.phone)}</td>
+                    <td>${escapeHtml(r.grp)}</td>
+                    <td>${escapeHtml(actionLabels[r.action] || r.action)}</td>
+                    <td style="color:var(--text3);">${escapeHtml(r.details)}</td>
                 </tr>
             `).join('');
         });
@@ -890,15 +890,15 @@
             }
             tbody.innerHTML = data.items.map(r => `
                 <tr>
-                    <td>${r.name || '—'}</td>
-                    <td>${r.class || '—'}</td>
-                    <td>${r.reason || '—'}</td>
-                    <td>${r.time || '—'}</td>
+                    <td>${escapeHtml(r.name)}</td>
+                    <td>${escapeHtml(r.class)}</td>
+                    <td>${escapeHtml(r.reason)}</td>
+                    <td>${escapeHtml(r.time)}</td>
                     <td>${badgeHtml(r.status)}</td>
                     <td>
                         ${r.status === 'pending' ? `
-                        <button class="btn btn-primary" style="padding:5px 12px;font-size:0.78rem;" onclick="approvePass(${r.id})">✓</button>
-                        <button class="btn btn-danger" style="padding:5px 12px;font-size:0.78rem;margin-left:6px;" onclick="rejectPass(${r.id})">✗</button>
+                        <button class="btn btn-primary" style="padding:5px 12px;font-size:0.78rem;" onclick="approvePass(${Number(r.id)})">✓</button>
+                        <button class="btn btn-danger" style="padding:5px 12px;font-size:0.78rem;margin-left:6px;" onclick="rejectPass(${Number(r.id)})">✗</button>
                         ` : '—'}
                     </td>
                 </tr>
@@ -926,13 +926,13 @@
             }
             tbody.innerHTML = data.items.map(r => `
                 <tr>
-                    <td>${r.fio || '—'}</td>
-                    <td>${r.class || '—'}</td>
-                    <td>${r.reason || '—'}</td>
-                    <td>${r.created_at || '—'}</td>
+                    <td>${escapeHtml(r.fio)}</td>
+                    <td>${escapeHtml(r.class)}</td>
+                    <td>${escapeHtml(r.reason)}</td>
+                    <td>${escapeHtml(r.created_at)}</td>
                     <td>${badgeHtml(r.status || 'pending')}</td>
                     <td>
-                        <button class="btn btn-primary" style="padding:5px 12px;font-size:0.78rem;" onclick="completeCard(${r.id})">Выдана</button>
+                        <button class="btn btn-primary" style="padding:5px 12px;font-size:0.78rem;" onclick="completeCard(${Number(r.id)})">Выдана</button>
                     </td>
                 </tr>
             `).join('');
@@ -953,11 +953,11 @@
             }
             tbody.innerHTML = data.items.map(s => `
                 <tr>
-                    <td>${s.full_name || '—'}</td>
-                    <td>${s.class || '—'}</td>
-                    <td>${s.phone || '—'}</td>
-                    <td>${s.teacher || '—'}</td>
-                    <td>${s.passes_count ?? 0}</td>
+                    <td>${escapeHtml(s.full_name)}</td>
+                    <td>${escapeHtml(s.class)}</td>
+                    <td>${escapeHtml(s.phone)}</td>
+                    <td>${escapeHtml(s.teacher)}</td>
+                    <td>${escapeHtml(s.passes_count ?? 0)}</td>
                 </tr>
             `).join('');
         });
@@ -986,6 +986,16 @@
     }
 
     // ── Helpers ──
+
+    function escapeHtml(s) {
+        if (s === null || s === undefined) return '';
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
     function badgeHtml(status) {
         const map = {
