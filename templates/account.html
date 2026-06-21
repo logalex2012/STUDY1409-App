@@ -6,7 +6,7 @@
     <title>STUDY1409 - Настройки аккаунта</title>
     <link rel="icon" href="/static/favicon.png">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
     <script src="/static/lib/lucide.min.js"></script>
     <style>
@@ -843,11 +843,12 @@
                 const res = await fetch('/api/events/my_registrations');
                 if (!res.ok) return;
                 const data = await res.json();
-                if (!Array.isArray(data) || data.length === 0) return;
+                const items = data.registrations || data.items || data.data || data;
+                if (!Array.isArray(items) || items.length === 0) return;
                 const card = document.getElementById('myRegistrationsCard');
                 const list = document.getElementById('myRegistrationsList');
                 card.style.display = 'block';
-                list.innerHTML = data.map(reg => {
+                list.innerHTML = items.map(reg => {
                     const presentBadge = reg.is_present
                         ? '<span class="reg-badge present">Присутствовал</span>'
                         : '<span class="reg-badge absent">Не отмечен</span>';

@@ -2,3 +2,5 @@
 .venv
 .рус 
 __pycache__
+maintenance.lock
+.log/

@@ -9,7 +9,7 @@ const PRECACHE_ASSETS = [
     '/static/fonts/fonts.css',
     '/static/lib/lucide.min.js',
     '/static/lib/qrcode.min.js',
-    '/static/lib/font-awesome/all.min.css',
+    '/static/lib/font-awesome/custom.css',
     '/offline',
 ];
 
@@ -36,8 +36,9 @@ const MAX_CACHE_ENTRIES = 50;
 
 async function _limitCache(cache) {
     const keys = await cache.keys();
-    if (keys.length > MAX_CACHE_ENTRIES) {
-        await cache.delete(keys[0]);
+    const over = keys.length - MAX_CACHE_ENTRIES;
+    if (over > 0) {
+        await Promise.all(keys.slice(0, over + 1).map(k => cache.delete(k)));
     }
 }
 
@@ -59,7 +60,7 @@ self.addEventListener('fetch', event => {
                     const clone = res.clone();
                     caches.open(CACHE_NAME).then(c => {
                         c.put(request, clone);
-                        _limitCache(c);
+                        _limitCache(c).catch(() => {});
                     });
                     return res;
                 });
@@ -76,7 +77,7 @@ self.addEventListener('fetch', event => {
                     const clone = res.clone();
                     caches.open(CACHE_NAME).then(c => {
                         c.put(request, clone);
-                        _limitCache(c);
+                        _limitCache(c).catch(() => {});
                     });
                 }
                 return res;

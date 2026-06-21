@@ -6,7 +6,7 @@
     <title>STUDY1409 - Заявка на выход</title>
     <link rel="icon" href="/static/favicon.png">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
     <script src="/static/lib/lucide.min.js"></script>
     <style>
@@ -396,7 +396,8 @@
                 if (r.ok) {
                     document.getElementById('exitForm').reset();
                     showToast('Заявка отправлена на рассмотрение');
-                    loadHistory()                } else if (r.status === 401) {
+                    loadHistory();
+                } else if (r.status === 401) {
                     window.location.href = '/';
                 } else {
                     showToast(data.message || 'Ошибка при создании заявки', 'error');

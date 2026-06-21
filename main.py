@@ -25,8 +25,9 @@ app.config.update(
     SESSION_COOKIE_SECURE=not _IS_DEV,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_PERMANENT=True,
 )
-app.permanent_session_lifetime = timedelta(days=30)
+app.permanent_session_lifetime = timedelta(days=365)
 
 MY1409_BASE    = config.MY1409_BASE
 _ADMIN_PW_HASH = config.ADMIN_PW_HASH
@@ -305,15 +306,15 @@ def proxy_student(subpath):
         if request.method in ("POST", "PUT", "DELETE"):
             r = http.request(request.method, url,
                              json=request.get_json(silent=True),
-                             cookies=cookies, timeout=15)
+                             cookies=cookies, timeout=8)
         else:
-            r = http.get(url, params=request.args, cookies=cookies, timeout=15)
+            r = http.get(url, params=request.args, cookies=cookies, timeout=8)
         # Если my1409 обновил куку — сохраняем
         new_c = r.cookies.get("session")
         if new_c:
             session["my1409_cookie"] = new_c
         return jsonify(r.json()), r.status_code
-    except Exception:
+    except http.RequestException:
         return jsonify({"error": "upstream error"}), 502
 
 
@@ -326,11 +327,11 @@ def proxy_vote(subpath):
     try:
         if request.method == "POST":
             r = http.post(url, json=request.get_json(silent=True),
-                          cookies=cookies, timeout=15)
+                          cookies=cookies, timeout=8)
         else:
-            r = http.get(url, params=request.args, cookies=cookies, timeout=15)
+            r = http.get(url, params=request.args, cookies=cookies, timeout=8)
         return jsonify(r.json()), r.status_code
-    except Exception:
+    except http.RequestException:
         return jsonify({"error": "upstream error"}), 502
 
 
@@ -348,10 +349,10 @@ def proxy_my_event_registrations():
             f"{MY1409_BASE}/events/api/my_registrations",
             params={"phone": phone},
             cookies=_my1409_cookies(),
-            timeout=15,
+            timeout=8,
         )
         return jsonify(r.json()), r.status_code
-    except Exception:
+    except http.RequestException:
         return jsonify({"error": "upstream error"}), 502
 
 
@@ -365,9 +366,9 @@ def proxy_events(subpath):
     try:
         if request.method == "POST":
             r = http.post(url, json=request.get_json(silent=True),
-                          cookies=cookies, timeout=15)
+                          cookies=cookies, timeout=8)
         else:
-            r = http.get(url, params=request.args, cookies=cookies, timeout=15)
+            r = http.get(url, params=request.args, cookies=cookies, timeout=8)
         new_c = r.cookies.get("session")
         if new_c:
             session["my1409_cookie"] = new_c
@@ -384,7 +385,7 @@ def proxy_news():
     try:
         r = http.get(f"{MY1409_BASE}/api/news",
                      params=request.args,
-                     cookies=_my1409_cookies(), timeout=15)
+                     cookies=_my1409_cookies(), timeout=8)
         return jsonify(r.json()), r.status_code
     except Exception:
         return jsonify({"error": "upstream error"}), 502
@@ -400,9 +401,9 @@ def proxy_card(subpath):
     try:
         if request.method == "POST":
             r = http.post(url, json=request.get_json(silent=True),
-                          cookies=cookies, timeout=15)
+                          cookies=cookies, timeout=8)
         else:
-            r = http.get(url, params=request.args, cookies=cookies, timeout=15)
+            r = http.get(url, params=request.args, cookies=cookies, timeout=8)
         return jsonify(r.json()), r.status_code
     except Exception:
         return jsonify({"error": "upstream error"}), 502

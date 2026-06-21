@@ -968,7 +968,7 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById('s-' + name).classList.add('active');
         document.getElementById('topbar-title').textContent = sectionTitles[name] || name;
-        event.currentTarget.classList.add('active');
+        (event || window.event).currentTarget.classList.add('active');
 
         // Load data on section open
         if (name === 'passes') loadPasses();
