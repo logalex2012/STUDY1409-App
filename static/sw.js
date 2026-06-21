@@ -32,6 +32,15 @@ self.addEventListener('activate', event => {
     );
 });
 
+const MAX_CACHE_ENTRIES = 50;
+
+async function _limitCache(cache) {
+    const keys = await cache.keys();
+    if (keys.length > MAX_CACHE_ENTRIES) {
+        await cache.delete(keys[0]);
+    }
+}
+
 // ── Fetch: routing strategy ───────────────────────────────────
 self.addEventListener('fetch', event => {
     const { request } = event;
@@ -46,8 +55,12 @@ self.addEventListener('fetch', event => {
             caches.match(request).then(cached => {
                 if (cached) return cached;
                 return fetch(request).then(res => {
+                    if (!res.ok) return res;
                     const clone = res.clone();
-                    caches.open(CACHE_NAME).then(c => c.put(request, clone));
+                    caches.open(CACHE_NAME).then(c => {
+                        c.put(request, clone);
+                        _limitCache(c);
+                    });
                     return res;
                 });
             })
@@ -61,7 +74,10 @@ self.addEventListener('fetch', event => {
             .then(res => {
                 if (res.ok) {
                     const clone = res.clone();
-                    caches.open(CACHE_NAME).then(c => c.put(request, clone));
+                    caches.open(CACHE_NAME).then(c => {
+                        c.put(request, clone);
+                        _limitCache(c);
+                    });
                 }
                 return res;
             })

@@ -161,6 +161,7 @@
                 radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
             z-index: -1;
             animation: cloudFloat 20s ease-in-out infinite;
+            will-change: transform;
         }
 
         @keyframes cloudFloat {
@@ -1142,6 +1143,7 @@
     (function initParticles() {
         const canvas = document.getElementById('stParticles');
         const ctx = canvas.getContext('2d');
+        let animId;
 
         function resize() {
             canvas.width  = window.innerWidth;
@@ -1160,7 +1162,7 @@
         }));
 
         function tick() {
-            requestAnimationFrame(tick);
+            animId = requestAnimationFrame(tick);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const isStranger   = document.documentElement.getAttribute('data-theme') === 'stranger';
             const particlesOn  = localStorage.getItem('st_particles') !== 'false';
@@ -1176,11 +1178,29 @@
                 if (p.x > canvas.width + 10) p.x = -10;
             });
         }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && animId) {
+                cancelAnimationFrame(animId);
+                animId = null;
+            } else if (!document.hidden && !animId) {
+                tick();
+            }
+        });
+
         tick();
     })();
 
     updateSchedule();
-    setInterval(updateSchedule, 1000);
+    let schedInterval = setInterval(updateSchedule, 1000);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(schedInterval);
+        } else {
+            updateSchedule();
+            schedInterval = setInterval(updateSchedule, 1000);
+        }
+    });
 
     // ── Telegram Web App ──────────────────────────────────────
     initTelegramWebApp({ backButton: false });
@@ -1296,7 +1316,7 @@
 
     async function loadEvents() {
         try {
-            const res = await fetch('/api/events/registrations');
+            const res = await fetch('/api/events/my_registrations');
             if (res.status === 502 || res.status === 503) {
                 document.getElementById('my1409Error').style.display = 'flex';
                 document.getElementById('eventsList').innerHTML =

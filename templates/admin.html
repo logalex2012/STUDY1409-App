@@ -473,6 +473,9 @@
         <div class="nav-item" onclick="showSection('announcements')">
             <i data-lucide="megaphone"></i> Объявления
         </div>
+        <div class="nav-item" onclick="showSection('pins')">
+            <i data-lucide="award"></i> Значки
+        </div>
 
         <div class="nav-section">Система</div>
         <div class="nav-item" onclick="showSection('activity')">
@@ -480,6 +483,11 @@
         </div>
         <div class="nav-item" onclick="showSection('app_settings')">
             <i data-lucide="settings"></i> Настройки приложения
+        </div>
+
+        <div class="nav-section">Источники</div>
+        <div class="nav-item" onclick="showSection('sources')">
+            <i data-lucide="globe"></i> Внешние источники
         </div>
     </div>
 
@@ -713,6 +721,151 @@
             </div>
         </section>
 
+        <!-- ── Значки ── -->
+        <section class="section" id="s-pins">
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-title"><i data-lucide="award" style="width:16px;height:16px;"></i> Выдать значок</div>
+                    <div class="form-group">
+                        <label>ФИО ученика</label>
+                        <input type="text" id="pin-student-name" placeholder="Иванов Иван Иванович">
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="text" id="pin-student-phone" placeholder="+7 (999) 123-45-67">
+                    </div>
+                    <div class="form-group">
+                        <label>Класс</label>
+                        <input type="text" id="pin-student-class" placeholder="9А">
+                    </div>
+                    <div class="form-group">
+                        <label>Активность</label>
+                        <select id="pin-activity"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Количество значков</label>
+                        <input type="number" id="pin-count" value="1" min="1" max="20">
+                    </div>
+                    <button class="btn btn-primary" onclick="generatePin()">
+                        <i data-lucide="sparkles" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Сгенерировать
+                    </button>
+                    <div id="pin-result" style="margin-top:16px;display:none;">
+                        <div style="font-size:0.82rem;color:var(--text3);margin-bottom:8px;">Сгенерированные значки:</div>
+                        <div id="pin-codes-list" style="font-family:monospace;font-size:1.1rem;font-weight:700;color:var(--accent2);word-break:break-all;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i data-lucide="search" style="width:16px;height:16px;"></i> Поиск значков</div>
+                    <div class="form-group">
+                        <input type="text" id="pin-search" placeholder="Поиск по ученику, телефону или значку…" oninput="loadPins()">
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn btn-ghost" onclick="loadPins()">
+                            <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:16px;">
+                <div class="card-title"><i data-lucide="list" style="width:16px;height:16px;"></i> Выданные значки</div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Значок</th>
+                                <th>Ученик</th>
+                                <th>Класс</th>
+                                <th>Активность</th>
+                                <th>Выдан</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pins-tbody">
+                            <tr><td colspan="7"><div class="empty"><div class="empty-icon">🔑</div><p>Значков нет</p></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Внешние источники ── -->
+        <section class="section" id="s-sources">
+            <div class="card">
+                <div class="card-title"><i data-lucide="globe" style="width:16px;height:16px;"></i> Внешние источники</div>
+                <p style="font-size:0.82rem;color:var(--text3);margin-bottom:20px;">
+                    Быстрый переход к внешним ресурсам для поиска информации об учениках
+                </p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+                    <a href="https://www.mos.ru/" target="_blank" rel="noopener" class="source-card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;text-decoration:none;color:var(--text);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+                        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0052A5,#0094D4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.7rem;font-weight:700;color:#fff;text-align:center;line-height:1.1;">mos.ru</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;">mos.ru</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Портал Мэра Москвы</div>
+                        </div>
+                    </a>
+
+                    <a href="https://www.m24.ru/" target="_blank" rel="noopener" class="source-card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;text-decoration:none;color:var(--text);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+                        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#E31B23,#B80000);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.65rem;font-weight:700;color:#fff;text-align:center;line-height:1.1;">М24</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;">Москва 24</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Новости Москвы</div>
+                        </div>
+                    </a>
+
+                    <a href="https://vk.com/" target="_blank" rel="noopener" class="source-card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;text-decoration:none;color:var(--text);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+                        <div style="width:40px;height:40px;border-radius:10px;background:#0077FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.9rem;font-weight:700;color:#fff;">VK</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;">ВКонтакте</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Поиск людей</div>
+                        </div>
+                    </a>
+
+                    <a href="https://web.telegram.org/" target="_blank" rel="noopener" class="source-card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;text-decoration:none;color:var(--text);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+                        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#2AABEE,#0078b7);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.8rem;font-weight:700;color:#fff;">TG</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;">Telegram Web</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Поиск по номеру телефона</div>
+                        </div>
+                    </a>
+
+                    <a href="https://www.google.com/search?q=%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0+%D1%87%D0%B5%D0%BB%D0%BE%D0%B2%D0%B5%D0%BA%D0%B0" target="_blank" rel="noopener" class="source-card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;text-decoration:none;color:var(--text);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+                        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4285F4,#34A853,#FBBC05,#EA4335);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.7rem;font-weight:700;color:#fff;">G</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;">Google Поиск</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Поиск информации о человеке</div>
+                        </div>
+                    </a>
+
+                    <a href="https://mes.mos.ru/" target="_blank" rel="noopener" class="source-card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;text-decoration:none;color:var(--text);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+                        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#00985F,#00B87A);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.6rem;font-weight:700;color:#fff;text-align:center;line-height:1.1;">МЭШ</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;">МЭШ (mos.ru)</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Московская электронная школа</div>
+                        </div>
+                    </a>
+
+                    <a href="https://www.gosuslugi.ru/" target="_blank" rel="noopener" class="source-card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;text-decoration:none;color:var(--text);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+                        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#004D99,#0073E6);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.55rem;font-weight:700;color:#fff;text-align:center;line-height:1.2;">ГУ</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;">Госуслуги</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Портал государственных услуг</div>
+                        </div>
+                    </a>
+
+                    <a href="https://my1409.ru/" target="_blank" rel="noopener" class="source-card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;background:var(--card);border:1px solid var(--card-border);border-radius:14px;text-decoration:none;color:var(--text);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+                        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4446E1,#2E3192);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.55rem;font-weight:700;color:#fff;text-align:center;line-height:1.2;">1409</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;">my1409.ru</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Портал школы №1409</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
         <!-- ── App settings ── -->
         <section class="section" id="s-app_settings">
             <div class="two-col">
@@ -804,6 +957,8 @@
         cards:         'Карты МЭШ',
         students:      'Ученики',
         announcements: 'Объявления',
+        pins:          'Значки',
+        sources:       'Внешние источники',
         activity:      'Журнал активности',
         app_settings:  'Настройки приложения'
     };
@@ -821,6 +976,7 @@
         if (name === 'students') loadStudents();
         if (name === 'dashboard') loadDashboard();
         if (name === 'activity') loadActivity();
+        if (name === 'pins') { loadPins(); loadPinActivities(); }
     }
 
     function toggleSidebar() {
@@ -882,7 +1038,10 @@
         const status = document.getElementById('filter-pass-status').value;
         const url = '/api/admin/passes' + (status ? '?status=' + status : '');
         fetchJSON(url, data => {
-            if (!data || !data.items) return;
+            if (!data || data._error) {
+                document.getElementById('passes-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🚧</div><p>Раздел в разработке</p></div></td></tr>';
+                return;
+            }
             const tbody = document.getElementById('passes-tbody');
             if (!data.items.length) {
                 tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📋</div><p>Заявок нет</p></div></td></tr>';
@@ -918,7 +1077,10 @@
 
     function loadCardOrders() {
         fetchJSON('/api/admin/cards', data => {
-            if (!data || !data.items) return;
+            if (!data || data._error) {
+                document.getElementById('cards-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🚧</div><p>Раздел в разработке</p></div></td></tr>';
+                return;
+            }
             const tbody = document.getElementById('cards-tbody');
             if (!data.items.length) {
                 tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">💳</div><p>Заказов нет</p></div></td></tr>';
@@ -945,7 +1107,10 @@
 
     function loadStudents() {
         fetchJSON('/api/admin/students', data => {
-            if (!data || !data.items) return;
+            if (!data || data._error) {
+                document.getElementById('students-tbody').innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">🚧</div><p>Раздел в разработке</p></div></td></tr>';
+                return;
+            }
             const tbody = document.getElementById('students-tbody');
             if (!data.items.length) {
                 tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">👤</div><p>Учеников нет</p></div></td></tr>';
@@ -974,7 +1139,8 @@
         const title = document.getElementById('ann-title').value.trim();
         const body  = document.getElementById('ann-body').value.trim();
         if (!title || !body) { alert('Заполните заголовок и текст'); return; }
-        postJSON('/api/admin/announcements', { title, body }, () => {
+        postJSON('/api/admin/announcements', { title, body }, data => {
+            if (!data || data._error) { alert('Раздел в разработке'); return; }
             document.getElementById('ann-title').value = '';
             document.getElementById('ann-body').value = '';
             alert('Объявление опубликовано');
@@ -983,6 +1149,82 @@
 
     function saveSetting(key, value) {
         postJSON('/api/admin/settings', { key, value }, null);
+    }
+
+    // ── Значки ──
+
+    function loadPins() {
+        const search = document.getElementById('pin-search').value.trim();
+        const url = '/api/admin/pins' + (search ? '?search=' + encodeURIComponent(search) : '');
+        fetchJSON(url, data => {
+            const tbody = document.getElementById('pins-tbody');
+            if (!data || !data.items || !data.items.length) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">🔑</div><p>Значков нет</p></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.items.map(p => `
+                <tr>
+                    <td style="font-family:monospace;font-weight:700;color:var(--accent2);">${escapeHtml(p.pin_code)}</td>
+                    <td>${escapeHtml(p.student_name)}</td>
+                    <td>${escapeHtml(p.student_class)}</td>
+                    <td>${escapeHtml(p.activity_name)}</td>
+                    <td>${escapeHtml(p.issued_at)}</td>
+                    <td>${p.is_active ? '<span class="badge badge-approved">Активен</span>' : '<span class="badge badge-expired">Отозван</span>'}</td>
+                    <td>${p.is_active ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="revokePin(${Number(p.id)})">Отозвать</button>` : '—'}</td>
+                </tr>
+            `).join('');
+        });
+    }
+
+    function loadPinActivities() {
+        fetchJSON('/api/admin/pin-activities', data => {
+            const sel = document.getElementById('pin-activity');
+            if (!data || !data.activities) return;
+            sel.innerHTML = data.activities.map(a =>
+                `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`
+            ).join('');
+        });
+    }
+
+    function generatePin() {
+        const name     = document.getElementById('pin-student-name').value.trim();
+        const phone    = document.getElementById('pin-student-phone').value.trim();
+        const cls      = document.getElementById('pin-student-class').value.trim();
+        const activity = document.getElementById('pin-activity').value;
+        const count    = parseInt(document.getElementById('pin-count').value) || 1;
+
+        if (!name) { alert('Введите ФИО ученика'); return; }
+        if (!activity) { alert('Выберите активность'); return; }
+
+        const btn = document.querySelector('#s-pins .btn-primary');
+        btn.disabled = true;
+        btn.textContent = 'Генерация...';
+
+        postJSON('/api/admin/pins/generate', {
+            student_name: name,
+            student_phone: phone,
+            student_class: cls,
+            activity_name: activity,
+            count: count
+        }, data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="sparkles" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Сгенерировать';
+            lucide.createIcons();
+            if (!data || !data.pins) {
+                alert('Ошибка генерации');
+                return;
+            }
+            const resultDiv = document.getElementById('pin-result');
+            const listDiv = document.getElementById('pin-codes-list');
+            resultDiv.style.display = 'block';
+            listDiv.innerHTML = data.pins.map(p => `<div style="padding:4px 0;">${escapeHtml(p)}</div>`).join('');
+            loadPins();
+        });
+    }
+
+    function revokePin(id) {
+        if (!confirm('Отозвать этот значок?')) return;
+        postJSON('/api/admin/pins/revoke', { id }, () => loadPins());
     }
 
     // ── Helpers ──
@@ -1017,8 +1259,11 @@
 
     function fetchJSON(url, cb) {
         fetch(url)
-            .then(r => r.ok ? r.json() : null)
-            .catch(() => null)
+            .then(r => {
+                if (!r.ok) return { _error: true, status: r.status };
+                return r.json();
+            })
+            .catch(() => ({ _error: true }))
             .then(cb);
     }
 
@@ -1028,8 +1273,11 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         })
-        .then(r => r.ok ? r.json() : null)
-        .catch(() => null)
+        .then(r => {
+            if (!r.ok) return { _error: true, status: r.status };
+            return r.json();
+        })
+        .catch(() => ({ _error: true }))
         .then(data => { if (cb) cb(data); });
     }
 

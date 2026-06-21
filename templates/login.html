@@ -347,6 +347,7 @@ footer {
     (function initParticles() {
         const canvas = document.getElementById('stParticles');
         const ctx = canvas.getContext('2d');
+        let animId;
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         resize();
         window.addEventListener('resize', resize);
@@ -359,7 +360,7 @@ footer {
             a: Math.random() * 0.45 + 0.1
         }));
         function tick() {
-            requestAnimationFrame(tick);
+            animId = requestAnimationFrame(tick);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const isStranger = document.documentElement.getAttribute('data-theme') === 'stranger';
             const particlesOn = localStorage.getItem('st_particles') !== 'false';
@@ -375,6 +376,14 @@ footer {
                 if (p.x > canvas.width + 10) p.x = -10;
             });
         }
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && animId) {
+                cancelAnimationFrame(animId);
+                animId = null;
+            } else if (!document.hidden && !animId) {
+                tick();
+            }
+        });
         tick();
     })();
 
