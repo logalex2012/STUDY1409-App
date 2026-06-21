@@ -4,12 +4,14 @@ import json
 import os
 import psycopg2
 import psycopg2.extras
+import psycopg2.pool
 import requests as http
 import time
 from collections import defaultdict
 from contextlib import contextmanager
 from datetime import timedelta
 from functools import wraps
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 from flask import (Flask, render_template, redirect, url_for,
                    request, session, jsonify, Response)
@@ -23,6 +25,7 @@ app.config.update(
     SESSION_COOKIE_SECURE=not _IS_DEV,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_PERMANENT=True,
 )
 app.permanent_session_lifetime = timedelta(days=365)
 
@@ -35,9 +38,15 @@ VAPID_PUBLIC_KEY   = os.environ.get("VAPID_PUBLIC_KEY", "")
 VAPID_PRIVATE_KEY  = os.environ.get("VAPID_PRIVATE_KEY", "")
 VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "admin@study1409.ru")
 
+_DB_POOL = psycopg2.pool.ThreadedConnectionPool(
+    minconn=2,
+    maxconn=10,
+    dsn=config.DATABASE_URL,
+)
+
 @contextmanager
 def _db():
-    conn = psycopg2.connect(config.DATABASE_URL)
+    conn = _DB_POOL.getconn()
     try:
         yield conn
         conn.commit()
@@ -45,7 +54,7 @@ def _db():
         conn.rollback()
         raise
     finally:
-        conn.close()
+        _DB_POOL.putconn(conn)
 
 
 def _init_db():
@@ -73,6 +82,19 @@ def _init_db():
                     grp     TEXT,
                     action  TEXT NOT NULL,
                     details TEXT
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS activity_pins (
+                    id             SERIAL PRIMARY KEY,
+                    pin_code       TEXT NOT NULL UNIQUE,
+                    student_name   TEXT NOT NULL,
+                    student_phone  TEXT NOT NULL DEFAULT '',
+                    student_class  TEXT NOT NULL DEFAULT '',
+                    activity_name  TEXT NOT NULL,
+                    issued_at      TIMESTAMPTZ DEFAULT NOW(),
+                    issued_by      TEXT DEFAULT '',
+                    is_active      BOOLEAN DEFAULT TRUE
                 )
             """)
 
@@ -146,7 +168,8 @@ def _load_subs():
 
 
 def _save_sub(sub: dict):
-    u = sub.pop("_user", {})
+    u = sub.get("_user", {})
+    sub_copy = {k: v for k, v in sub.items() if k != "_user"}
     with _db() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -158,7 +181,7 @@ def _save_sub(sub: dict):
                         phone    = EXCLUDED.phone,
                         grp      = EXCLUDED.grp
                 """,
-                (sub["endpoint"], json.dumps(sub), u.get("phone", ""), u.get("group", "")),
+                (sub_copy["endpoint"], json.dumps(sub_copy), u.get("phone", ""), u.get("group", "")),
             )
 
 
@@ -283,15 +306,15 @@ def proxy_student(subpath):
         if request.method in ("POST", "PUT", "DELETE"):
             r = http.request(request.method, url,
                              json=request.get_json(silent=True),
-                             cookies=cookies, timeout=15)
+                             cookies=cookies, timeout=8)
         else:
-            r = http.get(url, params=request.args, cookies=cookies, timeout=15)
+            r = http.get(url, params=request.args, cookies=cookies, timeout=8)
         # Если my1409 обновил куку — сохраняем
         new_c = r.cookies.get("session")
         if new_c:
             session["my1409_cookie"] = new_c
         return jsonify(r.json()), r.status_code
-    except Exception:
+    except http.RequestException:
         return jsonify({"error": "upstream error"}), 502
 
 
@@ -304,11 +327,32 @@ def proxy_vote(subpath):
     try:
         if request.method == "POST":
             r = http.post(url, json=request.get_json(silent=True),
-                          cookies=cookies, timeout=15)
+                          cookies=cookies, timeout=8)
         else:
-            r = http.get(url, params=request.args, cookies=cookies, timeout=15)
+            r = http.get(url, params=request.args, cookies=cookies, timeout=8)
         return jsonify(r.json()), r.status_code
-    except Exception:
+    except http.RequestException:
+        return jsonify({"error": "upstream error"}), 502
+
+
+# ── Proxy: /api/events/my_registrations → my1409.ru ─────────
+@app.route("/api/events/my_registrations", methods=["GET"])
+def proxy_my_event_registrations():
+    if not session.get("my1409_cookie"):
+        return jsonify({"error": "unauthorized"}), 401
+    u = session.get("user", {})
+    phone = u.get("phone", "")
+    if not phone:
+        return jsonify([])
+    try:
+        r = http.get(
+            f"{MY1409_BASE}/events/api/my_registrations",
+            params={"phone": phone},
+            cookies=_my1409_cookies(),
+            timeout=8,
+        )
+        return jsonify(r.json()), r.status_code
+    except http.RequestException:
         return jsonify({"error": "upstream error"}), 502
 
 
@@ -322,9 +366,9 @@ def proxy_events(subpath):
     try:
         if request.method == "POST":
             r = http.post(url, json=request.get_json(silent=True),
-                          cookies=cookies, timeout=15)
+                          cookies=cookies, timeout=8)
         else:
-            r = http.get(url, params=request.args, cookies=cookies, timeout=15)
+            r = http.get(url, params=request.args, cookies=cookies, timeout=8)
         new_c = r.cookies.get("session")
         if new_c:
             session["my1409_cookie"] = new_c
@@ -341,7 +385,7 @@ def proxy_news():
     try:
         r = http.get(f"{MY1409_BASE}/api/news",
                      params=request.args,
-                     cookies=_my1409_cookies(), timeout=15)
+                     cookies=_my1409_cookies(), timeout=8)
         return jsonify(r.json()), r.status_code
     except Exception:
         return jsonify({"error": "upstream error"}), 502
@@ -357,9 +401,9 @@ def proxy_card(subpath):
     try:
         if request.method == "POST":
             r = http.post(url, json=request.get_json(silent=True),
-                          cookies=cookies, timeout=15)
+                          cookies=cookies, timeout=8)
         else:
-            r = http.get(url, params=request.args, cookies=cookies, timeout=15)
+            r = http.get(url, params=request.args, cookies=cookies, timeout=8)
         return jsonify(r.json()), r.status_code
     except Exception:
         return jsonify({"error": "upstream error"}), 502
@@ -560,6 +604,150 @@ def admin_activity_export():
     )
 
 
+# ── Admin: значки ──────────────────────────────────
+import secrets
+import string as _string
+
+_PIN_ACTIVITIES = [
+    "Спортивное мероприятие",
+    "Творческий конкурс",
+    "Олимпиада",
+    "Волонтёрство",
+    "Конференция",
+    "Экскурсия",
+    "Дежурство",
+    "Актив класса",
+    "Школьное мероприятие",
+    "Другое",
+]
+
+def _gen_pin():
+    return "1409-" + "".join(secrets.choice(_string.ascii_uppercase + _string.digits) for _ in range(6))
+
+
+@app.route("/api/admin/pins", methods=["GET"])
+def admin_pins_list():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    search = request.args.get("search", "").strip()
+    with _db() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            if search:
+                cur.execute(
+                    """SELECT id, pin_code, student_name, student_phone, student_class,
+                              activity_name, issued_at AT TIME ZONE 'Europe/Moscow' AS issued_at,
+                              issued_by, is_active
+                       FROM activity_pins
+                       WHERE student_name ILIKE %s OR student_phone ILIKE %s OR pin_code ILIKE %s
+                       ORDER BY issued_at DESC LIMIT 200""",
+                    (f"%{search}%", f"%{search}%", f"%{search}%"),
+                )
+            else:
+                cur.execute(
+                    """SELECT id, pin_code, student_name, student_phone, student_class,
+                              activity_name, issued_at AT TIME ZONE 'Europe/Moscow' AS issued_at,
+                              issued_by, is_active
+                       FROM activity_pins ORDER BY issued_at DESC LIMIT 200"""
+                )
+            rows = cur.fetchall()
+    items = [
+        {
+            "id": r["id"],
+            "pin_code": r["pin_code"],
+            "student_name": r["student_name"] or "",
+            "student_phone": r["student_phone"] or "",
+            "student_class": r["student_class"] or "",
+            "activity_name": r["activity_name"] or "",
+            "issued_at": r["issued_at"].strftime("%d.%m.%Y %H:%M") if r["issued_at"] else "",
+            "issued_by": r["issued_by"] or "",
+            "is_active": r["is_active"],
+        }
+        for r in rows
+    ]
+    return jsonify({"items": items})
+
+
+@app.route("/api/admin/pins/generate", methods=["POST"])
+def admin_pins_generate():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    data = request.json or {}
+    student_name  = data.get("student_name", "").strip()
+    student_phone = data.get("student_phone", "").strip()
+    student_class = data.get("student_class", "").strip()
+    activity_name = data.get("activity_name", "").strip()
+    count = max(1, min(int(data.get("count", 1)), 20))
+
+    if not student_name or not activity_name:
+        return jsonify({"error": "student_name и activity_name обязательны"}), 400
+
+    pins = []
+    with _db() as conn:
+        with conn.cursor() as cur:
+            for _ in range(count):
+                code = _gen_pin()
+                cur.execute(
+                    """INSERT INTO activity_pins (pin_code, student_name, student_phone, student_class, activity_name, issued_by)
+                       VALUES (%s, %s, %s, %s, %s, %s)""",
+                    (code, student_name, student_phone, student_class, activity_name, "admin"),
+                )
+                pins.append(code)
+
+    return jsonify({"status": "ok", "pins": pins})
+
+
+@app.route("/api/admin/pins/revoke", methods=["POST"])
+def admin_pins_revoke():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    pin_id = (request.json or {}).get("id")
+    if not pin_id:
+        return jsonify({"error": "id обязателен"}), 400
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("UPDATE activity_pins SET is_active = FALSE WHERE id = %s", (pin_id,))
+    return jsonify({"status": "ok"})
+
+
+# ── Student: мои значки ───────────────────────────────────────
+@app.route("/api/student/my_pins")
+@_require_student
+def student_my_pins():
+    u = session.get("user", {})
+    phone = u.get("phone", "")
+    if not phone:
+        return jsonify({"items": []})
+    with _db() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                """SELECT pin_code, student_name, activity_name,
+                          issued_at AT TIME ZONE 'Europe/Moscow' AS issued_at
+                   FROM activity_pins
+                   WHERE student_phone = %s AND is_active = TRUE
+                   ORDER BY issued_at DESC""",
+                (phone,),
+            )
+            rows = cur.fetchall()
+    items = [
+        {
+            "pin_code": r["pin_code"],
+            "student_name": r["student_name"] or "",
+            "activity_name": r["activity_name"] or "",
+            "issued_at": r["issued_at"].strftime("%d.%m.%Y %H:%M") if r["issued_at"] else "",
+        }
+        for r in rows
+    ]
+    return jsonify({"items": items})
+
+
+# ── Admin: список активностей для значков ───────────────────────────
+@app.route("/api/admin/pin-activities")
+def admin_pin_activities():
+    if not session.get("admin"):
+        return jsonify({"error": "forbidden"}), 403
+    return jsonify({"activities": _PIN_ACTIVITIES})
+
+
 # ── Service Worker (нужен в корне для полного scope) ──────────
 @app.route("/sw.js")
 def service_worker():
@@ -627,8 +815,10 @@ def push_send():
     subs = _load_subs()
     sent = 0
     dead = []
+    dead_lock = Lock()
     data = json.dumps({"title": title, "body": body, "url": url, "tag": tag})
-    for sub in subs:
+
+    def _send(sub):
         try:
             webpush(
                 subscription_info=sub,
@@ -636,9 +826,17 @@ def push_send():
                 vapid_private_key=VAPID_PRIVATE_KEY,
                 vapid_claims={"sub": f"mailto:{VAPID_CLAIMS_EMAIL}"},
             )
-            sent += 1
+            return True
         except Exception:
-            dead.append(sub.get("endpoint"))
+            with dead_lock:
+                dead.append(sub.get("endpoint"))
+            return False
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        futures = [pool.submit(_send, sub) for sub in subs]
+        for f in as_completed(futures):
+            if f.result():
+                sent += 1
 
     if dead:
         _delete_dead_subs(dead)

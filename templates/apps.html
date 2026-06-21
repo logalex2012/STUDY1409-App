@@ -13,8 +13,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="STUDY1409">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
-    <link href="/static/lib/font-awesome/all.min.css" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="/static/lib/font-awesome/custom.css" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
     <style>
         :root {
@@ -161,6 +161,7 @@
                 radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
             z-index: -1;
             animation: cloudFloat 20s ease-in-out infinite;
+            will-change: transform;
         }
 
         @keyframes cloudFloat {
@@ -941,7 +942,7 @@
                     </a>
                     <a href="https://my1409.ru/vote/ballot">
                         <i class="fa-solid fa-square-poll-vertical"></i>
-                        <span>Выборы в1409</span>
+                        <span>Выборы </span>
                     </a>
                 </div>
             </div>
@@ -1142,6 +1143,7 @@
     (function initParticles() {
         const canvas = document.getElementById('stParticles');
         const ctx = canvas.getContext('2d');
+        let animId;
 
         function resize() {
             canvas.width  = window.innerWidth;
@@ -1160,7 +1162,7 @@
         }));
 
         function tick() {
-            requestAnimationFrame(tick);
+            animId = requestAnimationFrame(tick);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const isStranger   = document.documentElement.getAttribute('data-theme') === 'stranger';
             const particlesOn  = localStorage.getItem('st_particles') !== 'false';
@@ -1176,11 +1178,29 @@
                 if (p.x > canvas.width + 10) p.x = -10;
             });
         }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && animId) {
+                cancelAnimationFrame(animId);
+                animId = null;
+            } else if (!document.hidden && !animId) {
+                tick();
+            }
+        });
+
         tick();
     })();
 
     updateSchedule();
-    setInterval(updateSchedule, 1000);
+    let schedInterval = setInterval(updateSchedule, 1000);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(schedInterval);
+        } else {
+            updateSchedule();
+            schedInterval = setInterval(updateSchedule, 1000);
+        }
+    });
 
     // ── Telegram Web App ──────────────────────────────────────
     initTelegramWebApp({ backButton: false });
@@ -1284,19 +1304,22 @@
             const status = ev.status || 'registered';
             const href   = ev.url || ev.link || `https://my1409.ru/events/${ev.id || ''}`;
             const badge  = STATUS_LABELS[status] || status;
-            return `<a class="event-item" href="${href}" target="_blank">
+            const _h = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            return `<a class="event-item" href="${_h(href)}" target="_blank">
                 <div>
-                    <div class="event-name">${name}</div>
-                    ${date ? `<div class="event-meta">${date}</div>` : ''}
+                    <div class="event-name">${_h(name)}</div>
+                    ${date ? `<div class="event-meta">${_h(date)}</div>` : ''}
                 </div>
-                <span class="event-badge">${badge}</span>
+                <span class="event-badge">${_h(badge)}</span>
             </a>`;
         }).join('');
     }
 
     async function loadEvents() {
         try {
-            const res = await fetch('/api/events/registrations');
+            const controller = new AbortController();
+            setTimeout(() => controller.abort(), 8000);
+            const res = await fetch('/api/events/my_registrations', { signal: controller.signal });
             if (res.status === 502 || res.status === 503) {
                 document.getElementById('my1409Error').style.display = 'flex';
                 document.getElementById('eventsList').innerHTML =
@@ -1325,16 +1348,19 @@
             const title = n.title || n.name || n.subject || 'Объявление';
             const date  = _fmtDate(n.date || n.created_at || n.published_at || '');
             const href  = n.url || n.link || `https://my1409.ru/news/${n.id || ''}`;
-            return `<a class="news-item" href="${href}" target="_blank">
-                <div class="news-title">${title}</div>
-                ${date ? `<div class="news-meta">${date}</div>` : ''}
+            const _h = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            return `<a class="news-item" href="${_h(href)}" target="_blank">
+                <div class="news-title">${_h(title)}</div>
+                ${date ? `<div class="news-meta">${_h(date)}</div>` : ''}
             </a>`;
         }).join('');
     }
 
     async function loadNews() {
         try {
-            const res = await fetch('/api/news');
+            const controller = new AbortController();
+            setTimeout(() => controller.abort(), 8000);
+            const res = await fetch('/api/news', { signal: controller.signal });
             if (!res.ok) throw new Error('not ok');
             const data  = await res.json();
             const items = data.news || data.items || data.data || data.announcements || [];
@@ -1353,9 +1379,9 @@
         3:  { icon: 'fa-cloud',              label: 'Пасмурно' },
         45: { icon: 'fa-smog',              label: 'Туман' },
         48: { icon: 'fa-smog',              label: 'Туман с изморозью' },
-        51: { icon: 'fa-cloud-drizzle',     label: 'Лёгкая морось' },
-        53: { icon: 'fa-cloud-drizzle',     label: 'Морось' },
-        55: { icon: 'fa-cloud-drizzle',     label: 'Сильная морось' },
+        51: { icon: 'fa-cloud-rain',     label: 'Лёгкая морось' },
+        53: { icon: 'fa-cloud-rain',     label: 'Морось' },
+        55: { icon: 'fa-cloud-rain',     label: 'Сильная морось' },
         61: { icon: 'fa-cloud-rain',        label: 'Лёгкий дождь' },
         63: { icon: 'fa-cloud-rain',        label: 'Дождь' },
         65: { icon: 'fa-cloud-showers-heavy', label: 'Сильный дождь' },
@@ -1383,13 +1409,23 @@
 
     async function loadWeather() {
         const widget = document.getElementById('weatherWidget');
+        const cached = localStorage.getItem('weather_cache');
+        if (cached) {
+            try {
+                const { data, ts } = JSON.parse(cached);
+                if (Date.now() - ts < 600000) {
+                    widget.innerHTML = data;
+                    return;
+                }
+            } catch {}
+        }
         try {
             let lat = 55.75, lon = 37.62, city = 'Москва';
 
-            // Пробуем геолокацию (таймаут 3 сек)
+            // Пробуем геолокацию (таймаут 2 сек)
             await new Promise(resolve => {
                 if (!navigator.geolocation) { resolve(); return; }
-                const t = setTimeout(resolve, 3000);
+                const t = setTimeout(resolve, 2000);
                 navigator.geolocation.getCurrentPosition(pos => {
                     lat  = pos.coords.latitude;
                     lon  = pos.coords.longitude;
@@ -1399,11 +1435,14 @@
                 }, () => { clearTimeout(t); resolve(); });
             });
 
+            const controller = new AbortController();
+            const t = setTimeout(() => controller.abort(), 5000);
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
                 + `&current=temperature_2m,weathercode,windspeed_10m`
                 + `&wind_speed_unit=ms&timezone=Europe%2FMoscow`;
 
-            const res  = await fetch(url);
+            const res  = await fetch(url, { signal: controller.signal });
+            clearTimeout(t);
             const data = await res.json();
             const cur  = data.current;
             const temp = Math.round(cur.temperature_2m);
@@ -1413,7 +1452,7 @@
             const hint = _weatherHint(temp, wind);
             const sign = temp > 0 ? '+' : '';
 
-            widget.innerHTML = `
+            const html = `
                 <div class="weather-inner">
                     <div class="weather-icon"><i class="fa-solid ${wmo.icon}"></i></div>
                     <div class="weather-info">
@@ -1423,6 +1462,8 @@
                         <div class="weather-city">${city}</div>
                     </div>
                 </div>`;
+            widget.innerHTML = html;
+            localStorage.setItem('weather_cache', JSON.stringify({ data: html, ts: Date.now() }));
         } catch {
             widget.innerHTML = '<p class="empty">Погода недоступна</p>';
         }

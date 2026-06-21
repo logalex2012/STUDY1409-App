@@ -6,7 +6,7 @@
     <title>STUDY1409 - Настройки аккаунта</title>
     <link rel="icon" href="/static/favicon.png">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
     <script src="/static/lib/lucide.min.js"></script>
     <style>
@@ -403,6 +403,51 @@
             font-style: italic;
         }
 
+        .reg-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .reg-item:last-child { border-bottom: none; }
+
+        .reg-event-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .reg-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .reg-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .reg-badge.present {
+            background: rgba(40, 167, 69, 0.2);
+            color: #4caf50;
+        }
+
+        .reg-badge.absent {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+        }
+
+        .empty-regs {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+
         /* Toggle / Светлая тема */
         .toggle-item {
             display: flex;
@@ -508,12 +553,28 @@
             <p>{{ student.group_number }}{{ student.group_letter }} класс</p>
         </div>
 
+        <!-- Мои регистрации -->
+        <div class="card" id="myRegistrationsCard" style="display:none;">
+            <div class="section-title">
+                <i data-lucide="calendar-check"></i> Мои регистрации
+            </div>
+            <div id="myRegistrationsList"></div>
+        </div>
+
         <!-- Значки -->
         <div class="card" id="badgesCard" style="display:none;">
             <div class="section-title">
                 <i data-lucide="award"></i> Значки
             </div>
             <div class="badges-list" id="badgesList"></div>
+        </div>
+
+        <!-- Значки -->
+        <div class="card" id="pinsCard" style="display:none;">
+            <div class="section-title">
+                <i data-lucide="award"></i> Мои значки
+            </div>
+            <div id="pinsList"></div>
         </div>
 
         <!-- Данные аккаунта -->
@@ -777,7 +838,60 @@
             if (confirm('Выйти из аккаунта?')) window.location.href = '/logout';
         }
 
+        async function loadMyRegistrations() {
+            try {
+                const res = await fetch('/api/events/my_registrations');
+                if (!res.ok) return;
+                const data = await res.json();
+                const items = data.registrations || data.items || data.data || data;
+                if (!Array.isArray(items) || items.length === 0) return;
+                const card = document.getElementById('myRegistrationsCard');
+                const list = document.getElementById('myRegistrationsList');
+                card.style.display = 'block';
+                list.innerHTML = items.map(reg => {
+                    const presentBadge = reg.is_present
+                        ? '<span class="reg-badge present">Присутствовал</span>'
+                        : '<span class="reg-badge absent">Не отмечен</span>';
+                    const locationInfo = reg.is_online
+                        ? '🌐 Онлайн'
+                        : `📍 ${reg.event_location}`;
+                    return `
+                        <div class="reg-item">
+                            <div class="reg-event-name">${reg.event_name}</div>
+                            <div class="reg-meta">
+                                <span>📅 ${reg.event_date}, ${reg.event_time}</span>
+                                <span>${locationInfo}</span>
+                            </div>
+                            <div style="margin-top:6px;">${presentBadge}</div>
+                        </div>`;
+                }).join('');
+            } catch (e) {}
+        }
+
+        async function loadMyPins() {
+            try {
+                const res = await fetch('/api/student/my_pins');
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data.items || data.items.length === 0) return;
+                const card = document.getElementById('pinsCard');
+                const list = document.getElementById('pinsList');
+                card.style.display = 'block';
+                list.innerHTML = data.items.map(p => `
+                    <div class="reg-item">
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <span style="font-family:monospace;font-weight:700;font-size:1.1rem;color:var(--accent);">${p.pin_code}</span>
+                            <span style="font-size:0.78rem;color:var(--text-muted);">${p.issued_at}</span>
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px;">${p.activity_name}</div>
+                    </div>
+                `).join('');
+            } catch (e) {}
+        }
+
         document.addEventListener('DOMContentLoaded', loadBadges);
+        document.addEventListener('DOMContentLoaded', loadMyRegistrations);
+        document.addEventListener('DOMContentLoaded', loadMyPins);
         initTelegramWebApp();   // показать кнопку «назад» в TG
     </script>
 </body>

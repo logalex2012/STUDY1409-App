@@ -153,10 +153,14 @@
         let t = 30;
         const el = document.getElementById('countdown');
         const timer = setInterval(() => {
+            if (document.hidden) return;
             t--;
             if (el) el.textContent = t;
             if (t <= 0) { clearInterval(timer); location.reload(); }
         }, 1000);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) clearInterval(timer);
+        });
     </script>
 </body>
 </html>

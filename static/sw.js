@@ -9,7 +9,7 @@ const PRECACHE_ASSETS = [
     '/static/fonts/fonts.css',
     '/static/lib/lucide.min.js',
     '/static/lib/qrcode.min.js',
-    '/static/lib/font-awesome/all.min.css',
+    '/static/lib/font-awesome/custom.css',
     '/offline',
 ];
 
@@ -32,6 +32,16 @@ self.addEventListener('activate', event => {
     );
 });
 
+const MAX_CACHE_ENTRIES = 50;
+
+async function _limitCache(cache) {
+    const keys = await cache.keys();
+    const over = keys.length - MAX_CACHE_ENTRIES;
+    if (over > 0) {
+        await Promise.all(keys.slice(0, over + 1).map(k => cache.delete(k)));
+    }
+}
+
 // ── Fetch: routing strategy ───────────────────────────────────
 self.addEventListener('fetch', event => {
     const { request } = event;
@@ -46,8 +56,12 @@ self.addEventListener('fetch', event => {
             caches.match(request).then(cached => {
                 if (cached) return cached;
                 return fetch(request).then(res => {
+                    if (!res.ok) return res;
                     const clone = res.clone();
-                    caches.open(CACHE_NAME).then(c => c.put(request, clone));
+                    caches.open(CACHE_NAME).then(c => {
+                        c.put(request, clone);
+                        _limitCache(c).catch(() => {});
+                    });
                     return res;
                 });
             })
@@ -61,7 +75,10 @@ self.addEventListener('fetch', event => {
             .then(res => {
                 if (res.ok) {
                     const clone = res.clone();
-                    caches.open(CACHE_NAME).then(c => c.put(request, clone));
+                    caches.open(CACHE_NAME).then(c => {
+                        c.put(request, clone);
+                        _limitCache(c).catch(() => {});
+                    });
                 }
                 return res;
             })

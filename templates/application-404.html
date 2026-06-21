@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STUDY1409 - Разрешение не найдено</title>
     <link rel="icon" href="/static/favicon.png">
+    <link rel="manifest" href="/static/manifest.json">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/lib/font-awesome/all.min.css">
+    <link rel="stylesheet" href="/static/lib/font-awesome/custom.css">
     <script src="/static/lib/lucide.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+    <script src="/static/tg.js"></script>
     <style>
         :root {
             --bg-primary: #000000;
@@ -288,11 +291,11 @@
             <div class="rating-block">
                 <div class="rating-title">Как всё прошло?</div>
                 <div class="stars">
-                    <i class="fas fa-star star" data-rating="1"></i>
-                    <i class="fas fa-star star" data-rating="2"></i>
-                    <i class="fas fa-star star" data-rating="3"></i>
-                    <i class="fas fa-star star" data-rating="4"></i>
-                    <i class="fas fa-star star" data-rating="5"></i>
+                    <i class="fa-solid fa-star star" data-rating="1"></i>
+                    <i class="fa-solid fa-star star" data-rating="2"></i>
+                    <i class="fa-solid fa-star star" data-rating="3"></i>
+                    <i class="fa-solid fa-star star" data-rating="4"></i>
+                    <i class="fa-solid fa-star star" data-rating="5"></i>
                 </div>
             </div>
         </div>
@@ -348,6 +351,8 @@
         document.getElementById('popupOverlay').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closePopup();
         });
+
+        initTelegramWebApp({ backButton: true });
     </script>
 </body>
 </html>
