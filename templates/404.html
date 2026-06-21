@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 — 404 </title>
+    <title data-i18n="app.title.404">STUDY1409 — 404 </title>
     <link rel="icon" href="/static/favicon.png">
     <link rel="manifest" href="/static/manifest.json">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
@@ -76,14 +76,15 @@
         .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
         .btn:hover { opacity: .82; }
     </style>
+    <script src="/static/i18n/i18n.js"></script>
 </head>
 <body>
     <div class="code">404</div>
-    <h1>Страница не найдена</h1>
-    <p>Такой страницы не существует. Возможно, ссылка устарела или была удалена.</p>
+    <h1 data-i18n="error.404.title">Страница не найдена</h1>
+    <p data-i18n="error.404.desc">Такой страницы не существует. Возможно, ссылка устарела или была удалена.</p>
     <div class="actions">
-        <a href="/apps" class="btn btn-primary">На главную</a>
-        <a href="javascript:history.back()" class="btn btn-secondary">Назад</a>
+        <a data-i18n="error.404.home" href="/apps" class="btn btn-primary">На главную</a>
+        <a data-i18n="error.404.back" href="javascript:history.back()" class="btn btn-secondary">Назад</a>
     </div>
 </body>
 </html>

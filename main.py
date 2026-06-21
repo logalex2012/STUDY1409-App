@@ -29,7 +29,10 @@ app.config.update(
 )
 app.permanent_session_lifetime = timedelta(days=365)
 
-MY1409_BASE    = config.MY1409_BASE
+_base = config.MY1409_BASE
+if _base and '://' not in _base:
+    _base = 'https://' + _base
+MY1409_BASE = _base
 _ADMIN_PW_HASH = config.ADMIN_PW_HASH
 
 _MAINTENANCE_FILE = os.path.join(os.path.dirname(__file__), "maintenance.lock")

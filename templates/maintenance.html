@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 — Технические работы</title>
+    <title data-i18n="app.title.maintenance">STUDY1409 — Технические работы</title>
     <link rel="icon" href="/static/favicon.png">
     <link rel="manifest" href="/static/manifest.json">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
@@ -110,6 +110,7 @@
             margin-top: 20px;
         }
     </style>
+    <script src="/static/i18n/i18n.js"></script>
 </head>
 <body>
     <!-- Animated gears -->
@@ -137,17 +138,17 @@
         </svg>
     </div>
 
-    <h1>Технические работы</h1>
-    <p class="subtitle">Мы обновляем приложение. Совсем скоро всё заработает — обычно это занимает не больше нескольких минут.</p>
+    <h1 data-i18n="maintenance.title">Технические работы</h1>
+    <p class="subtitle" data-i18n="maintenance.desc">Мы обновляем приложение. Совсем скоро всё заработает — обычно это занимает не больше нескольких минут.</p>
 
     <div class="eta">
         <span class="eta-dot"></span>
-        Скоро вернёмся
+        <span data-i18n="maintenance.eta">Скоро вернёмся</span>
     </div>
 
-    <button class="btn" onclick="location.reload()">↻ Проверить снова</button>
+    <button data-i18n="maintenance.check_again" class="btn" onclick="location.reload()">↻ Проверить снова</button>
 
-    <p class="countdown" id="autoRefresh">Автообновление через <span id="countdown">30</span> сек</p>
+    <p class="countdown" id="autoRefresh"><span data-i18n="maintenance.auto_refresh">Автообновление через</span> <span id="countdown">30</span> <span data-i18n="maintenance.sec">сек</span></p>
 
     <script>
         let t = 30;

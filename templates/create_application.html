@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 - Заявка на выход</title>
+    <title data-i18n="app.title.create_app">STUDY1409 - Заявка на выход</title>
     <link rel="icon" href="/static/favicon.png">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
     <script src="/static/lib/lucide.min.js"></script>
+    <script src="/static/i18n/i18n.js"></script>
     <style>
         :root {
             --bg-primary: #000000;
@@ -302,16 +303,16 @@
         </div>
 
         <div class="header">
-            <h1>Заявка на выход</h1>
+            <h1 data-i18n="create_app.title">Заявка на выход</h1>
         </div>
 
         <div class="card">
             <div class="section-title">
-                <i data-lucide="door-open"></i> Новая заявка
+                <i data-lucide="door-open"></i> <span data-i18n="create_app.new_title">Новая заявка</span>
             </div>
             <form id="exitForm">
                 <div class="form-group">
-                    <label>Причина</label>
+                    <label data-i18n="create_app.reason_label">Причина</label>
                     <select id="cause" required>
                         <option value="" disabled selected>Выберите причину</option>
                         <option value="Семейные обстоятельства">Семейные обстоятельства</option>
@@ -320,7 +321,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Время выхода</label>
+                    <label data-i18n="create_app.time_label">Время выхода</label>
                     <select id="exitTime" required>
                         <option value="" disabled selected>Выберите время</option>
                         <option value="09:15">09:15</option>
@@ -331,7 +332,7 @@
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary" id="submitBtn">
-                    <i data-lucide="send"></i> Отправить классному руководителю
+                    <i data-lucide="send"></i> <span data-i18n="create_app.submit">Отправить классному руководителю</span>
                 </button>
             </form>
         </div>
@@ -339,20 +340,20 @@
         <div class="card">
             <div class="section-title" style="justify-content: space-between;">
                 <span style="display:flex;align-items:center;gap:8px;">
-                    <i data-lucide="history"></i> История разрешений
+                    <i data-lucide="history"></i> <span data-i18n="create_app.history_title">История разрешений</span>
                 </span>
-                <button class="refresh-btn" onclick="loadHistory()" title="Обновить">
+                <button class="refresh-btn" onclick="loadHistory()" title="Обновить" data-i18n="create_app.history_refresh">
                     <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i>
                 </button>
             </div>
-            <div id="historyList"><div class="empty-state">Загрузка...</div></div>
+            <div id="historyList"><div class="empty-state" data-i18n="create_app.history_loading">Загрузка...</div></div>
         </div>
 
         <div class="card">
             <div class="section-title">
-                <i data-lucide="arrow-up-square"></i> Разрешения на лифт
+                <i data-lucide="arrow-up-square"></i> <span data-i18n="create_app.lift_title">Разрешения на лифт</span>
             </div>
-            <div id="liftList"><div class="empty-state">Загрузка...</div></div>
+            <div id="liftList"><div class="empty-state" data-i18n="create_app.lift_loading">Загрузка...</div></div>
         </div>
     </div>
 
@@ -383,7 +384,7 @@
 
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Отправка...';
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> ' + __('create_app.submitting');
             lucide.createIcons();
 
             try {
@@ -395,18 +396,18 @@
                 const data = await r.json();
                 if (r.ok) {
                     document.getElementById('exitForm').reset();
-                    showToast('Заявка отправлена на рассмотрение');
+                    showToast(__('create_app.success'));
                     loadHistory();
                 } else if (r.status === 401) {
                     window.location.href = '/';
                 } else {
-                    showToast(data.message || 'Ошибка при создании заявки', 'error');
+                    showToast(data.message || __('create_app.error'), 'error');
                 }
             } catch {
-                showToast('Ошибка при создании заявки', 'error');
+                showToast(__('create_app.error'), 'error');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i data-lucide="send"></i> Отправить классному руководителю';
+                btn.innerHTML = '<i data-lucide="send"></i> ' + __('create_app.submit');
                 lucide.createIcons();
             }
         });
@@ -421,14 +422,14 @@
                 _requests = await rr.json();
                 renderHistory(false);
             } catch {
-                document.getElementById('historyList').innerHTML = '<div class="empty-state">Ошибка загрузки</div>';
+                document.getElementById('historyList').innerHTML = '<div class="empty-state">' + __('create_app.history_error') + '</div>';
             }
         }
 
         function renderHistory(showAll) {
             const el = document.getElementById('historyList');
             const total = _requests.length + _history.length;
-            if (total === 0) { el.innerHTML = '<div class="empty-state">История пуста</div>'; return; }
+            if (total === 0) { el.innerHTML = '<div class="empty-state">' + __('create_app.history_empty') + '</div>'; return; }
 
             const limit = showAll ? Infinity : 2;
             let count = 0, html = '';
@@ -436,25 +437,27 @@
             for (const req of _requests) {
                 if (count >= limit) break;
                 const sc = req.is_rejected ? 'status-rejected' : 'status-pending';
-                const st = req.is_rejected ? 'Отклонено' : 'Ожидает одобрения';
-                html += itemHtml(req.created_at, sc, st, req.cause, `Время: ${req.allowed_exit_time} | КР: ${req.teacher_name}`, '');
+                const st = req.is_rejected ? __('create_app.history_rejected') : __('create_app.history_pending');
+                html += itemHtml(req.created_at, sc, st, req.cause, __('create_app.details', {time: req.allowed_exit_time, teacher: req.teacher_name}), '');
                 count++;
             }
 
             for (const item of _history) {
                 if (count >= limit) break;
                 let sc, st;
-                if (item.is_used) { sc = 'status-used'; st = 'Использовано'; }
-                else if (item.is_expired) { sc = 'status-expired'; st = 'Просрочено'; }
-                else { sc = 'status-approved'; st = 'Одобрено'; }
+                if (item.is_used) { sc = 'status-used'; st = __('create_app.history_used'); }
+                else if (item.is_expired) { sc = 'status-expired'; st = __('create_app.history_expired'); }
+                else { sc = 'status-approved'; st = __('create_app.history_approved'); }
                 const extra = (!item.is_used && !item.is_expired)
-                    ? `<div class="history-actions"><button class="btn-open" onclick="window.location.href='/application/${item.id}'"><i data-lucide="external-link" style="width:14px;height:14px;"></i> Открыть</button></div>` : '';
-                const det = `Время: ${item.allowed_exit_time} | Учитель: ${item.teacher_name}${item.used_at ? ' | ' + item.used_at : ''}`;
+                    ? `<div class="history-actions"><button class="btn-open" onclick="window.location.href='/application/${item.id}'"><i data-lucide="external-link" style="width:14px;height:14px;"></i> ${__('create_app.history_open')}</button></div>` : '';
+                const det = item.used_at
+                    ? __('create_app.details_with_used', {time: item.allowed_exit_time, teacher: item.teacher_name, used: ' | ' + item.used_at})
+                    : __('create_app.details', {time: item.allowed_exit_time, teacher: item.teacher_name});
                 html += itemHtml(item.created_at, sc, st, item.cause, det, extra);
                 count++;
             }
 
-            if (!showAll && total > 2) html += `<button class="show-all-btn" onclick="renderHistory(true)">Показать все (${total})</button>`;
+            if (!showAll && total > 2) html += `<button class="show-all-btn" onclick="renderHistory(true)">${__('create_app.lift_show_all', {total: total})}</button>`;
             el.innerHTML = html;
             lucide.createIcons();
         }
@@ -477,25 +480,25 @@
                 const r = await fetch('/api/student/lift-permissions');
                 const perms = await r.json();
                 if (perms.length === 0) {
-                    el.innerHTML = '<div class="empty-state">Разрешений нет. Обратитесь к классному руководителю.</div>';
+                    el.innerHTML = '<div class="empty-state">' + __('create_app.lift_empty') + '</div>';
                     return;
                 }
                 el.innerHTML = perms.map(p => `
                     <div class="lift-item">
                         <div class="history-header">
-                            <span class="history-date">Создано: ${p.created_at}</span>
-                            <span class="lift-badge">Активно</span>
+                            <span class="history-date">${__('create_app.created_at', {date: p.created_at})}</span>
+                            <span class="lift-badge">${__('create_app.lift_badge_active')}</span>
                         </div>
                         <div class="history-cause">${p.cause}</div>
-                        <div class="history-details">До: ${p.deadline} | Поездок: ${p.remaining_rides} из ${p.total_rides} | ${p.teacher_name}</div>
+                        <div class="history-details">${__('create_app.lift_details', {deadline: p.deadline, remaining: p.remaining_rides, total: p.total_rides, teacher: p.teacher_name})}</div>
                         <button class="btn-lift" onclick="window.location.href='/lift-application/${p.id}'">
-                            <i data-lucide="arrow-up-square" style="width:16px;height:16px;"></i> Использовать лифт
+                            <i data-lucide="arrow-up-square" style="width:16px;height:16px;"></i> ${__('create_app.lift_use')}
                         </button>
                     </div>
                 `).join('');
                 lucide.createIcons();
             } catch {
-                el.innerHTML = '<div class="empty-state">Ошибка загрузки</div>';
+                el.innerHTML = '<div class="empty-state">' + __('create_app.lift_error') + '</div>';
             }
         }
 

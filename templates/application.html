@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 - Разрешение на выход</title>
+    <title data-i18n="app.title.application">STUDY1409 - Разрешение на выход</title>
     <link rel="icon" href="/static/favicon.png">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
     <script src="/static/lib/lucide.min.js"></script>
     <script src="/static/lib/qrcode.min.js"></script>
+    <script src="/static/i18n/i18n.js"></script>
     <style>
         :root {
             --bg-primary: #000000;
@@ -382,18 +383,18 @@
 <body>
     <div class="container">
         <div class="top-nav">
-            <a href="/create_application" class="nav-close" title="Назад">
+            <a href="/create_application" class="nav-close" title="Назад" data-i18n="app.title.back">
                 <i data-lucide="arrow-left"></i>
             </a>
         </div>
 
         <div class="header">
-            <h1>Разрешение на выход</h1>
+            <h1 data-i18n="application.title">Разрешение на выход</h1>
         </div>
 
         <div class="card">
             <div class="student-info">
-                <div class="student-name" id="studentName">Загрузка...</div>
+                <div class="student-name" id="studentName" data-i18n="application.loading">Загрузка...</div>
                 <div class="student-meta" id="studentGroup">Класс: —</div>
                 <div class="student-meta" id="teacherName">Учитель: —</div>
                 <div class="cause-badge" id="causeBadge" style="display:none;"></div>
@@ -404,24 +405,24 @@
                     <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
                     <button class="action-btn" id="showButton" onclick="showToGuard()" disabled>
                         <i data-lucide="shield-check" style="width:18px;height:18px;"></i>
-                        <span id="buttonText">Я около выхода</span>
+                        <span id="buttonText" data-i18n="application.show_button">Я около выхода</span>
                     </button>
                 </div>
-                <p class="warning-text">Активируй ТОЛЬКО когда будешь около охраны — иначе заявку удалят</p>
-                <p class="time-info" id="timeInfo">
-                    Выход разрешён после <span id="allowedTime"></span>
-                </p>
+                <p class="warning-text" data-i18n="application.warning">Активируй ТОЛЬКО когда будешь около охраны — иначе заявку удалят</p>
+<p class="time-info" id="timeInfo">
+    <span data-i18n="application.time_info">Выход разрешён после</span> <span id="allowedTime"></span>
+</p>
             </div>
 
             <div class="qr-section">
                 <button class="qr-toggle-btn" onclick="toggleQR()">
                     <i data-lucide="qr-code" style="width:16px;height:16px;"></i>
-                    QR для администратора
+                    <span data-i18n="application.qr_button">QR для администратора</span>
                     <i data-lucide="chevron-down" id="qrChevron" style="width:16px;height:16px;transition:transform 0.3s;"></i>
                 </button>
                 <div class="qr-content" id="qrContent">
                     <div id="qrcode"></div>
-                    <p class="qr-help">Этот QR-код может понадобиться, если администратор попросит проверить разрешение</p>
+                    <p class="qr-help" data-i18n="application.qr_help">Этот QR-код может понадобиться, если администратор попросит проверить разрешение</p>
                 </div>
             </div>
         </div>
@@ -429,11 +430,11 @@
 
     <div class="popup-overlay" id="popupOverlay">
         <div class="popup" id="popupBox">
-            <h3>Подтверждение</h3>
-            <p>Вы уверены, что находитесь около пункта охраны? Если нет — заявку удалят.</p>
+            <h3 data-i18n="application.popup_title">Подтверждение</h3>
+            <p data-i18n="application.popup_text">Вы уверены, что находитесь около пункта охраны? Если нет — заявку удалят.</p>
             <div class="popup-btns">
-                <button class="popup-btn cancel" onclick="closePopup()">Отмена</button>
-                <button class="popup-btn confirm" onclick="confirmShow()">Да, я тут</button>
+                <button class="popup-btn cancel" onclick="closePopup()" data-i18n="application.popup_cancel">Отмена</button>
+                <button class="popup-btn confirm" onclick="confirmShow()" data-i18n="application.popup_confirm">Да, я тут</button>
             </div>
         </div>
     </div>
@@ -479,9 +480,9 @@
                     return res.json();
                 })
                 .then(data => {
-                    document.getElementById('studentName').textContent = data.name || 'Имя не указано';
-                    document.getElementById('studentGroup').textContent = `Класс: ${data.group || '—'}`;
-                    document.getElementById('teacherName').textContent = `Учитель: ${data.teacher_name || '—'}`;
+                    document.getElementById('studentName').textContent = data.name || __('application.name_unknown');
+                    document.getElementById('studentGroup').textContent = __('application.class_label', {group: data.group || '—'});
+                    document.getElementById('teacherName').textContent = __('application.teacher_label', {name: data.teacher_name || '—'});
                     if (data.cause) {
                         const badge = document.getElementById('causeBadge');
                         badge.textContent = data.cause;
@@ -490,7 +491,7 @@
                     if (data.allowed_exit_time) initTimer(data.allowed_exit_time);
                 })
                 .catch(() => {
-                    document.getElementById('studentName').textContent = 'Ошибка загрузки';
+                    document.getElementById('studentName').textContent = __('application.load_error');
                 });
         }
 
@@ -511,8 +512,8 @@
                 btn.disabled = false;
                 info.style.display = 'none';
                 document.getElementById('progressBar').style.width = '100%';
-                document.getElementById('buttonText').textContent = 'Я около выхода';
-                clearInterval(countdownInterval);
+                    document.getElementById('buttonText').textContent = __('application.show_button');
+                    clearInterval(countdownInterval);
             }
         }
 
@@ -529,7 +530,7 @@
                 if (diff <= 0) {
                     clearInterval(countdownInterval);
                     btn.disabled = false;
-                    text.textContent = 'Я около выхода';
+                    text.textContent = __('application.show_button');
                     bar.style.width = '100%';
                     document.getElementById('timeInfo').style.display = 'none';
                     return;
@@ -559,8 +560,8 @@
 
             fetch(`/api/student/application/${applicationId}/show?mode=true`, { method: 'POST' })
                 .then(res => { if (!res.ok) throw new Error(); })
-                .then(() => showToast('Уведомление отправлено охране'))
-                .catch(() => showToast('Не удалось отправить данные', 'error'))
+                .then(() => showToast(__('application.toast_success')))
+                .catch(() => showToast(__('application.toast_error'), 'error'))
                 .finally(() => setTimeout(() => btn.disabled = false, 5000));
         }
 

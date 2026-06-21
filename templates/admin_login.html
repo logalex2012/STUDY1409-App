@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 — Вход для администратора</title>
+    <title data-i18n="app.title.admin_login">STUDY1409 — Вход для администратора</title>
     <link rel="icon" href="/static/favicon.png">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
     <style>
@@ -138,20 +138,21 @@
             box-shadow: 0 8px 25px rgba(68,70,225,0.4);
         }
     </style>
+    <script src="/static/i18n/i18n.js"></script>
 </head>
 <body>
     <div class="card">
         <div class="shield">🛡️</div>
-        <h1>Панель администратора</h1>
-        <p class="sub">STUDY1409 · Только для сотрудников</p>
+        <h1 data-i18n="admin_login.title">Панель администратора</h1>
+        <p class="sub" data-i18n="admin_login.subtitle">STUDY1409 · Только для сотрудников</p>
 
         {% if error %}
         <div class="error">{{ error }}</div>
         {% endif %}
 
         <form method="POST">
-            <input type="password" name="password" placeholder="Пароль" autofocus required>
-            <button type="submit">Войти</button>
+            <input type="password" name="password" placeholder="Пароль" data-i18n="admin_login.password_placeholder" data-i18n-placeholder="true" autofocus required>
+            <button data-i18n="admin_login.login" type="submit">Войти</button>
         </form>
     </div>
 </body>

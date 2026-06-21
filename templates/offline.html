@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 — Нет соединения</title>
+    <title data-i18n="app.title.offline">STUDY1409 — Нет соединения</title>
     <link rel="icon" href="/static/favicon.png">
     <link rel="manifest" href="/static/manifest.json">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
@@ -79,11 +79,12 @@
         }
         .btn:hover { opacity: .85; }
     </style>
+    <script src="/static/i18n/i18n.js"></script>
 </head>
 <body>
     <div class="icon">📡</div>
-    <h1>Нет соединения</h1>
-    <p>Проверь подключение к интернету и попробуй снова. Кэшированные страницы доступны в офлайн-режиме.</p>
-    <button class="btn" onclick="location.reload()">↻ Повторить</button>
+    <h1 data-i18n="offline.title">Нет соединения</h1>
+    <p data-i18n="offline.desc">Проверь подключение к интернету и попробуй снова. Кэшированные страницы доступны в офлайн-режиме.</p>
+    <button data-i18n="offline.retry" class="btn" onclick="location.reload()">↻ Повторить</button>
 </body>
 </html>

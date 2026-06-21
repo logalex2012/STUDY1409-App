@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 - Разрешение не найдено</title>
+    <title data-i18n="app.title.application_404">STUDY1409 - Разрешение не найдено</title>
     <link rel="icon" href="/static/favicon.png">
     <link rel="manifest" href="/static/manifest.json">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
@@ -11,6 +11,7 @@
     <script src="/static/lib/lucide.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
+    <script src="/static/i18n/i18n.js"></script>
     <style>
         :root {
             --bg-primary: #000000;
@@ -274,7 +275,7 @@
 <body>
     <div class="container">
         <div class="top-nav">
-            <a href="/create_application" class="nav-close" title="Назад">
+            <a href="/create_application" class="nav-close" title="Назад" data-i18n="application.back">
                 <i data-lucide="arrow-left"></i>
             </a>
         </div>
@@ -284,12 +285,12 @@
                 <i data-lucide="shield-alert"></i>
             </div>
 
-            <div class="title">Разрешение больше не действует</div>
-            <div class="subtitle">Оно уже использовано или отменено</div>
-            <div class="hint">Если считаете, что это ошибка — обратитесь к учителю.</div>
+            <div class="title" data-i18n="app404.title">Разрешение больше не действует</div>
+            <div class="subtitle" data-i18n="app404.subtitle">Оно уже использовано или отменено</div>
+            <div class="hint" data-i18n="app404.hint">Если считаете, что это ошибка — обратитесь к учителю.</div>
 
             <div class="rating-block">
-                <div class="rating-title">Как всё прошло?</div>
+                <div class="rating-title" data-i18n="app404.rating_title">Как всё прошло?</div>
                 <div class="stars">
                     <i class="fa-solid fa-star star" data-rating="1"></i>
                     <i class="fa-solid fa-star star" data-rating="2"></i>
@@ -303,13 +304,13 @@
 
     <div class="popup-overlay" id="popupOverlay">
         <div class="popup">
-            <h3>Спасибо за оценку!</h3>
+            <h3 data-i18n="app404.popup_title">Спасибо за оценку!</h3>
             <p id="popupText"></p>
-            <button class="popup-btn primary" onclick="openSurvey()">
+            <button class="popup-btn primary" onclick="openSurvey()" data-i18n="app404.survey">
                 <i data-lucide="clipboard-list" style="width:16px;height:16px;"></i>
                 Пройти быстрый опрос
             </button>
-            <button class="popup-btn secondary" onclick="closePopup()">Закрыть</button>
+            <button class="popup-btn secondary" onclick="closePopup()" data-i18n="app404.close">Закрыть</button>
         </div>
     </div>
 
@@ -322,11 +323,11 @@
         lucide.createIcons();
 
         const messages = {
-            1: 'Нам очень жаль, что у вас был негативный опыт 😔',
-            2: 'Спасибо за отзыв. Мы постараемся улучшить сервис 😕',
-            3: 'Спасибо за оценку! Мы работаем над улучшением 😊',
-            4: 'Рады, что вам понравилось! 😊',
-            5: 'Отлично! Рады, что вы довольны! 😊'
+            1: __('app404.rating_1'),
+            2: __('app404.rating_2'),
+            3: __('app404.rating_3'),
+            4: __('app404.rating_4'),
+            5: __('app404.rating_5')
         };
 
         document.querySelectorAll('.star').forEach(star => {

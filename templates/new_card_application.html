@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 - Заказ карты МЭШ</title>
+    <title data-i18n="app.title.card">STUDY1409 - Заказ карты МЭШ</title>
     <link rel="icon" href="/static/favicon.png">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
     <script src="/static/lib/lucide.min.js"></script>
+    <script src="/static/i18n/i18n.js"></script>
     <style>
         :root {
             --bg-primary: #000000;
@@ -323,31 +324,31 @@
 
         <div class="header">
             <img src="/static/card_faviocn.png" style="height: 100px;" alt="Карта МЭШ">
-            <h1>Заказ карты МЭШ</h1>
+            <h1 data-i18n="card.title">Заказ карты МЭШ</h1>
         </div>
 
         <div class="card">
             <!-- Слой 1: форма -->
             <section id="order-layer">
-                <h1>Заявка на выпуск карты «МЭШ»</h1>
-                <p class="subtitle">Заполните поля ниже. После отправки заявка уйдёт системному администратору.</p>
+                <h1 data-i18n="card.order_title">Заявка на выпуск карты «МЭШ»</h1>
+                <p class="subtitle" data-i18n="card.order_subtitle">Заполните поля ниже. После отправки заявка уйдёт системному администратору.</p>
 
                 <form id="mesh-form">
                     <div class="form-group">
-                        <label for="fio">ФИО</label>
-                        <input id="fio" type="text" placeholder="Иванов Иван Иванович" value="{{ full_name or '' }}" required>
+                        <label for="fio" data-i18n="card.fio_label">ФИО</label>
+                        <input id="fio" type="text" placeholder="Иванов Иван Иванович" value="{{ full_name or '' }}" required data-i18n="card.fio_placeholder" data-i18n-placeholder="true">
                     </div>
 
                     <div class="form-group">
-                        <label for="class">Класс</label>
-                        <input id="class" type="text" placeholder="10А" value="{{ student_class or '' }}" required>
-                        <div class="hint">Например: 7Б, 9В, 11А</div>
+                        <label for="class" data-i18n="card.class_label">Класс</label>
+                        <input id="class" type="text" placeholder="10А" value="{{ student_class or '' }}" required data-i18n="card.class_placeholder" data-i18n-placeholder="true">
+                        <div class="hint" data-i18n="card.class_hint">Например: 7Б, 9В, 11А</div>
                     </div>
 
                     <div class="form-group">
-                        <label for="reason">Причина замены</label>
+                        <label for="reason" data-i18n="card.reason_label">Причина замены</label>
                         <select id="reason" required>
-                            <option value="" disabled selected>Выберите причину</option>
+                            <option value="" disabled selected data-i18n="card.reason_placeholder">Выберите причину</option>
                             <option>Потеря</option>
                             <option>Повреждение</option>
                             <option>Зачисление в школу</option>
@@ -355,8 +356,8 @@
                     </div>
 
                     <div class="actions">
-                        <a href="/" class="btn btn-secondary">Назад</a>
-                        <button type="submit" class="btn btn-primary">Отправить</button>
+                        <a href="/" class="btn btn-secondary" data-i18n="card.back">Назад</a>
+                        <button type="submit" class="btn btn-primary" data-i18n="card.submit">Отправить</button>
                     </div>
                 </form>
             </section>
@@ -364,11 +365,11 @@
             <!-- Слой 2: успех -->
             <section id="done-layer">
                 <div class="done-icon">✅</div>
-                <h1>Заявка отправлена</h1>
-                <p>Карта будет готова на следующий день и будет ждать в специальной зоне на охране.<br>Старая карта перестанет действовать.</p>
+                <h1 data-i18n="card.done_title">Заявка отправлена</h1>
+                <p data-i18n="card.done_desc">Карта будет готова на следующий день и будет ждать в специальной зоне на охране.<br>Старая карта перестанет действовать.</p>
                 <div class="done-icon" style="font-size:3rem;">💳</div>
                 <div class="actions">
-                    <a href="/" class="btn btn-secondary">На главную</a>
+                    <a href="/" class="btn btn-secondary" data-i18n="card.done_home">На главную</a>
                 </div>
             </section>
         </div>
@@ -400,10 +401,10 @@
                         document.getElementById('order-layer').style.display = 'none';
                         document.getElementById('done-layer').style.display = 'block';
                     } else {
-                        alert('Ошибка: ' + data.message);
+                        alert(__('card.error_prefix') + data.message);
                     }
                 })
-                .catch(() => alert('Произошла ошибка при отправке заявки.'));
+                .catch(() => alert(__('card.error_generic')));
             }
         });
 
