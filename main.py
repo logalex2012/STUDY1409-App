@@ -266,7 +266,7 @@ def pwa_login_send():
     if not _rate_ok(_rl_sms, phone, limit=3, window=60):
         return jsonify({"status": "error", "message": "Слишком много запросов. Подождите минуту."}), 429
     try:
-        r = http.post(f"{MY1409_BASE}/api/student/login/phone-send",
+        r = http.post(f"{MY1409_BASE}/api/teacher/login/phone-send",
                       json={"phone": phone}, timeout=10)
         return jsonify(r.json()), r.status_code
     except Exception:
@@ -279,7 +279,7 @@ def pwa_login_verify():
     phone = data.get("phone", "")
     code  = data.get("code", "")
     try:
-        r = http.post(f"{MY1409_BASE}/api/student/login/phone-check",
+        r = http.post(f"{MY1409_BASE}/api/teacher/login/phone-check",
                       json={"phone": phone, "code": code}, timeout=10)
         body = r.json()
         if r.ok and body.get("status") == "success":

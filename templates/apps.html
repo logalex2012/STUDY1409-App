@@ -14,7 +14,6 @@
     <meta name="apple-mobile-web-app-title" content="STUDY1409">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
     <link href="/static/lib/font-awesome/custom.css" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
     <script src="/static/i18n/i18n.js"></script>
     <style>
@@ -1457,17 +1456,19 @@
         try {
             let lat = 55.75, lon = 37.62, city = 'Москва';
 
-            // Пробуем геолокацию (таймаут 2 сек)
+            // Пробуем геолокацию
             await new Promise(resolve => {
                 if (!navigator.geolocation) { resolve(); return; }
-                const t = setTimeout(resolve, 2000);
                 navigator.geolocation.getCurrentPosition(pos => {
                     lat  = pos.coords.latitude;
                     lon  = pos.coords.longitude;
                     city = 'Ваш город';
-                    clearTimeout(t);
                     resolve();
-                }, () => { clearTimeout(t); resolve(); });
+                }, () => { resolve(); }, {
+                    timeout: 3000,
+                    maximumAge: 300000,
+                    enableHighAccuracy: false,
+                });
             });
 
             const controller = new AbortController();

@@ -45,6 +45,7 @@
       }
     }
     apply();
+    document.dispatchEvent(new CustomEvent('langchange', { detail: { lang: _current } }));
   }
 
   async function setLanguage(lang) {
