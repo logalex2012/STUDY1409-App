@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 — 500 Ошибка сервера</title>
+    <title data-i18n="app.title.500">STUDY1409 — 500 Ошибка сервера</title>
     <link rel="icon" href="/static/favicon.png">
     <link rel="manifest" href="/static/manifest.json">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
@@ -76,14 +76,15 @@
         .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
         .btn:hover { opacity: .82; }
     </style>
+    <script src="/static/i18n/i18n.js"></script>
 </head>
 <body>
     <div class="code">500</div>
-    <h1>Ошибка сервера</h1>
-    <p>Что-то пошло не так на нашей стороне. Попробуй обновить страницу или зайди позже.</p>
+    <h1 data-i18n="error.500.title">Ошибка сервера</h1>
+    <p data-i18n="error.500.desc">Что-то пошло не так на нашей стороне. Попробуй обновить страницу или зайди позже.</p>
     <div class="actions">
-        <button class="btn btn-primary" onclick="location.reload()">↻ Обновить</button>
-        <a href="/apps" class="btn btn-secondary">На главную</a>
+        <button data-i18n="error.500.refresh" class="btn btn-primary" onclick="location.reload()">↻ Обновить</button>
+        <a data-i18n="error.500.home" href="/apps" class="btn btn-secondary">На главную</a>
     </div>
 </body>
 </html>

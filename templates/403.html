@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 — 403 Доступ запрещён</title>
+    <title data-i18n="app.title.403">STUDY1409 — 403 Доступ запрещён</title>
     <link rel="icon" href="/static/favicon.png">
     <link rel="manifest" href="/static/manifest.json">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
@@ -76,14 +76,15 @@
         .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
         .btn:hover { opacity: .82; }
     </style>
+    <script src="/static/i18n/i18n.js"></script>
 </head>
 <body>
     <div class="code">403</div>
-    <h1>Доступ запрещён</h1>
-    <p>У тебя нет прав для просмотра этой страницы. Войди в аккаунт или обратись к администратору.</p>
+    <h1 data-i18n="error.403.title">Доступ запрещён</h1>
+    <p data-i18n="error.403.desc">У тебя нет прав для просмотра этой страницы. Войди в аккаунт или обратись к администратору.</p>
     <div class="actions">
-        <a href="/" class="btn btn-primary">Войти</a>
-        <a href="javascript:history.back()" class="btn btn-secondary">Назад</a>
+        <a data-i18n="error.403.login" href="/" class="btn btn-primary">Войти</a>
+        <a data-i18n="error.403.back" href="javascript:history.back()" class="btn btn-secondary">Назад</a>
     </div>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 — my1409.ru недоступен</title>
+    <title data-i18n="app.title.502">STUDY1409 — my1409.ru недоступен</title>
     <link rel="icon" href="/static/favicon.png">
     <link rel="manifest" href="/static/manifest.json">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
@@ -113,6 +113,7 @@
         }
         #countdown { color: rgba(255,193,7,0.6); }
     </style>
+    <script src="/static/i18n/i18n.js"></script>
 </head>
 <body>
     <div class="signal-wrap">
@@ -123,15 +124,15 @@
     </div>
 
     <div class="code">502</div>
-    <h1>my1409.ru недоступен</h1>
-    <p>Сервер школы временно не отвечает. Это не ошибка приложения — попробуй чуть позже.</p>
+    <h1 data-i18n="error.502.title">my1409.ru недоступен</h1>
+    <p data-i18n="error.502.desc">Сервер школы временно не отвечает. Это не ошибка приложения — попробуй чуть позже.</p>
 
     <div class="actions">
-        <button class="btn btn-primary" onclick="location.reload()">↻ Попробовать снова</button>
-        <a href="/apps" class="btn btn-secondary">На главную</a>
+        <button data-i18n="error.502.retry" class="btn btn-primary" onclick="location.reload()">↻ Попробовать снова</button>
+        <a data-i18n="error.502.home" href="/apps" class="btn btn-secondary">На главную</a>
     </div>
 
-    <p class="retry-hint">Автоматическая проверка через <span id="countdown">20</span> сек</p>
+    <p class="retry-hint"><span data-i18n="error.502.auto_check">Автоматическая проверка через</span> <span id="countdown">20</span> <span data-i18n="error.502.sec">сек</span></p>
 
     <script>
         let t = 20;

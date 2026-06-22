@@ -1,7 +1,7 @@
 {
   "name": "STUDY1409",
   "short_name": "STUDY1409",
-  "description": "Портал школы №1409",
+  "description": "School No.1409 Portal",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

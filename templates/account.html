@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 - Настройки аккаунта</title>
+    <title data-i18n="app.title.account">STUDY1409 - Настройки аккаунта</title>
     <link rel="icon" href="/static/favicon.png">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
     <script src="/static/lib/lucide.min.js"></script>
+    <script src="/static/i18n/i18n.js"></script>
     <style>
         :root {
             --bg-primary: #000000;
@@ -543,10 +544,10 @@
         <div class="header">
             <div class="avatar-container">
                 <div class="avatar-img" onclick="document.getElementById('avatarInput').click()" title="Сменить фото">
-                    <img id="avatarPreview" src="/static/default_avatar.png" alt="Аватар" style="display:none;">
+                    <img id="avatarPreview" src="/static/default_avatar.png" alt="Аватар" data-i18n-attr="alt" data-i18n="account.avatar_alt" style="display:none;">
                     <i data-lucide="user" id="avatarIcon" style="width: 48px; height: 48px; color: var(--text-muted);"></i>
                 </div>
-                <span class="avatar-edit-hint">Нажмите для смены</span>
+                <span class="avatar-edit-hint" data-i18n="account.avatar_change_hint">Нажмите для смены</span>
                 <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="changeAvatar(this)">
             </div>
             <h1>{{ student.surname }} {{ student.name }}</h1>
@@ -556,7 +557,7 @@
         <!-- Мои регистрации -->
         <div class="card" id="myRegistrationsCard" style="display:none;">
             <div class="section-title">
-                <i data-lucide="calendar-check"></i> Мои регистрации
+                <i data-lucide="calendar-check"></i> <span data-i18n="account.registrations_title">Мои регистрации</span>
             </div>
             <div id="myRegistrationsList"></div>
         </div>
@@ -564,7 +565,7 @@
         <!-- Значки -->
         <div class="card" id="badgesCard" style="display:none;">
             <div class="section-title">
-                <i data-lucide="award"></i> Значки
+                <i data-lucide="award"></i> <span data-i18n="account.badges_title">Значки</span>
             </div>
             <div class="badges-list" id="badgesList"></div>
         </div>
@@ -572,7 +573,7 @@
         <!-- Значки -->
         <div class="card" id="pinsCard" style="display:none;">
             <div class="section-title">
-                <i data-lucide="award"></i> Мои значки
+                <i data-lucide="award"></i> <span data-i18n="account.my_badges_title">Мои значки</span>
             </div>
             <div id="pinsList"></div>
         </div>
@@ -580,33 +581,33 @@
         <!-- Данные аккаунта -->
         <div class="card">
             <div class="section-title">
-                <i data-lucide="user"></i> Данные аккаунта
+                <i data-lucide="user"></i> <span data-i18n="account.account_data_title">Данные аккаунта</span>
             </div>
             <div class="info-row">
-                <span class="info-label">ФИО</span>
+                <span class="info-label" data-i18n="account.fio">ФИО</span>
                 <span class="info-value">{{ student.surname }} {{ student.name }} {{ student.lastname or '' }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Класс</span>
+                <span class="info-label" data-i18n="account.class">Класс</span>
                 <span class="info-value" id="classDisplay">{{ student.group_number }}{{ student.group_letter }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Классный руководитель</span>
+                <span class="info-label" data-i18n="account.class_teacher">Классный руководитель</span>
                 <span class="info-value">{{ class_teacher_name }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Телефон</span>
-                <span class="info-value">{{ student.phone or 'Не указан' }}</span>
+                <span class="info-label" data-i18n="account.phone">Телефон</span>
+                <span class="info-value" id="phoneValue">{{ student.phone or 'Не указан' }}</span>
             </div>
         </div>
 
         <!-- Изменить класс -->
         <div class="card">
             <div class="section-title">
-                <i data-lucide="edit"></i> Изменить класс
+                <i data-lucide="edit"></i> <span data-i18n="account.change_class_title">Изменить класс</span>
             </div>
             <div class="form-group">
-                <label>Новый класс</label>
+                <label data-i18n="account.new_class">Новый класс</label>
                 <div class="class-row">
                     <select id="newGroupNumber">
                         <option value="5" {% if student.group_number == 5 %}selected{% endif %}>5</option>
@@ -624,7 +625,7 @@
                     </select>
                 </div>
             </div>
-            <button class="btn btn-primary" id="saveClassBtn" onclick="updateClass()">
+            <button class="btn btn-primary" id="saveClassBtn" onclick="updateClass()" data-i18n="account.save_class">
                 <i data-lucide="save"></i> Сохранить класс
             </button>
         </div>
@@ -632,37 +633,49 @@
         <!-- Оформление -->
         <div class="card">
             <div class="section-title">
-                <i data-lucide="palette"></i> Оформление
+                <i data-lucide="palette"></i> <span data-i18n="account.appearance_title">Оформление</span>
             </div>
 
             <!-- Выбор темы -->
-            <label style="margin-bottom:12px; display:block;">Тема</label>
+            <label style="margin-bottom:12px; display:block;" data-i18n="account.theme_label">Тема</label>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
                 <button class="theme-btn" id="btnDark" onclick="setTheme('dark')">
                     <span style="font-size:1.4rem;">🌑</span>
-                    <span>Тёмная</span>
+                    <span data-i18n="account.theme_dark">Тёмная</span>
                 </button>
                 <button class="theme-btn" id="btnLight" onclick="setTheme('light')">
                     <span style="font-size:1.4rem;">☀️</span>
-                    <span>Светлая</span>
+                    <span data-i18n="account.theme_light">Светлая</span>
                 </button>
                 <button class="theme-btn" id="btnStranger" onclick="setTheme('stranger')">
                     <span style="font-size:1.4rem;">🔴</span>
-                    <span>Наизнанку</span>
+                    <span data-i18n="account.theme_stranger">Наизнанку</span>
                 </button>
             </div>
+
+            <!-- Language selector -->
+            <div style="height:1px; background:var(--border-color); margin-bottom:16px;"></div>
+            <label style="margin-bottom:12px; display:block;" data-i18n="account.lang_label">Язык</label>
+            <select id="langSelect" onchange="__lang.setLanguage(this.value)" style="margin-bottom:16px;">
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="de">Deutsch</option>
+                <option value="it">Italiano</option>
+                <option value="tr">Türkçe</option>
+            </select>
 
             <!-- Настройки Stranger Things (видны только в этой теме) -->
             <div id="strangerSettings" style="display:none;">
                 <div style="height:1px; background:var(--border-color); margin-bottom:16px;"></div>
-                <label style="margin-bottom:12px; display:block; color:rgba(220,20,20,0.9);">
+                <label style="margin-bottom:12px; display:block; color:rgba(220,20,20,0.9);" data-i18n="account.stranger_settings">
                     ⬛ Настройки «Мира Наизнанку»
                 </label>
 
                 <div class="toggle-item">
                     <div>
-                        <div class="toggle-title">🌫️ Споры</div>
-                        <div class="toggle-hint">Плавающие частицы как из Наизнанки</div>
+                        <div class="toggle-title" data-i18n="account.stranger_spores">🌫️ Споры</div>
+                        <div class="toggle-hint" data-i18n="account.stranger_spores_hint">Плавающие частицы как из Наизнанки</div>
                     </div>
                     <label class="switch">
                         <input type="checkbox" id="stParticlesToggle" onchange="stSetting('st_particles', this.checked)">
@@ -672,8 +685,8 @@
 
                 <div class="toggle-item">
                     <div>
-                        <div class="toggle-title">💡 Мерцание</div>
-                        <div class="toggle-hint">Мигающий текст как лампочки Уилла</div>
+                        <div class="toggle-title" data-i18n="account.stranger_flicker">💡 Мерцание</div>
+                        <div class="toggle-hint" data-i18n="account.stranger_flicker_hint">Мигающий текст как лампочки Уилла</div>
                     </div>
                     <label class="switch">
                         <input type="checkbox" id="stFlickerToggle" onchange="stSetting('st_flicker', this.checked)">
@@ -683,8 +696,8 @@
 
                 <div class="toggle-item">
                     <div>
-                        <div class="toggle-title">🌿 Лозы</div>
-                        <div class="toggle-hint">Тёмные лозы по краям экрана</div>
+                        <div class="toggle-title" data-i18n="account.stranger_vines">🌿 Лозы</div>
+                        <div class="toggle-hint" data-i18n="account.stranger_vines_hint">Тёмные лозы по краям экрана</div>
                     </div>
                     <label class="switch">
                         <input type="checkbox" id="stVinesToggle" onchange="stSetting('st_vines', this.checked)">
@@ -697,10 +710,10 @@
         <!-- Действия -->
         <div style="display: grid; gap: 10px;">
             <button class="btn btn-secondary" onclick="window.open('https://t.me/dit1409_bot', '_blank')">
-                <i data-lucide="message-circle"></i> Техническая поддержка
+                <i data-lucide="message-circle"></i> <span data-i18n="account.support">Техническая поддержка</span>
             </button>
             <button class="btn btn-danger" onclick="logout()">
-                <i data-lucide="log-out"></i> Выйти из аккаунта
+                <i data-lucide="log-out"></i> <span data-i18n="account.logout">Выйти из аккаунта</span>
             </button>
         </div>
     </div>
@@ -759,14 +772,14 @@
             const file = input.files[0];
             if (!file) return;
             if (file.size > 5 * 1024 * 1024) {
-                showToast('Файл слишком большой (макс. 5 МБ)', 'error');
+                showToast(__('account.avatar_too_large'), 'error');
                 return;
             }
             const reader = new FileReader();
             reader.onload = e => {
                 localStorage.setItem('user_avatar', e.target.result);
                 loadAvatar();
-                showToast('Фото обновлено', 'success');
+                showToast(__('account.avatar_updated'), 'success');
             };
             reader.readAsDataURL(file);
         }
@@ -774,6 +787,7 @@
         initTheme();
         loadAvatar();
         lucide.createIcons();
+        initLang();
 
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
@@ -782,9 +796,10 @@
             setTimeout(() => toast.classList.remove('shown'), 3000);
         }
 
-        const BADGE_META = {
-            voter_2026: { emoji: '🗳️', label: 'Участник выборов 2026', cls: 'voter_2026' }
-        };
+        function getBadgeLabel(key) {
+            const labels = { voter_2026: __('account.badge_voter_2026') };
+            return labels[key] || key;
+        }
 
         async function loadBadges() {
             try {
@@ -795,9 +810,11 @@
                 const list = document.getElementById('badgesList');
                 card.style.display = 'block';
                 list.innerHTML = data.badges.map(key => {
-                    const m = BADGE_META[key];
-                    if (!m) return '';
-                    return `<span class="badge-pin ${m.cls}">${m.emoji} ${m.label}</span>`;
+                    const meta = {
+                        voter_2026: { emoji: '🗳️', cls: 'voter_2026' }
+                    }[key];
+                    if (!meta) return '';
+                    return `<span class="badge-pin ${meta.cls}">${meta.emoji} ${getBadgeLabel(key)}</span>`;
                 }).join('');
             } catch (e) {}
         }
@@ -808,7 +825,7 @@
             const btn = document.getElementById('saveClassBtn');
 
             btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="loader-2"></i> Сохранение...';
+            btn.innerHTML = '<i data-lucide="loader-2"></i> ' + __('account.saving');
             lucide.createIcons();
 
             try {
@@ -821,21 +838,21 @@
 
                 if (r.ok) {
                     document.getElementById('classDisplay').textContent = `${number}${letter}`;
-                    showToast(data.message || 'Класс сохранён', 'success');
+                    showToast(data.message || __('account.class_saved'), 'success');
                 } else {
-                    showToast(data.message || 'Ошибка', 'error');
+                    showToast(data.message || __('account.error'), 'error');
                 }
             } catch {
-                showToast('Ошибка при сохранении', 'error');
+                showToast(__('account.save_error'), 'error');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i data-lucide="save"></i> Сохранить класс';
+                btn.innerHTML = '<i data-lucide="save"></i> ' + __('account.save_class');
                 lucide.createIcons();
             }
         }
 
         function logout() {
-            if (confirm('Выйти из аккаунта?')) window.location.href = '/logout';
+            if (confirm(__('account.logout_confirm'))) window.location.href = '/logout';
         }
 
         async function loadMyRegistrations() {
@@ -850,10 +867,10 @@
                 card.style.display = 'block';
                 list.innerHTML = items.map(reg => {
                     const presentBadge = reg.is_present
-                        ? '<span class="reg-badge present">Присутствовал</span>'
-                        : '<span class="reg-badge absent">Не отмечен</span>';
+                        ? '<span class="reg-badge present">' + __('account.registration_present') + '</span>'
+                        : '<span class="reg-badge absent">' + __('account.registration_absent') + '</span>';
                     const locationInfo = reg.is_online
-                        ? '🌐 Онлайн'
+                        ? __('account.registration_online')
                         : `📍 ${reg.event_location}`;
                     return `
                         <div class="reg-item">
@@ -889,9 +906,29 @@
             } catch (e) {}
         }
 
+        function initLang() {
+            const lang = localStorage.getItem('lang') || 'ru';
+            const sel = document.getElementById('langSelect');
+            if (sel) sel.value = lang;
+            // translate phone "Не указан" fallback
+            const phoneEl = document.getElementById('phoneValue');
+            if (phoneEl && phoneEl.textContent.trim() === 'Не указан') {
+                phoneEl.textContent = __('account.phone_not_specified');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', loadBadges);
         document.addEventListener('DOMContentLoaded', loadMyRegistrations);
         document.addEventListener('DOMContentLoaded', loadMyPins);
+        document.addEventListener('DOMContentLoaded', initLang);
+        document.addEventListener('langchange', (e) => {
+            const sel = document.getElementById('langSelect');
+            if (sel) sel.value = e.detail.lang;
+            const phoneEl = document.getElementById('phoneValue');
+            if (phoneEl && phoneEl.textContent.trim() === 'Не указан') {
+                phoneEl.textContent = __('account.phone_not_specified');
+            }
+        });
         initTelegramWebApp();   // показать кнопку «назад» в TG
     </script>
 </body>

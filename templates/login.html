@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STUDY1409 - Авторизация</title>
+<title data-i18n="app.title.login">STUDY1409 - Авторизация</title>
 
 <link rel="icon" href="/static/favicon.png">
 <link href="/static/fonts/fonts.css" rel="stylesheet">
@@ -228,6 +228,7 @@ footer {
 </style>
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
+    <script src="/static/i18n/i18n.js"></script>
 </head>
 
 <body>
@@ -238,23 +239,23 @@ footer {
 
     <!-- Шаг 1: телефон -->
     <div class="step active" id="step1">
-        <h1>Привет 👋</h1>
-        <p class="sub">Войдите в STUDY1409 по номеру телефона</p>
-        <input type="tel" id="phoneInput" placeholder="+7 (999) 000-00-00" autocomplete="tel">
-        <button id="sendBtn" onclick="sendCode()">Получить код</button>
+        <h1 data-i18n="login.step1.title">Привет 👋</h1>
+        <p class="sub" data-i18n="login.step1.subtitle">Войдите в STUDY1409 по номеру телефона</p>
+        <input type="tel" id="phoneInput" placeholder="+7 (999) 000-00-00" autocomplete="tel" data-i18n="login.step1.phone_placeholder" data-i18n-placeholder="true">
+        <button id="sendBtn" onclick="sendCode()" data-i18n="login.step1.send_code">Получить код</button>
     </div>
 
     <!-- Шаг 2: код -->
     <div class="step" id="step2">
-        <h1>Введите код 🔑</h1>
-        <p class="sub" id="codeSub">Код отправлен в Telegram на ваш номер</p>
-        <input type="number" id="codeInput" placeholder="0000" maxlength="4" autocomplete="one-time-code">
-        <button id="verifyBtn" onclick="verifyCode()">Войти</button>
-        <button class="back-btn" onclick="backToPhone()">← Изменить номер</button>
+        <h1 data-i18n="login.step2.title">Введите код 🔑</h1>
+        <p class="sub" id="codeSub" data-i18n="login.step2.subtitle">Код отправлен в Telegram на ваш номер</p>
+        <input type="number" id="codeInput" placeholder="0000" maxlength="4" autocomplete="one-time-code" data-i18n="login.step2.code_placeholder" data-i18n-placeholder="true">
+        <button id="verifyBtn" onclick="verifyCode()" data-i18n="login.step2.login">Войти</button>
+        <button class="back-btn" onclick="backToPhone()" data-i18n="login.step2.change_number">← Изменить номер</button>
     </div>
 </div>
 
-<footer>
+<footer data-i18n="login.footer">
     Создано в школе №1409
 </footer>
 
@@ -280,11 +281,11 @@ footer {
 
     async function sendCode() {
         const phone = document.getElementById('phoneInput').value.trim();
-        if (!phone) { showError('Введите номер телефона'); return; }
+        if (!phone) { showError(__('login.error.no_phone')); return; }
         _phone = phone;
         const btn = document.getElementById('sendBtn');
         btn.disabled = true;
-        btn.textContent = 'Отправляем…';
+        btn.textContent = __('login.sending');
         try {
             const r = await fetch('/api/pwa/login/send-code', {
                 method: 'POST',
@@ -294,26 +295,26 @@ footer {
             const data = await r.json();
             if (r.ok && data.status === 'success') {
                 document.getElementById('codeSub').textContent =
-                    `Код отправлен в Telegram на номер ${phone}`;
+                    __('login.step2.subtitle_phone', {phone: phone});
                 setStep(2);
                 setTimeout(() => document.getElementById('codeInput').focus(), 100);
             } else {
-                showError(data.message || 'Ошибка отправки кода');
+                showError(data.message || __('login.error.send_failed'));
             }
         } catch {
-            showError('Нет соединения с сервером');
+            showError(__('login.error.no_connection'));
         } finally {
             btn.disabled = false;
-            btn.textContent = 'Получить код';
+            btn.textContent = __('login.step1.send_code');
         }
     }
 
     async function verifyCode() {
         const code = document.getElementById('codeInput').value.trim();
-        if (!code) { showError('Введите код'); return; }
+        if (!code) { showError(__('login.error.no_code')); return; }
         const btn = document.getElementById('verifyBtn');
         btn.disabled = true;
-        btn.textContent = 'Проверяем…';
+        btn.textContent = __('login.checking');
         try {
             const r = await fetch('/api/pwa/login/verify-code', {
                 method: 'POST',
@@ -324,14 +325,14 @@ footer {
             if (r.ok && data.status === 'success') {
                 window.location.href = '/apps';
             } else {
-                showError(data.message || 'Неверный код');
+                showError(data.message || __('login.error.wrong_code'));
                 btn.disabled = false;
-                btn.textContent = 'Войти';
+                btn.textContent = __('login.step2.login');
             }
         } catch {
-            showError('Нет соединения с сервером');
+            showError(__('login.error.no_connection'));
             btn.disabled = false;
-            btn.textContent = 'Войти';
+            btn.textContent = __('login.step2.login');
         }
     }
 
@@ -386,6 +387,12 @@ footer {
         });
         tick();
     })();
+
+    document.addEventListener('langchange', () => {
+      if (document.getElementById('step2').classList.contains('active') && _phone) {
+        document.getElementById('codeSub').textContent = __('login.step2.subtitle_phone', {phone: _phone});
+      }
+    });
 
     // Telegram Web App: на странице входа кнопку «назад» не показываем
     initTelegramWebApp({ backButton: false });

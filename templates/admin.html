@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 — Админ панель</title>
+    <title data-i18n="app.title.admin">STUDY1409 — Админ панель</title>
     <link rel="icon" href="/static/favicon.png">
     <link href="/static/fonts/fonts.css" rel="stylesheet">
     <script src="/static/lib/lucide.min.js"></script>
+    <script src="/static/i18n/i18n.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -449,51 +450,51 @@
 <nav class="sidebar" id="sidebar">
     <div class="sidebar-logo">
         <div class="logo-title">STUDY1409</div>
-        <div class="logo-sub">Панель администратора</div>
+        <div class="logo-sub" data-i18n="admin.logo_sub">Панель администратора</div>
     </div>
 
     <div class="sidebar-nav">
-        <div class="nav-section">Обзор</div>
-        <div class="nav-item active" onclick="showSection('dashboard')">
-            <i data-lucide="layout-dashboard"></i> Главная
+        <div class="nav-section" data-i18n="admin.nav_overview">Обзор</div>
+        <div class="nav-item active" onclick="showSection('dashboard')" data-tip="Главная" data-i18n-tip="admin.nav_home">
+            <i data-lucide="layout-dashboard"></i> <span data-i18n="admin.nav_home">Главная</span>
         </div>
 
-        <div class="nav-section">Заявки</div>
-        <div class="nav-item" onclick="showSection('passes')">
-            <i data-lucide="door-open"></i> Заявки на выход
+        <div class="nav-section" data-i18n="admin.nav_passes">Заявки</div>
+        <div class="nav-item" onclick="showSection('passes')" data-tip="Заявки на выход" data-i18n-tip="admin.nav_passes">
+            <i data-lucide="door-open"></i> <span data-i18n="admin.nav_passes">Заявки на выход</span>
         </div>
-        <div class="nav-item" onclick="showSection('cards')">
-            <i data-lucide="credit-card"></i> Карты МЭШ
-        </div>
-
-        <div class="nav-section">Управление</div>
-        <div class="nav-item" onclick="showSection('students')">
-            <i data-lucide="users"></i> Ученики
-        </div>
-        <div class="nav-item" onclick="showSection('announcements')">
-            <i data-lucide="megaphone"></i> Объявления
-        </div>
-        <div class="nav-item" onclick="showSection('pins')">
-            <i data-lucide="award"></i> Значки
+        <div class="nav-item" onclick="showSection('cards')" data-tip="Карты МЭШ" data-i18n-tip="admin.nav_cards">
+            <i data-lucide="credit-card"></i> <span data-i18n="admin.nav_cards">Карты МЭШ</span>
         </div>
 
-        <div class="nav-section">Система</div>
-        <div class="nav-item" onclick="showSection('activity')">
-            <i data-lucide="activity"></i> Журнал активности
+        <div class="nav-section" data-i18n="admin.nav_management">Управление</div>
+        <div class="nav-item" onclick="showSection('students')" data-tip="Ученики" data-i18n-tip="admin.nav_students">
+            <i data-lucide="users"></i> <span data-i18n="admin.nav_students">Ученики</span>
         </div>
-        <div class="nav-item" onclick="showSection('app_settings')">
-            <i data-lucide="settings"></i> Настройки приложения
+        <div class="nav-item" onclick="showSection('announcements')" data-tip="Объявления" data-i18n-tip="admin.nav_announcements">
+            <i data-lucide="megaphone"></i> <span data-i18n="admin.nav_announcements">Объявления</span>
+        </div>
+        <div class="nav-item" onclick="showSection('pins')" data-tip="Значки" data-i18n-tip="admin.nav_pins">
+            <i data-lucide="award"></i> <span data-i18n="admin.nav_pins">Значки</span>
         </div>
 
-        <div class="nav-section">Источники</div>
-        <div class="nav-item" onclick="showSection('sources')">
-            <i data-lucide="globe"></i> Внешние источники
+        <div class="nav-section" data-i18n="admin.nav_system">Система</div>
+        <div class="nav-item" onclick="showSection('activity')" data-tip="Журнал активности" data-i18n-tip="admin.nav_activity">
+            <i data-lucide="activity"></i> <span data-i18n="admin.nav_activity">Журнал активности</span>
+        </div>
+        <div class="nav-item" onclick="showSection('app_settings')" data-tip="Настройки приложения" data-i18n-tip="admin.nav_settings">
+            <i data-lucide="settings"></i> <span data-i18n="admin.nav_settings">Настройки приложения</span>
+        </div>
+
+        <div class="nav-section" data-i18n="admin.nav_sources">Источники</div>
+        <div class="nav-item" onclick="showSection('sources')" data-tip="Внешние источники" data-i18n-tip="admin.nav_external">
+            <i data-lucide="globe"></i> <span data-i18n="admin.nav_external">Внешние источники</span>
         </div>
     </div>
 
     <div class="sidebar-footer">
         <a href="/admin/logout" class="logout-btn">
-            <i data-lucide="log-out" style="width:16px;height:16px;"></i> Выйти
+            <i data-lucide="log-out" style="width:16px;height:16px;"></i> <span data-i18n="admin.logout">Выйти</span>
         </a>
     </div>
 </nav>
@@ -503,10 +504,10 @@
     <div class="topbar">
         <div style="display:flex;align-items:center;gap:12px;">
             <button class="menu-btn" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
-            <span class="topbar-title" id="topbar-title">Главная</span>
+            <span class="topbar-title" id="topbar-title" data-i18n="admin.section_dashboard">Главная</span>
         </div>
         <div class="topbar-right">
-            <span class="status-dot"></span> Сервер запущен
+            <span class="status-dot"></span> <span data-i18n="admin.server_status">Сервер запущен</span>
         </div>
     </div>
 
@@ -516,33 +517,33 @@
         <section class="section active" id="s-dashboard">
             <div class="stats-grid">
                 <div class="stat-card blue">
-                    <div class="stat-label">Заявок на выход</div>
+                    <div class="stat-label" data-i18n="admin.stat_passes">Заявок на выход</div>
                     <div class="stat-value" id="stat-passes">—</div>
-                    <div class="stat-sub">За всё время</div>
+                    <div class="stat-sub" data-i18n="admin.stat_passes_all">За всё время</div>
                 </div>
                 <div class="stat-card yellow">
-                    <div class="stat-label">Ожидают одобрения</div>
+                    <div class="stat-label" data-i18n="admin.stat_pending">Ожидают одобрения</div>
                     <div class="stat-value" id="stat-pending">—</div>
-                    <div class="stat-sub">Заявок на выход</div>
+                    <div class="stat-sub" data-i18n="admin.stat_passes_title">Заявок на выход</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-label">Push-подписчики</div>
+                    <div class="stat-label" data-i18n="admin.stat_subscribers">Push-подписчики</div>
                     <div class="stat-value" id="stat-subscribers">—</div>
-                    <div class="stat-sub">Устройств подписано</div>
+                    <div class="stat-sub" data-i18n="admin.stat_subscribers_desc">Устройств подписано</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-label">Входов в систему</div>
+                    <div class="stat-label" data-i18n="admin.stat_logins">Входов в систему</div>
                     <div class="stat-value" id="stat-logins">—</div>
-                    <div class="stat-sub">За всё время</div>
+                    <div class="stat-sub" data-i18n="admin.stat_logins_all">За всё время</div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-title">
-                    <i data-lucide="activity" style="width:16px;height:16px;"></i> Последние события
+                    <i data-lucide="activity" style="width:16px;height:16px;"></i> <span data-i18n="admin.recent_events">Последние события</span>
                 </div>
                 <div id="dashboard-activity">
-                    <div class="empty"><div class="empty-icon">📋</div><p>Событий пока нет</p></div>
+                    <div class="empty"><div class="empty-icon">📋</div><p data-i18n="admin.events_empty">Событий пока нет</p></div>
                 </div>
             </div>
         </section>
@@ -550,19 +551,19 @@
         <!-- ── Exit passes ── -->
         <section class="section" id="s-passes">
             <div class="card">
-                <div class="card-title"><i data-lucide="door-open" style="width:16px;height:16px;"></i> Заявки на выход</div>
+                <div class="card-title"><i data-lucide="door-open" style="width:16px;height:16px;"></i> <span data-i18n="admin.passes_title">Заявки на выход</span></div>
 
                 <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
                     <select id="filter-pass-status" style="width:auto;" onchange="filterPasses()">
-                        <option value="">Все статусы</option>
-                        <option value="pending">Ожидают</option>
-                        <option value="approved">Одобрены</option>
-                        <option value="rejected">Отклонены</option>
-                        <option value="used">Использованы</option>
-                        <option value="expired">Истекли</option>
+                        <option value="" data-i18n="admin.filter_all">Все статусы</option>
+                        <option value="pending" data-i18n="admin.filter_pending">Ожидают</option>
+                        <option value="approved" data-i18n="admin.filter_approved">Одобрены</option>
+                        <option value="rejected" data-i18n="admin.filter_rejected">Отклонены</option>
+                        <option value="used" data-i18n="admin.filter_used">Использованы</option>
+                        <option value="expired" data-i18n="admin.filter_expired">Истекли</option>
                     </select>
                     <button class="btn btn-ghost" onclick="loadPasses()">
-                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i><span data-i18n="admin.refresh">Обновить</span>
                     </button>
                 </div>
 
@@ -570,18 +571,18 @@
                     <table id="passes-table">
                         <thead>
                             <tr>
-                                <th>ФИО</th>
-                                <th>Класс</th>
-                                <th>Причина</th>
-                                <th>Время</th>
-                                <th>Статус</th>
-                                <th>Действия</th>
+                                <th data-i18n="admin.th_name">ФИО</th>
+                                <th data-i18n="admin.th_class">Класс</th>
+                                <th data-i18n="admin.th_reason">Причина</th>
+                                <th data-i18n="admin.th_time">Время</th>
+                                <th data-i18n="admin.th_status">Статус</th>
+                                <th data-i18n="admin.th_actions">Действия</th>
                             </tr>
                         </thead>
                         <tbody id="passes-tbody">
                             <tr>
                                 <td colspan="6">
-                                    <div class="empty"><div class="empty-icon">📋</div><p>Заявок нет или данные ещё не загружены</p></div>
+                                    <div class="empty"><div class="empty-icon">📋</div><p data-i18n="admin.passes_empty">Заявок нет или данные ещё не загружены</p></div>
                                 </td>
                             </tr>
                         </tbody>
@@ -593,11 +594,11 @@
         <!-- ── Card orders ── -->
         <section class="section" id="s-cards">
             <div class="card">
-                <div class="card-title"><i data-lucide="credit-card" style="width:16px;height:16px;"></i> Заказы карт МЭШ</div>
+                <div class="card-title"><i data-lucide="credit-card" style="width:16px;height:16px;"></i> <span data-i18n="admin.cards_title">Заказы карт МЭШ</span></div>
 
                 <div style="display:flex;gap:10px;margin-bottom:16px;">
                     <button class="btn btn-ghost" onclick="loadCardOrders()">
-                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i><span data-i18n="admin.refresh">Обновить</span>
                     </button>
                 </div>
 
@@ -605,18 +606,18 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ФИО</th>
-                                <th>Класс</th>
-                                <th>Причина</th>
-                                <th>Дата заявки</th>
-                                <th>Статус</th>
-                                <th>Действия</th>
+                                <th data-i18n="admin.th_name">ФИО</th>
+                                <th data-i18n="admin.th_class">Класс</th>
+                                <th data-i18n="admin.th_reason">Причина</th>
+                                <th data-i18n="admin.th_date">Дата заявки</th>
+                                <th data-i18n="admin.th_status">Статус</th>
+                                <th data-i18n="admin.th_actions">Действия</th>
                             </tr>
                         </thead>
                         <tbody id="cards-tbody">
                             <tr>
                                 <td colspan="6">
-                                    <div class="empty"><div class="empty-icon">💳</div><p>Заказов нет или данные ещё не загружены</p></div>
+                                    <div class="empty"><div class="empty-icon">💳</div><p data-i18n="admin.cards_empty">Заказов нет или данные ещё не загружены</p></div>
                                 </td>
                             </tr>
                         </tbody>
@@ -628,12 +629,12 @@
         <!-- ── Students ── -->
         <section class="section" id="s-students">
             <div class="card">
-                <div class="card-title"><i data-lucide="users" style="width:16px;height:16px;"></i> Ученики</div>
+                <div class="card-title"><i data-lucide="users" style="width:16px;height:16px;"></i> <span data-i18n="admin.students_title">Ученики</span></div>
 
                 <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-                    <input type="text" id="search-student" placeholder="Поиск по ФИО или классу…" style="max-width:280px;" oninput="searchStudents()">
+                    <input type="text" id="search-student" placeholder="Поиск по ФИО или классу…" style="max-width:280px;" oninput="searchStudents()" data-i18n="admin.students_search" data-i18n-placeholder="true">
                     <button class="btn btn-ghost" onclick="loadStudents()">
-                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i><span data-i18n="admin.refresh">Обновить</span>
                     </button>
                 </div>
 
@@ -641,17 +642,17 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ФИО</th>
-                                <th>Класс</th>
-                                <th>Телефон</th>
-                                <th>Классный рук.</th>
-                                <th>Заявок</th>
+                                <th data-i18n="admin.th_name">ФИО</th>
+                                <th data-i18n="admin.th_class">Класс</th>
+                                <th data-i18n="admin.th_phone">Телефон</th>
+                                <th data-i18n="admin.th_teacher">Классный рук.</th>
+                                <th data-i18n="admin.th_passes_count">Заявок</th>
                             </tr>
                         </thead>
                         <tbody id="students-tbody">
                             <tr>
                                 <td colspan="5">
-                                    <div class="empty"><div class="empty-icon">👤</div><p>Учеников нет или данные ещё не загружены</p></div>
+                                    <div class="empty"><div class="empty-icon">👤</div><p data-i18n="admin.students_empty">Учеников нет или данные ещё не загружены</p></div>
                                 </td>
                             </tr>
                         </tbody>
@@ -664,25 +665,25 @@
         <section class="section" id="s-announcements">
             <div class="two-col">
                 <div class="card" style="grid-column: 1 / -1;">
-                    <div class="card-title"><i data-lucide="megaphone" style="width:16px;height:16px;"></i> Новое объявление</div>
+                    <div class="card-title"><i data-lucide="megaphone" style="width:16px;height:16px;"></i> <span data-i18n="admin.ann_new_title">Новое объявление</span></div>
                     <div class="form-group">
-                        <label>Заголовок</label>
-                        <input type="text" id="ann-title" placeholder="Например: Внимание! Встреча родителей">
+                        <label data-i18n="admin.ann_title_label">Заголовок</label>
+                        <input type="text" id="ann-title" placeholder="Например: Внимание! Встреча родителей" data-i18n="admin.ann_title_placeholder" data-i18n-placeholder="true">
                     </div>
                     <div class="form-group">
-                        <label>Текст</label>
-                        <textarea id="ann-body" rows="4" placeholder="Текст объявления…"></textarea>
+                        <label data-i18n="admin.ann_body_label">Текст</label>
+                        <textarea id="ann-body" rows="4" placeholder="Текст объявления…" data-i18n="admin.ann_body_placeholder" data-i18n-placeholder="true"></textarea>
                     </div>
                     <div style="display:flex;gap:10px;">
-                        <button class="btn btn-primary" onclick="postAnnouncement()">Опубликовать</button>
-                        <button class="btn btn-ghost" onclick="document.getElementById('ann-title').value='';document.getElementById('ann-body').value='';">Очистить</button>
+                        <button class="btn btn-primary" onclick="postAnnouncement()" data-i18n="admin.ann_publish">Опубликовать</button>
+                        <button class="btn btn-ghost" onclick="document.getElementById('ann-title').value='';document.getElementById('ann-body').value='';" data-i18n="admin.ann_clear">Очистить</button>
                     </div>
                 </div>
 
                 <div class="card" style="grid-column: 1 / -1;">
-                    <div class="card-title"><i data-lucide="list" style="width:16px;height:16px;"></i> Опубликованные объявления</div>
+                    <div class="card-title"><i data-lucide="list" style="width:16px;height:16px;"></i> <span data-i18n="admin.ann_published">Опубликованные объявления</span></div>
                     <div id="announcements-list">
-                        <div class="empty"><div class="empty-icon">📢</div><p>Объявлений пока нет</p></div>
+                        <div class="empty"><div class="empty-icon">📢</div><p data-i18n="admin.ann_empty">Объявлений пока нет</p></div>
                     </div>
                 </div>
             </div>
@@ -692,29 +693,29 @@
         <section class="section" id="s-activity">
             <div class="card">
                 <div class="card-title">
-                    <i data-lucide="activity" style="width:16px;height:16px;"></i> Журнал активности
+                    <i data-lucide="activity" style="width:16px;height:16px;"></i> <span data-i18n="admin.activity_title">Журнал активности</span>
                 </div>
                 <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
                     <button class="btn btn-ghost" onclick="loadActivity()">
-                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                        <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i><span data-i18n="admin.refresh">Обновить</span>
                     </button>
                     <a href="/api/admin/activity/export" class="btn btn-ghost" style="text-decoration:none;">
-                        <i data-lucide="download" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Скачать CSV
+                        <i data-lucide="download" style="width:14px;height:14px;display:inline;margin-right:6px;"></i><span data-i18n="admin.activity_download_csv">Скачать CSV</span>
                     </a>
                 </div>
                 <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
-                                <th>Дата и время</th>
-                                <th>Телефон</th>
-                                <th>Класс</th>
-                                <th>Событие</th>
-                                <th>Детали</th>
+                                <th data-i18n="admin.th_datetime">Дата и время</th>
+                                <th data-i18n="admin.th_phone">Телефон</th>
+                                <th data-i18n="admin.th_class">Класс</th>
+                                <th data-i18n="admin.th_event">Событие</th>
+                                <th data-i18n="admin.th_details">Детали</th>
                             </tr>
                         </thead>
                         <tbody id="activity-tbody">
-                            <tr><td colspan="5"><div class="empty"><div class="empty-icon">📋</div><p>Событий нет</p></div></td></tr>
+                            <tr><td colspan="5"><div class="empty"><div class="empty-icon">📋</div><p data-i18n="admin.activity_empty">Событий нет</p></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -725,66 +726,66 @@
         <section class="section" id="s-pins">
             <div class="two-col">
                 <div class="card">
-                    <div class="card-title"><i data-lucide="award" style="width:16px;height:16px;"></i> Выдать значок</div>
+                    <div class="card-title"><i data-lucide="award" style="width:16px;height:16px;"></i> <span data-i18n="admin.pins_issue">Выдать значок</span></div>
                     <div class="form-group">
-                        <label>ФИО ученика</label>
-                        <input type="text" id="pin-student-name" placeholder="Иванов Иван Иванович">
+                        <label data-i18n="admin.pins_student_name_label">ФИО ученика</label>
+                        <input type="text" id="pin-student-name" placeholder="Иванов Иван Иванович" data-i18n="admin.pins_student_name_placeholder" data-i18n-placeholder="true">
                     </div>
                     <div class="form-group">
-                        <label>Телефон</label>
-                        <input type="text" id="pin-student-phone" placeholder="+7 (999) 123-45-67">
+                        <label data-i18n="admin.pins_phone_label">Телефон</label>
+                        <input type="text" id="pin-student-phone" placeholder="+7 (999) 123-45-67" data-i18n="admin.pins_phone_placeholder" data-i18n-placeholder="true">
                     </div>
                     <div class="form-group">
-                        <label>Класс</label>
-                        <input type="text" id="pin-student-class" placeholder="9А">
+                        <label data-i18n="admin.pins_class_label">Класс</label>
+                        <input type="text" id="pin-student-class" placeholder="9А" data-i18n="admin.pins_class_placeholder" data-i18n-placeholder="true">
                     </div>
                     <div class="form-group">
-                        <label>Активность</label>
+                        <label data-i18n="admin.pins_activity_label">Активность</label>
                         <select id="pin-activity"></select>
                     </div>
                     <div class="form-group">
-                        <label>Количество значков</label>
+                        <label data-i18n="admin.pins_count_label">Количество значков</label>
                         <input type="number" id="pin-count" value="1" min="1" max="20">
                     </div>
                     <button class="btn btn-primary" onclick="generatePin()">
-                        <i data-lucide="sparkles" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Сгенерировать
+                        <i data-lucide="sparkles" style="width:14px;height:14px;display:inline;margin-right:6px;"></i><span data-i18n="admin.pins_generate">Сгенерировать</span>
                     </button>
                     <div id="pin-result" style="margin-top:16px;display:none;">
-                        <div style="font-size:0.82rem;color:var(--text3);margin-bottom:8px;">Сгенерированные значки:</div>
+                        <div style="font-size:0.82rem;color:var(--text3);margin-bottom:8px;" data-i18n="admin.pins_generated_label">Сгенерированные значки:</div>
                         <div id="pin-codes-list" style="font-family:monospace;font-size:1.1rem;font-weight:700;color:var(--accent2);word-break:break-all;"></div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-title"><i data-lucide="search" style="width:16px;height:16px;"></i> Поиск значков</div>
+                    <div class="card-title"><i data-lucide="search" style="width:16px;height:16px;"></i> <span data-i18n="admin.pins_search_title">Поиск значков</span></div>
                     <div class="form-group">
-                        <input type="text" id="pin-search" placeholder="Поиск по ученику, телефону или значку…" oninput="loadPins()">
+                        <input type="text" id="pin-search" placeholder="Поиск по ученику, телефону или значку…" oninput="loadPins()" data-i18n="admin.pins_search_placeholder" data-i18n-placeholder="true">
                     </div>
                     <div style="display:flex;gap:10px;">
                         <button class="btn btn-ghost" onclick="loadPins()">
-                            <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Обновить
+                            <i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;margin-right:6px;"></i><span data-i18n="admin.refresh">Обновить</span>
                         </button>
                     </div>
                 </div>
             </div>
 
             <div class="card" style="margin-top:16px;">
-                <div class="card-title"><i data-lucide="list" style="width:16px;height:16px;"></i> Выданные значки</div>
+                <div class="card-title"><i data-lucide="list" style="width:16px;height:16px;"></i> <span data-i18n="admin.pins_issued_title">Выданные значки</span></div>
                 <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
-                                <th>Значок</th>
-                                <th>Ученик</th>
-                                <th>Класс</th>
-                                <th>Активность</th>
-                                <th>Выдан</th>
-                                <th>Статус</th>
-                                <th>Действия</th>
+                                <th data-i18n="admin.th_pin">Значок</th>
+                                <th data-i18n="admin.th_student">Ученик</th>
+                                <th data-i18n="admin.th_class">Класс</th>
+                                <th data-i18n="admin.th_activity">Активность</th>
+                                <th data-i18n="admin.th_issued">Выдан</th>
+                                <th data-i18n="admin.th_status">Статус</th>
+                                <th data-i18n="admin.th_actions">Действия</th>
                             </tr>
                         </thead>
                         <tbody id="pins-tbody">
-                            <tr><td colspan="7"><div class="empty"><div class="empty-icon">🔑</div><p>Значков нет</p></div></td></tr>
+                            <tr><td colspan="7"><div class="empty"><div class="empty-icon">🔑</div><p data-i18n="admin.pins_empty">Значков нет</p></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -794,8 +795,8 @@
         <!-- ── Внешние источники ── -->
         <section class="section" id="s-sources">
             <div class="card">
-                <div class="card-title"><i data-lucide="globe" style="width:16px;height:16px;"></i> Внешние источники</div>
-                <p style="font-size:0.82rem;color:var(--text3);margin-bottom:20px;">
+                <div class="card-title"><i data-lucide="globe" style="width:16px;height:16px;"></i> <span data-i18n="admin.sources_title">Внешние источники</span></div>
+                <p style="font-size:0.82rem;color:var(--text3);margin-bottom:20px;" data-i18n="admin.sources_desc">
                     Быстрый переход к внешним ресурсам для поиска информации об учениках
                 </p>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
@@ -803,7 +804,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0052A5,#0094D4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.7rem;font-weight:700;color:#fff;text-align:center;line-height:1.1;">mos.ru</div>
                         <div>
                             <div style="font-weight:600;font-size:0.9rem;">mos.ru</div>
-                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Портал Мэра Москвы</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;" data-i18n="admin.source_mos">Портал Мэра Москвы</div>
                         </div>
                     </a>
 
@@ -811,7 +812,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#E31B23,#B80000);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.65rem;font-weight:700;color:#fff;text-align:center;line-height:1.1;">М24</div>
                         <div>
                             <div style="font-weight:600;font-size:0.9rem;">Москва 24</div>
-                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Новости Москвы</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;" data-i18n="admin.source_m24">Новости Москвы</div>
                         </div>
                     </a>
 
@@ -819,7 +820,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:#0077FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.9rem;font-weight:700;color:#fff;">VK</div>
                         <div>
                             <div style="font-weight:600;font-size:0.9rem;">ВКонтакте</div>
-                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Поиск людей</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;" data-i18n="admin.source_vk">Поиск людей</div>
                         </div>
                     </a>
 
@@ -827,7 +828,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#2AABEE,#0078b7);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.8rem;font-weight:700;color:#fff;">TG</div>
                         <div>
                             <div style="font-weight:600;font-size:0.9rem;">Telegram Web</div>
-                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Поиск по номеру телефона</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;" data-i18n="admin.source_tg">Поиск по номеру телефона</div>
                         </div>
                     </a>
 
@@ -835,7 +836,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4285F4,#34A853,#FBBC05,#EA4335);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.7rem;font-weight:700;color:#fff;">G</div>
                         <div>
                             <div style="font-weight:600;font-size:0.9rem;">Google Поиск</div>
-                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Поиск информации о человеке</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;" data-i18n="admin.source_google">Поиск информации о человеке</div>
                         </div>
                     </a>
 
@@ -843,7 +844,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#00985F,#00B87A);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.6rem;font-weight:700;color:#fff;text-align:center;line-height:1.1;">МЭШ</div>
                         <div>
                             <div style="font-weight:600;font-size:0.9rem;">МЭШ (mos.ru)</div>
-                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Московская электронная школа</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;" data-i18n="admin.source_mesh">Московская электронная школа</div>
                         </div>
                     </a>
 
@@ -851,7 +852,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#004D99,#0073E6);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.55rem;font-weight:700;color:#fff;text-align:center;line-height:1.2;">ГУ</div>
                         <div>
                             <div style="font-weight:600;font-size:0.9rem;">Госуслуги</div>
-                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Портал государственных услуг</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;" data-i18n="admin.source_gosuslugi">Портал государственных услуг</div>
                         </div>
                     </a>
 
@@ -859,7 +860,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4446E1,#2E3192);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.55rem;font-weight:700;color:#fff;text-align:center;line-height:1.2;">1409</div>
                         <div>
                             <div style="font-weight:600;font-size:0.9rem;">my1409.ru</div>
-                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;">Портал школы №1409</div>
+                            <div style="font-size:0.75rem;color:var(--text3);margin-top:2px;" data-i18n="admin.source_my1409">Портал школы №1409</div>
                         </div>
                     </a>
                 </div>
@@ -870,74 +871,74 @@
         <section class="section" id="s-app_settings">
             <div class="two-col">
                 <div class="card">
-                    <div class="card-title"><i data-lucide="info" style="width:16px;height:16px;"></i> Информация о приложении</div>
-                    <div class="info-row"><span class="key">Приложение</span><span class="val">STUDY1409</span></div>
-                    <div class="info-row"><span class="key">Версия</span><span class="val">1.0.0</span></div>
-                    <div class="info-row"><span class="key">Порт</span><span class="val">1090</span></div>
-                    <div class="info-row"><span class="key">Фреймворк</span><span class="val">Flask (Python)</span></div>
-                    <div class="info-row"><span class="key">PWA</span><span class="val">✅ Включено</span></div>
+                    <div class="card-title"><i data-lucide="info" style="width:16px;height:16px;"></i> <span data-i18n="admin.app_info_title">Информация о приложении</span></div>
+                    <div class="info-row"><span class="key" data-i18n="admin.app_info_app">Приложение</span><span class="val">STUDY1409</span></div>
+                    <div class="info-row"><span class="key" data-i18n="admin.app_info_version">Версия</span><span class="val">1.0.0</span></div>
+                    <div class="info-row"><span class="key" data-i18n="admin.app_info_port">Порт</span><span class="val">1090</span></div>
+                    <div class="info-row"><span class="key" data-i18n="admin.app_info_framework">Фреймворк</span><span class="val">Flask (Python)</span></div>
+                    <div class="info-row"><span class="key" data-i18n="admin.app_info_pwa">PWA</span><span class="val" data-i18n="admin.app_info_pwa_enabled">✅ Включено</span></div>
                     <div class="info-row">
-                        <span class="key">Статус сервера</span>
-                        <span class="val" style="color:#4cdb7a;">● Работает</span>
+                        <span class="key" data-i18n="admin.app_info_server">Статус сервера</span>
+                        <span class="val" style="color:#4cdb7a;" data-i18n="admin.app_info_server_running">● Работает</span>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-title"><i data-lucide="toggle-left" style="width:16px;height:16px;"></i> Функции приложения</div>
+                    <div class="card-title"><i data-lucide="toggle-left" style="width:16px;height:16px;"></i> <span data-i18n="admin.features_title">Функции приложения</span></div>
                     <div class="setting-row">
                         <div class="setting-info">
-                            <div class="setting-name">Заявки на выход</div>
-                            <div class="setting-desc">Ученики могут создавать заявки</div>
+                            <div class="setting-name" data-i18n="admin.feature_passes">Заявки на выход</div>
+                            <div class="setting-desc" data-i18n="admin.feature_passes_desc">Ученики могут создавать заявки</div>
                         </div>
                         <label class="toggle"><input type="checkbox" checked onchange="saveSetting('passes_enabled', this.checked)"><span class="toggle-slider"></span></label>
                     </div>
                     <div class="setting-row">
                         <div class="setting-info">
-                            <div class="setting-name">Заказ карт МЭШ</div>
-                            <div class="setting-desc">Форма заказа карты доступна</div>
+                            <div class="setting-name" data-i18n="admin.feature_cards">Заказ карт МЭШ</div>
+                            <div class="setting-desc" data-i18n="admin.feature_cards_desc">Форма заказа карты доступна</div>
                         </div>
                         <label class="toggle"><input type="checkbox" checked onchange="saveSetting('cards_enabled', this.checked)"><span class="toggle-slider"></span></label>
                     </div>
                     <div class="setting-row">
                         <div class="setting-info">
-                            <div class="setting-name">Тема «Наизнанку»</div>
-                            <div class="setting-desc">Stranger Things оформление</div>
+                            <div class="setting-name" data-i18n="admin.feature_stranger">Тема «Наизнанку»</div>
+                            <div class="setting-desc" data-i18n="admin.feature_stranger_desc">Stranger Things оформление</div>
                         </div>
                         <label class="toggle"><input type="checkbox" checked onchange="saveSetting('stranger_enabled', this.checked)"><span class="toggle-slider"></span></label>
                     </div>
                     <div class="setting-row">
                         <div class="setting-info">
-                            <div class="setting-name">Режим обслуживания</div>
-                            <div class="setting-desc">Закрыть доступ для учеников</div>
+                            <div class="setting-name" data-i18n="admin.feature_maintenance">Режим обслуживания</div>
+                            <div class="setting-desc" data-i18n="admin.feature_maintenance_desc">Закрыть доступ для учеников</div>
                         </div>
                         <label class="toggle"><input type="checkbox" onchange="saveSetting('maintenance', this.checked)"><span class="toggle-slider"></span></label>
                     </div>
                 </div>
 
                 <div class="card" style="grid-column: 1 / -1;">
-                    <div class="card-title"><i data-lucide="book-open" style="width:16px;height:16px;"></i> Расписание звонков</div>
-                    <p style="font-size:0.82rem;color:var(--text3);margin-bottom:16px;">Текущее расписание используется виджетом на главной странице ученика</p>
+                    <div class="card-title"><i data-lucide="book-open" style="width:16px;height:16px;"></i> <span data-i18n="admin.schedule_title">Расписание звонков</span></div>
+                    <p style="font-size:0.82rem;color:var(--text3);margin-bottom:16px;" data-i18n="admin.schedule_desc">Текущее расписание используется виджетом на главной странице ученика</p>
                     <div class="table-wrap">
                         <table>
                             <thead>
-                                <tr><th>#</th><th>Начало</th><th>Конец</th><th>Тип</th></tr>
+                                <tr><th data-i18n="admin.schedule_num">#</th><th data-i18n="admin.schedule_start">Начало</th><th data-i18n="admin.schedule_end">Конец</th><th data-i18n="admin.schedule_type">Тип</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>1</td><td>08:30</td><td>09:15</td><td><span class="badge badge-approved">Урок</span></td></tr>
-                                <tr><td>—</td><td>09:15</td><td>09:25</td><td><span class="badge badge-used">Перемена</span></td></tr>
-                                <tr><td>2</td><td>09:25</td><td>10:10</td><td><span class="badge badge-approved">Урок</span></td></tr>
-                                <tr><td>—</td><td>10:10</td><td>10:25</td><td><span class="badge badge-used">Перемена</span></td></tr>
-                                <tr><td>3</td><td>10:25</td><td>11:10</td><td><span class="badge badge-approved">Урок</span></td></tr>
-                                <tr><td>—</td><td>11:10</td><td>11:25</td><td><span class="badge badge-used">Перемена</span></td></tr>
-                                <tr><td>4</td><td>11:25</td><td>12:10</td><td><span class="badge badge-approved">Урок</span></td></tr>
-                                <tr><td>—</td><td>12:10</td><td>12:55</td><td><span class="badge badge-used">Перемена (обед)</span></td></tr>
-                                <tr><td>5</td><td>12:55</td><td>13:40</td><td><span class="badge badge-approved">Урок</span></td></tr>
-                                <tr><td>—</td><td>13:40</td><td>13:50</td><td><span class="badge badge-used">Перемена</span></td></tr>
-                                <tr><td>6</td><td>13:50</td><td>14:35</td><td><span class="badge badge-approved">Урок</span></td></tr>
-                                <tr><td>—</td><td>14:35</td><td>14:45</td><td><span class="badge badge-used">Перемена</span></td></tr>
-                                <tr><td>7</td><td>14:45</td><td>15:30</td><td><span class="badge badge-approved">Урок</span></td></tr>
-                                <tr><td>—</td><td>15:30</td><td>15:40</td><td><span class="badge badge-used">Перемена</span></td></tr>
-                                <tr><td>8</td><td>15:40</td><td>16:25</td><td><span class="badge badge-approved">Урок</span></td></tr>
+                                <tr><td>1</td><td>08:30</td><td>09:15</td><td><span class="badge badge-approved" data-i18n="admin.schedule_lesson">Урок</span></td></tr>
+                                <tr><td>—</td><td>09:15</td><td>09:25</td><td><span class="badge badge-used" data-i18n="admin.schedule_break">Перемена</span></td></tr>
+                                <tr><td>2</td><td>09:25</td><td>10:10</td><td><span class="badge badge-approved" data-i18n="admin.schedule_lesson">Урок</span></td></tr>
+                                <tr><td>—</td><td>10:10</td><td>10:25</td><td><span class="badge badge-used" data-i18n="admin.schedule_break">Перемена</span></td></tr>
+                                <tr><td>3</td><td>10:25</td><td>11:10</td><td><span class="badge badge-approved" data-i18n="admin.schedule_lesson">Урок</span></td></tr>
+                                <tr><td>—</td><td>11:10</td><td>11:25</td><td><span class="badge badge-used" data-i18n="admin.schedule_break">Перемена</span></td></tr>
+                                <tr><td>4</td><td>11:25</td><td>12:10</td><td><span class="badge badge-approved" data-i18n="admin.schedule_lesson">Урок</span></td></tr>
+                                <tr><td>—</td><td>12:10</td><td>12:55</td><td><span class="badge badge-used" data-i18n="admin.schedule_lunch">Перемена (обед)</span></td></tr>
+                                <tr><td>5</td><td>12:55</td><td>13:40</td><td><span class="badge badge-approved" data-i18n="admin.schedule_lesson">Урок</span></td></tr>
+                                <tr><td>—</td><td>13:40</td><td>13:50</td><td><span class="badge badge-used" data-i18n="admin.schedule_break">Перемена</span></td></tr>
+                                <tr><td>6</td><td>13:50</td><td>14:35</td><td><span class="badge badge-approved" data-i18n="admin.schedule_lesson">Урок</span></td></tr>
+                                <tr><td>—</td><td>14:35</td><td>14:45</td><td><span class="badge badge-used" data-i18n="admin.schedule_break">Перемена</span></td></tr>
+                                <tr><td>7</td><td>14:45</td><td>15:30</td><td><span class="badge badge-approved" data-i18n="admin.schedule_lesson">Урок</span></td></tr>
+                                <tr><td>—</td><td>15:30</td><td>15:40</td><td><span class="badge badge-used" data-i18n="admin.schedule_break">Перемена</span></td></tr>
+                                <tr><td>8</td><td>15:40</td><td>16:25</td><td><span class="badge badge-approved" data-i18n="admin.schedule_lesson">Урок</span></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -952,15 +953,15 @@
     lucide.createIcons();
 
     const sectionTitles = {
-        dashboard:     'Главная',
-        passes:        'Заявки на выход',
-        cards:         'Карты МЭШ',
-        students:      'Ученики',
-        announcements: 'Объявления',
-        pins:          'Значки',
-        sources:       'Внешние источники',
-        activity:      'Журнал активности',
-        app_settings:  'Настройки приложения'
+        dashboard:     __('admin.section_dashboard'),
+        passes:        __('admin.section_passes'),
+        cards:         __('admin.section_cards'),
+        students:      __('admin.section_students'),
+        announcements: __('admin.section_announcements'),
+        pins:          __('admin.section_pins'),
+        sources:       __('admin.section_sources'),
+        activity:      __('admin.section_activity'),
+        app_settings:  __('admin.section_app_settings')
     };
 
     function showSection(name) {
@@ -986,7 +987,7 @@
     // ── Data loaders (calls real API endpoints if they exist) ──
 
     const actionLabels = {
-        login: 'Вход в систему',
+        login: __('admin.activity_login'),
     };
 
     function loadDashboard() {
@@ -1019,7 +1020,7 @@
         fetchJSON('/api/admin/activity', data => {
             const tbody = document.getElementById('activity-tbody');
             if (!data || !data.items || !data.items.length) {
-                tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">📋</div><p>Событий нет</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">📋</div><p>' + __('admin.activity_empty') + '</p></div></td></tr>';
                 return;
             }
             tbody.innerHTML = data.items.map(r => `
@@ -1039,12 +1040,12 @@
         const url = '/api/admin/passes' + (status ? '?status=' + status : '');
         fetchJSON(url, data => {
             if (!data || data._error) {
-                document.getElementById('passes-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🚧</div><p>Раздел в разработке</p></div></td></tr>';
+                document.getElementById('passes-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🚧</div><p>' + __('admin.dev_empty') + '</p></div></td></tr>';
                 return;
             }
             const tbody = document.getElementById('passes-tbody');
             if (!data.items.length) {
-                tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📋</div><p>Заявок нет</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📋</div><p>' + __('admin.passes_empty_no_items') + '</p></div></td></tr>';
                 return;
             }
             tbody.innerHTML = data.items.map(r => `
@@ -1078,12 +1079,12 @@
     function loadCardOrders() {
         fetchJSON('/api/admin/cards', data => {
             if (!data || data._error) {
-                document.getElementById('cards-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🚧</div><p>Раздел в разработке</p></div></td></tr>';
+                document.getElementById('cards-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🚧</div><p>' + __('admin.dev_empty') + '</p></div></td></tr>';
                 return;
             }
             const tbody = document.getElementById('cards-tbody');
             if (!data.items.length) {
-                tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">💳</div><p>Заказов нет</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">💳</div><p>' + __('admin.cards_empty_no_items') + '</p></div></td></tr>';
                 return;
             }
             tbody.innerHTML = data.items.map(r => `
@@ -1094,7 +1095,7 @@
                     <td>${escapeHtml(r.created_at)}</td>
                     <td>${badgeHtml(r.status || 'pending')}</td>
                     <td>
-                        <button class="btn btn-primary" style="padding:5px 12px;font-size:0.78rem;" onclick="completeCard(${Number(r.id)})">Выдана</button>
+                        <button class="btn btn-primary" style="padding:5px 12px;font-size:0.78rem;" onclick="completeCard(${Number(r.id)})">${__('admin.card_delivered')}</button>
                     </td>
                 </tr>
             `).join('');
@@ -1108,12 +1109,12 @@
     function loadStudents() {
         fetchJSON('/api/admin/students', data => {
             if (!data || data._error) {
-                document.getElementById('students-tbody').innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">🚧</div><p>Раздел в разработке</p></div></td></tr>';
+                document.getElementById('students-tbody').innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">🚧</div><p>' + __('admin.dev_empty') + '</p></div></td></tr>';
                 return;
             }
             const tbody = document.getElementById('students-tbody');
             if (!data.items.length) {
-                tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">👤</div><p>Учеников нет</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">👤</div><p>' + __('admin.students_empty_no_items') + '</p></div></td></tr>';
                 return;
             }
             tbody.innerHTML = data.items.map(s => `
@@ -1138,12 +1139,12 @@
     function postAnnouncement() {
         const title = document.getElementById('ann-title').value.trim();
         const body  = document.getElementById('ann-body').value.trim();
-        if (!title || !body) { alert('Заполните заголовок и текст'); return; }
+        if (!title || !body) { alert(__('admin.alert_fill_fields')); return; }
         postJSON('/api/admin/announcements', { title, body }, data => {
-            if (!data || data._error) { alert('Раздел в разработке'); return; }
+            if (!data || data._error) { alert(__('admin.alert_under_development')); return; }
             document.getElementById('ann-title').value = '';
             document.getElementById('ann-body').value = '';
-            alert('Объявление опубликовано');
+            alert(__('admin.alert_published'));
         });
     }
 
@@ -1159,7 +1160,7 @@
         fetchJSON(url, data => {
             const tbody = document.getElementById('pins-tbody');
             if (!data || !data.items || !data.items.length) {
-                tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">🔑</div><p>Значков нет</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">🔑</div><p>' + __('admin.pins_empty') + '</p></div></td></tr>';
                 return;
             }
             tbody.innerHTML = data.items.map(p => `
@@ -1169,8 +1170,8 @@
                     <td>${escapeHtml(p.student_class)}</td>
                     <td>${escapeHtml(p.activity_name)}</td>
                     <td>${escapeHtml(p.issued_at)}</td>
-                    <td>${p.is_active ? '<span class="badge badge-approved">Активен</span>' : '<span class="badge badge-expired">Отозван</span>'}</td>
-                    <td>${p.is_active ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="revokePin(${Number(p.id)})">Отозвать</button>` : '—'}</td>
+                    <td>${p.is_active ? '<span class="badge badge-approved">' + __('admin.pin_active') + '</span>' : '<span class="badge badge-expired">' + __('admin.pin_revoked') + '</span>'}</td>
+                    <td>${p.is_active ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="revokePin(${Number(p.id)})">${__('admin.pin_revoke')}</button>` : '—'}</td>
                 </tr>
             `).join('');
         });
@@ -1193,12 +1194,12 @@
         const activity = document.getElementById('pin-activity').value;
         const count    = parseInt(document.getElementById('pin-count').value) || 1;
 
-        if (!name) { alert('Введите ФИО ученика'); return; }
-        if (!activity) { alert('Выберите активность'); return; }
+        if (!name) { alert(__('admin.alert_enter_name')); return; }
+        if (!activity) { alert(__('admin.alert_select_activity')); return; }
 
         const btn = document.querySelector('#s-pins .btn-primary');
         btn.disabled = true;
-        btn.textContent = 'Генерация...';
+        btn.textContent = __('admin.generating');
 
         postJSON('/api/admin/pins/generate', {
             student_name: name,
@@ -1208,10 +1209,10 @@
             count: count
         }, data => {
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="sparkles" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>Сгенерировать';
+            btn.innerHTML = '<i data-lucide="sparkles" style="width:14px;height:14px;display:inline;margin-right:6px;"></i>' + __('admin.pins_generate');
             lucide.createIcons();
             if (!data || !data.pins) {
-                alert('Ошибка генерации');
+                alert(__('admin.alert_generation_error'));
                 return;
             }
             const resultDiv = document.getElementById('pin-result');
@@ -1223,7 +1224,7 @@
     }
 
     function revokePin(id) {
-        if (!confirm('Отозвать этот значок?')) return;
+        if (!confirm(__('admin.confirm_revoke_pin'))) return;
         postJSON('/api/admin/pins/revoke', { id }, () => loadPins());
     }
 
@@ -1241,12 +1242,12 @@
 
     function badgeHtml(status) {
         const map = {
-            pending:  ['badge-pending',  'Ожидает'],
-            approved: ['badge-approved', 'Одобрено'],
-            rejected: ['badge-rejected', 'Отклонено'],
-            used:     ['badge-used',     'Использовано'],
-            expired:  ['badge-expired',  'Истекло'],
-            done:     ['badge-approved', 'Готово'],
+            pending:  ['badge-pending',  __('admin.status_pending')],
+            approved: ['badge-approved', __('admin.status_approved')],
+            rejected: ['badge-rejected', __('admin.status_rejected')],
+            used:     ['badge-used',     __('admin.status_used')],
+            expired:  ['badge-expired',  __('admin.status_expired')],
+            done:     ['badge-approved', __('admin.status_done')],
         };
         const [cls, label] = map[status] || ['badge-expired', status];
         return `<span class="badge ${cls}">${label}</span>`;
@@ -1296,6 +1297,28 @@
             const el = document.querySelector(`[onchange="${attr}"]`);
             if (el && data[key] !== undefined) el.checked = data[key];
         });
+    });
+
+    // ── i18n tooltip/attribute sync ──
+    function updateTooltips() {
+        document.querySelectorAll('[data-i18n-tip]').forEach(el => {
+            el.setAttribute('data-tip', __(el.getAttribute('data-i18n-tip')));
+        });
+    }
+    document.addEventListener('DOMContentLoaded', updateTooltips);
+    document.addEventListener('langchange', () => {
+        updateTooltips();
+        const activeSection = document.querySelector('.section.active');
+        if (activeSection) {
+            const name = activeSection.id.replace('s-', '');
+            document.getElementById('topbar-title').textContent = sectionTitles[name] || name;
+            if (name === 'passes') loadPasses();
+            else if (name === 'cards') loadCardOrders();
+            else if (name === 'students') loadStudents();
+            else if (name === 'dashboard') loadDashboard();
+            else if (name === 'activity') loadActivity();
+            else if (name === 'pins') { loadPins(); loadPinActivities(); }
+        }
     });
 </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY1409 - Приложение</title>
+    <title data-i18n="app.title.apps">STUDY1409 - Приложение</title>
     <link rel="icon" href="/static/favicon.png">
     <link rel="apple-touch-icon" href="/static/favicon.png">
     <link rel="manifest" href="/static/manifest.json">
@@ -16,6 +16,7 @@
     <link href="/static/lib/font-awesome/custom.css" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
     <script src="/static/tg.js"></script>
+    <script src="/static/i18n/i18n.js"></script>
     <style>
         :root {
             --bg-primary: #000;
@@ -703,7 +704,7 @@
                 border-color: var(--accent);
             }
             .sidebar-theme-btn::after {
-                content: 'Тема';
+                content: attr(data-tip);
                 position: absolute;
                 left: calc(100% + 10px);
                 top: 50%;
@@ -835,25 +836,25 @@
 <nav class="sidebar">
     <img src="/static/favicon.png">
 
-    <a class="sidebar-link active" href="/" data-tip="Главная">
+    <a class="sidebar-link active" href="/" data-tip="Главная" data-i18n-tip="apps.sidebar_home">
         <i class="fa-solid fa-house"></i>
     </a>
-    <a class="sidebar-link" href="/create_application" data-tip="Заявка на выход">
+    <a class="sidebar-link" href="/create_application" data-tip="Заявка на выход" data-i18n-tip="apps.sidebar_exit_pass">
         <i class="fa-solid fa-person-walking-arrow-right"></i>
     </a>
-    <a class="sidebar-link" href="/new_card" data-tip="Заказ карты">
+    <a class="sidebar-link" href="/new_card" data-tip="Заказ карты" data-i18n-tip="apps.sidebar_card_order">
         <i class="fa-solid fa-id-card"></i>
     </a>
-    <a class="sidebar-link" href="https://my1409.ru/vote/ballot" data-tip="Выборы в1409" target="_blank">
+    <a class="sidebar-link" href="https://my1409.ru/vote/ballot" data-tip="Выборы в1409" target="_blank" data-i18n-tip="apps.sidebar_elections">
         <i class="fa-solid fa-square-poll-vertical"></i>
     </a>
-    <a class="sidebar-link" href="/account" data-tip="Настройки">
+    <a class="sidebar-link" href="/account" data-tip="Настройки" data-i18n-tip="apps.sidebar_settings">
         <i class="fa-solid fa-gear"></i>
     </a>
 
     <div class="sidebar-spacer"></div>
 
-    <button class="sidebar-theme-btn" id="sidebarThemeBtn" onclick="cycleTheme()">
+    <button class="sidebar-theme-btn" id="sidebarThemeBtn" onclick="cycleTheme()" data-i18n-tip="apps.sidebar_theme">
         <i class="fa-solid fa-moon" id="sidebarThemeIcon"></i>
     </button>
 </nav>
@@ -867,19 +868,19 @@
     <!-- Баннер недоступности my1409 -->
     <div class="my1409-error" id="my1409Error">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        <span>my1409.ru недоступен — часть данных не загружена</span>
+        <span data-i18n="apps.my1409_error">my1409.ru недоступен — часть данных не загружена</span>
     </div>
 
     <!-- Push-уведомления: баннер -->
     <div class="push-banner" id="pushBanner" style="display:none;">
         <i class="fa-solid fa-bell"></i>
         <div class="push-banner-text">
-            <strong>Включить уведомления?</strong>
-            <small>Напоминания об уроках и статусе заявок</small>
+            <strong data-i18n="apps.push_title">Включить уведомления?</strong>
+            <small data-i18n="apps.push_desc">Напоминания об уроках и статусе заявок</small>
         </div>
         <div class="push-banner-actions">
-            <button class="push-btn" onclick="requestPush()">Включить</button>
-            <button class="push-btn-dismiss" onclick="dismissPushBanner()" title="Не сейчас">✕</button>
+            <button class="push-btn" onclick="requestPush()" data-i18n="apps.push_enable">Включить</button>
+            <button class="push-btn-dismiss" onclick="dismissPushBanner()" title="Не сейчас" data-i18n="apps.push_dismiss">✕</button>
         </div>
     </div>
 
@@ -891,11 +892,11 @@
             {% endif %}
         </div>
         <div class="profile-right">
-            <button class="theme-toggle" id="themeToggle" onclick="cycleTheme()" title="Сменить тему">
+            <button class="theme-toggle" id="themeToggle" onclick="cycleTheme()" title="Сменить тему" data-i18n-title="apps.change_theme">
                 <i class="fa-solid fa-moon" id="themeIcon"></i>
             </button>
             <div class="avatar-wrap" id="avatarWrap">
-                <img id="avatarImg" alt="Аватар" onclick="location.href='/account'" style="cursor:pointer;" title="Настройки аккаунта">
+                <img id="avatarImg" alt="Аватар" onclick="location.href='/account'" style="cursor:pointer;" title="Настройки аккаунта" data-i18n-alt="apps.avatar_alt" data-i18n-title="apps.account_settings">
             </div>
         </div>
     </div>
@@ -906,7 +907,7 @@
             <!-- Расписание -->
             <div class="card">
                 <div class="schedule-widget">
-                    <div class="schedule-label" id="schedLabel">Расписание</div>
+                    <div class="schedule-label" id="schedLabel" data-i18n="apps.schedule_label">Расписание</div>
                     <div class="schedule-name" id="schedName">—</div>
                     <div class="schedule-time-left" id="schedTimeLeft"></div>
                     <div class="schedule-next" id="schedNext"></div>
@@ -926,23 +927,23 @@
 
             <!-- Сервисы -->
             <div class="card services-card">
-                <h2>Сервисы</h2>
+                <h2 data-i18n="apps.services_title">Сервисы</h2>
                 <div class="apps-menu">
                     <a href="/create_application">
                         <i class="fa-solid fa-person-walking-arrow-right"></i>
-                        <span>Заявка на выход</span>
+                        <span data-i18n="apps.service_exit_pass">Заявка на выход</span>
                     </a>
                     <a href="/new_card">
                         <i class="fa-solid fa-id-card"></i>
-                        <span>Заказ карты</span>
+                        <span data-i18n="apps.service_card_order">Заказ карты</span>
                     </a>
                     <a href="/account">
                         <i class="fa-solid fa-gear"></i>
-                        <span>Настройки</span>
+                        <span data-i18n="apps.service_settings">Настройки</span>
                     </a>
                     <a href="https://my1409.ru/vote/ballot">
                         <i class="fa-solid fa-square-poll-vertical"></i>
-                        <span>Выборы </span>
+                        <span data-i18n="apps.service_elections">Выборы </span>
                     </a>
                 </div>
             </div>
@@ -954,8 +955,8 @@
             <!-- Мои регистрации -->
             <div class="card registrations">
                 <div class="events-header">
-                    <h2>Мои регистрации</h2>
-                    <a href="https://my1409.ru/events" target="_blank" class="events-all-link" title="Все события">
+                    <h2 data-i18n="apps.registrations_title">Мои регистрации</h2>
+                    <a href="https://my1409.ru/events" target="_blank" class="events-all-link" title="Все события" data-i18n-title="apps.all_events">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
                     </a>
                 </div>
@@ -970,8 +971,8 @@
             <!-- Объявления школы -->
             <div class="card">
                 <div class="events-header">
-                    <h2>Объявления</h2>
-                    <a href="https://my1409.ru/news" target="_blank" class="events-all-link" title="Все объявления">
+                    <h2 data-i18n="apps.news_title">Объявления</h2>
+                    <a href="https://my1409.ru/news" target="_blank" class="events-all-link" title="Все объявления" data-i18n-title="apps.all_news">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
                     </a>
                 </div>
@@ -989,23 +990,27 @@
 </div>
 
 <script>
-    const SCHEDULE = [
-        { start: '08:30', end: '09:15', type: 'lesson', name: '1 урок' },
-        { start: '09:15', end: '09:25', type: 'break',  name: 'Перемена' },
-        { start: '09:25', end: '10:10', type: 'lesson', name: '2 урок' },
-        { start: '10:10', end: '10:25', type: 'break',  name: 'Перемена' },
-        { start: '10:25', end: '11:10', type: 'lesson', name: '3 урок' },
-        { start: '11:10', end: '11:25', type: 'break',  name: 'Перемена' },
-        { start: '11:25', end: '12:10', type: 'lesson', name: '4 урок' },
-        { start: '12:10', end: '12:30', type: 'break',  name: 'Большая перемена' },
-        { start: '12:30', end: '13:15', type: 'lesson', name: '5 урок' },
-        { start: '13:15', end: '13:25', type: 'break',  name: 'Перемена' },
-        { start: '13:25', end: '14:10', type: 'lesson', name: '6 урок' },
-        { start: '14:10', end: '14:20', type: 'break',  name: 'Перемена' },
-        { start: '14:20', end: '15:05', type: 'lesson', name: '7 урок' },
-        { start: '15:05', end: '15:10', type: 'break',  name: 'Перемена' },
-        { start: '15:10', end: '15:55', type: 'lesson', name: '8 урок' },
-    ];
+    let SCHEDULE = [];
+    function buildSchedule() {
+      SCHEDULE = [
+        { start: '08:30', end: '09:15', type: 'lesson', name: __('apps.schedule_lesson_1') },
+        { start: '09:15', end: '09:25', type: 'break',  name: __('apps.schedule_break_short') },
+        { start: '09:25', end: '10:10', type: 'lesson', name: __('apps.schedule_lesson_2') },
+        { start: '10:10', end: '10:25', type: 'break',  name: __('apps.schedule_break_short') },
+        { start: '10:25', end: '11:10', type: 'lesson', name: __('apps.schedule_lesson_3') },
+        { start: '11:10', end: '11:25', type: 'break',  name: __('apps.schedule_break_short') },
+        { start: '11:25', end: '12:10', type: 'lesson', name: __('apps.schedule_lesson_4') },
+        { start: '12:10', end: '12:30', type: 'break',  name: __('apps.schedule_break_long') },
+        { start: '12:30', end: '13:15', type: 'lesson', name: __('apps.schedule_lesson_5') },
+        { start: '13:15', end: '13:25', type: 'break',  name: __('apps.schedule_break_short') },
+        { start: '13:25', end: '14:10', type: 'lesson', name: __('apps.schedule_lesson_6') },
+        { start: '14:10', end: '14:20', type: 'break',  name: __('apps.schedule_break_short') },
+        { start: '14:20', end: '15:05', type: 'lesson', name: __('apps.schedule_lesson_7') },
+        { start: '15:05', end: '15:10', type: 'break',  name: __('apps.schedule_break_short') },
+        { start: '15:10', end: '15:55', type: 'lesson', name: __('apps.schedule_lesson_8') },
+      ];
+    }
+    buildSchedule();
 
     function toMinutes(str) {
         const [h, m] = str.split(':').map(Number);
@@ -1047,15 +1052,15 @@
             const firstStart = toMinutes(SCHEDULE[0].start);
             if (cur < firstStart) {
                 const secLeft = Math.round((firstStart - cur) * 60);
-                label.textContent = 'До начала занятий';
-                name.textContent  = 'Скоро 1 урок';
+                label.textContent = __('apps.schedule_before_lessons');
+                name.textContent  = __('apps.schedule_first_lesson');
                 tLeft.textContent = formatLeft(secLeft);
                 bar.style.width   = '0%';
                 wrap.classList.remove('break-mode');
             } else {
                 label.textContent = '';
-                name.textContent  = 'Уроки окончены';
-                tLeft.textContent = 'Хорошего вечера!';
+                name.textContent  = __('apps.schedule_after_lessons');
+                tLeft.textContent = __('apps.schedule_good_evening');
                 bar.style.width   = '100%';
                 wrap.classList.remove('break-mode');
             }
@@ -1067,19 +1072,19 @@
             const progress   = Math.min(100, (elapsedSec / totalSec) * 100);
 
             if (slot.type === 'lesson') {
-                label.textContent = 'Идёт урок';
+                label.textContent = __('apps.schedule_during_lesson');
                 wrap.classList.remove('break-mode');
             } else {
-                label.textContent = 'Перемена';
+                label.textContent = __('apps.schedule_break');
                 wrap.classList.add('break-mode');
             }
 
             name.textContent  = slot.name;
-            tLeft.textContent = `До конца: ${formatLeft(leftSec)}`;
+            tLeft.textContent = __('apps.schedule_time_left', {time: formatLeft(leftSec)});
             bar.style.width   = progress + '%';
 
             if (nextEl && nextSlot) {
-                nextEl.textContent = `Следующий: ${nextSlot.name} · ${nextSlot.start}`;
+                nextEl.textContent = __('apps.schedule_next', {name: nextSlot.name, start: nextSlot.start});
                 nextEl.style.display = '';
             } else if (nextEl) {
                 nextEl.style.display = 'none';
@@ -1266,8 +1271,8 @@
         if (leftSec > 295 || leftSec < 235) return;
         if (_lastSchedNotif === key) return;
         _lastSchedNotif = key;
-        new Notification('STUDY1409 — Расписание', {
-            body : `${slot.name} заканчивается через 5 минут`,
+        new Notification(__('apps.notification_title'), {
+            body : __('apps.notification_body', {name: slot.name}),
             icon : '/static/favicon.png',
             badge: '/static/favicon.png',
             tag  : 'schedule-reminder',
@@ -1276,18 +1281,18 @@
 
     // ── Мои регистрации на события ────────────────────────────
     const STATUS_LABELS = {
-        registered: 'Зарегистрирован',
-        confirmed:  'Подтверждено',
-        pending:    'Ожидание',
-        cancelled:  'Отменено',
-        attended:   'Посетил',
+        registered: __('apps.reg_status_registered'),
+        confirmed:  __('apps.reg_status_confirmed'),
+        pending:    __('apps.reg_status_pending'),
+        cancelled:  __('apps.reg_status_cancelled'),
+        attended:   __('apps.reg_status_attended'),
     };
 
     function _fmtDate(str) {
         if (!str) return '';
         try {
             const d = new Date(str);
-            return d.toLocaleDateString('ru', { day: 'numeric', month: 'short' })
+            return d.toLocaleDateString(__lang.getCurrent(), { day: 'numeric', month: 'short' })
                 + (d.getHours() ? `, ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}` : '');
         } catch { return str; }
     }
@@ -1295,11 +1300,11 @@
     function _renderEvents(items) {
         const el = document.getElementById('eventsList');
         if (!items || items.length === 0) {
-            el.innerHTML = '<p class="empty" style="padding:16px 0;">Регистраций на события нет</p>';
+            el.innerHTML = '<p class="empty" style="padding:16px 0;">' + __('apps.registrations_empty') + '</p>';
             return;
         }
         el.innerHTML = items.map(ev => {
-            const name   = ev.title || ev.name || 'Событие';
+            const name   = ev.title || ev.name || __('apps.registrations_event_fallback');
             const date   = _fmtDate(ev.date || ev.event_date || ev.start_date || '');
             const status = ev.status || 'registered';
             const href   = ev.url || ev.link || `https://my1409.ru/events/${ev.id || ''}`;
@@ -1323,7 +1328,7 @@
             if (res.status === 502 || res.status === 503) {
                 document.getElementById('my1409Error').style.display = 'flex';
                 document.getElementById('eventsList').innerHTML =
-                    '<p class="empty" style="padding:16px 0;">Сервер недоступен</p>';
+                    '<p class="empty" style="padding:16px 0;">' + __('apps.registrations_server_unavailable') + '</p>';
                 return;
             }
             const data  = await res.json();
@@ -1333,7 +1338,7 @@
         } catch {
             document.getElementById('my1409Error').style.display = 'flex';
             document.getElementById('eventsList').innerHTML =
-                '<p class="empty" style="padding:16px 0;">Нет соединения</p>';
+                '<p class="empty" style="padding:16px 0;">' + __('apps.registrations_no_connection') + '</p>';
         }
     }
 
@@ -1341,11 +1346,11 @@
     function _renderNews(items) {
         const el = document.getElementById('newsList');
         if (!items || items.length === 0) {
-            el.innerHTML = '<p class="empty" style="padding:16px 0;">Объявлений нет</p>';
+            el.innerHTML = '<p class="empty" style="padding:16px 0;">' + __('apps.news_empty') + '</p>';
             return;
         }
         el.innerHTML = items.slice(0, 5).map(n => {
-            const title = n.title || n.name || n.subject || 'Объявление';
+            const title = n.title || n.name || n.subject || __('apps.news_item_fallback');
             const date  = _fmtDate(n.date || n.created_at || n.published_at || '');
             const href  = n.url || n.link || `https://my1409.ru/news/${n.id || ''}`;
             const _h = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1367,43 +1372,73 @@
             _renderNews(Array.isArray(items) ? items : []);
         } catch {
             document.getElementById('newsList').innerHTML =
-                '<p class="empty" style="padding:16px 0;">Нет данных</p>';
+                '<p class="empty" style="padding:16px 0;">' + __('apps.news_fallback') + '</p>';
         }
     }
 
     // ── Погода (Open-Meteo, без API-ключа) ───────────────────
     const WMO_ICONS = {
-        0:  { icon: 'fa-sun',                label: 'Ясно' },
-        1:  { icon: 'fa-cloud-sun',          label: 'Преимущественно ясно' },
-        2:  { icon: 'fa-cloud-sun',          label: 'Переменная облачность' },
-        3:  { icon: 'fa-cloud',              label: 'Пасмурно' },
-        45: { icon: 'fa-smog',              label: 'Туман' },
-        48: { icon: 'fa-smog',              label: 'Туман с изморозью' },
-        51: { icon: 'fa-cloud-rain',     label: 'Лёгкая морось' },
-        53: { icon: 'fa-cloud-rain',     label: 'Морось' },
-        55: { icon: 'fa-cloud-rain',     label: 'Сильная морось' },
-        61: { icon: 'fa-cloud-rain',        label: 'Лёгкий дождь' },
-        63: { icon: 'fa-cloud-rain',        label: 'Дождь' },
-        65: { icon: 'fa-cloud-showers-heavy', label: 'Сильный дождь' },
-        71: { icon: 'fa-snowflake',         label: 'Лёгкий снег' },
-        73: { icon: 'fa-snowflake',         label: 'Снег' },
-        75: { icon: 'fa-snowflake',         label: 'Сильный снег' },
-        77: { icon: 'fa-snowflake',         label: 'Снежные зёрна' },
-        80: { icon: 'fa-cloud-showers-heavy', label: 'Ливень' },
-        81: { icon: 'fa-cloud-showers-heavy', label: 'Сильный ливень' },
-        82: { icon: 'fa-cloud-showers-heavy', label: 'Очень сильный ливень' },
-        85: { icon: 'fa-snowflake',         label: 'Снегопад' },
-        86: { icon: 'fa-snowflake',         label: 'Сильный снегопад' },
-        95: { icon: 'fa-bolt',              label: 'Гроза' },
-        96: { icon: 'fa-bolt',              label: 'Гроза с градом' },
-        99: { icon: 'fa-bolt',              label: 'Сильная гроза с градом' },
+        0:  'fa-sun',
+        1:  'fa-cloud-sun',
+        2:  'fa-cloud-sun',
+        3:  'fa-cloud',
+        45: 'fa-smog',
+        48: 'fa-smog',
+        51: 'fa-cloud-rain',
+        53: 'fa-cloud-rain',
+        55: 'fa-cloud-rain',
+        61: 'fa-cloud-rain',
+        63: 'fa-cloud-rain',
+        65: 'fa-cloud-showers-heavy',
+        71: 'fa-snowflake',
+        73: 'fa-snowflake',
+        75: 'fa-snowflake',
+        77: 'fa-snowflake',
+        80: 'fa-cloud-showers-heavy',
+        81: 'fa-cloud-showers-heavy',
+        82: 'fa-cloud-showers-heavy',
+        85: 'fa-snowflake',
+        86: 'fa-snowflake',
+        95: 'fa-bolt',
+        96: 'fa-bolt',
+        99: 'fa-bolt',
     };
 
+    function _wmoLabel(code) {
+        const map = {
+            0: 'apps.weather_clear',
+            1: 'apps.weather_mostly_clear',
+            2: 'apps.weather_partly_cloudy',
+            3: 'apps.weather_overcast',
+            45: 'apps.weather_fog',
+            48: 'apps.weather_freezing_fog',
+            51: 'apps.weather_light_drizzle',
+            53: 'apps.weather_drizzle',
+            55: 'apps.weather_heavy_drizzle',
+            61: 'apps.weather_light_rain',
+            63: 'apps.weather_rain',
+            65: 'apps.weather_heavy_rain',
+            71: 'apps.weather_light_snow',
+            73: 'apps.weather_snow',
+            75: 'apps.weather_heavy_snow',
+            77: 'apps.weather_snow_grains',
+            80: 'apps.weather_shower',
+            81: 'apps.weather_heavy_shower',
+            82: 'apps.weather_extreme_shower',
+            85: 'apps.weather_snowfall',
+            86: 'apps.weather_heavy_snowfall',
+            95: 'apps.weather_thunderstorm',
+            96: 'apps.weather_hail_thunderstorm',
+            99: 'apps.weather_heavy_hail_thunderstorm',
+        };
+        return __(map[code] || map[Math.floor(code / 10) * 10] || 'apps.weather_overcast');
+    }
+
     function _weatherHint(temp, wind) {
-        if (temp < 5)  return { cls: 'cold',  text: 'Оденьтесь теплее!' };
-        if (temp < 12) return { cls: 'cold',  text: 'Возьмите куртку' };
-        if (temp > 25) return { cls: 'warm',  text: 'Жарко на улице' };
-        if (wind > 9)  return { cls: 'windy', text: 'Ветрено' };
+        if (temp < 5)  return { cls: 'cold',  text: __('apps.weather_hint_dress_warm') };
+        if (temp < 12) return { cls: 'cold',  text: __('apps.weather_hint_jacket') };
+        if (temp > 25) return { cls: 'warm',  text: __('apps.weather_hint_hot') };
+        if (wind > 9)  return { cls: 'windy', text: __('apps.weather_hint_windy') };
         return null;
     }
 
@@ -1448,16 +1483,16 @@
             const temp = Math.round(cur.temperature_2m);
             const wind = Math.round(cur.windspeed_10m);
             const code = cur.weathercode;
-            const wmo  = WMO_ICONS[code] || WMO_ICONS[Math.floor(code / 10) * 10] || { icon: 'fa-cloud', label: 'Облачно' };
+            const wmoIcon = WMO_ICONS[code] || WMO_ICONS[Math.floor(code / 10) * 10] || 'fa-cloud';
             const hint = _weatherHint(temp, wind);
             const sign = temp > 0 ? '+' : '';
 
             const html = `
                 <div class="weather-inner">
-                    <div class="weather-icon"><i class="fa-solid ${wmo.icon}"></i></div>
+                    <div class="weather-icon"><i class="fa-solid ${wmoIcon}"></i></div>
                     <div class="weather-info">
                         <div class="weather-temp">${sign}${temp}°</div>
-                        <div class="weather-desc">${wmo.label} · ветер ${wind} м/с</div>
+                        <div class="weather-desc">${_wmoLabel(code)} · ${__('apps.weather_wind', {wind})}</div>
                         ${hint ? `<span class="weather-hint ${hint.cls}"><i class="fa-solid fa-circle-info"></i>${hint.text}</span>` : ''}
                         <div class="weather-city">${city}</div>
                     </div>
@@ -1465,7 +1500,7 @@
             widget.innerHTML = html;
             localStorage.setItem('weather_cache', JSON.stringify({ data: html, ts: Date.now() }));
         } catch {
-            widget.innerHTML = '<p class="empty">Погода недоступна</p>';
+            widget.innerHTML = '<p class="empty">' + __('apps.weather_unavailable') + '</p>';
         }
     }
 
@@ -1526,6 +1561,21 @@
             }
         }
     };
+
+    // ── i18n tooltip/attribute sync ────────────────────────────
+    function updateTooltips() {
+        document.querySelectorAll('[data-i18n-tip]').forEach(el => {
+            el.setAttribute('data-tip', __(el.getAttribute('data-i18n-tip')));
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            el.setAttribute('title', __(el.getAttribute('data-i18n-title')));
+        });
+        document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+            el.setAttribute('alt', __(el.getAttribute('data-i18n-alt')));
+        });
+    }
+    document.addEventListener('DOMContentLoaded', updateTooltips);
+    document.addEventListener('langchange', () => { buildSchedule(); updateSchedule(); updateTooltips(); });
 </script>
 </body>
 </html>
