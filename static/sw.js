@@ -1,5 +1,5 @@
 /* ── STUDY1409 Service Worker ─────────────────────────────── */
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME    = `study1409-${CACHE_VERSION}`;
 
 const PRECACHE_ASSETS = [
