@@ -14,6 +14,6 @@ rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/student.my1409.r
 
 cp "${PROJECT_DIR}/nginx-study1409.conf" /etc/nginx/sites-available/study1409
 ln -sf /etc/nginx/sites-available/study1409 /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
+nginx -t && systemctl restart nginx || systemctl start nginx
 
 echo "=== Готово! http://student.my1409.ru ==="

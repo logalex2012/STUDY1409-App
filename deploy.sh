@@ -11,6 +11,6 @@ git pull
 echo "--- Настраиваю nginx ---"
 cp "${PROJECT_DIR}/nginx-study1409.conf" /etc/nginx/sites-available/study1409
 ln -sf /etc/nginx/sites-available/study1409 /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
+nginx -t && systemctl reload nginx || systemctl start nginx
 
 echo "--- Развертывание успешно завершено! ---"
