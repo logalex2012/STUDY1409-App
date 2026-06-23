@@ -357,16 +357,15 @@ def student_create_exit_request():
     if not cause or not exit_time:
         return jsonify({"status": "error", "message": "Неверные данные"}), 400
     phone = session.get("phone", "")
-    now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
     request_id = str(uuid.uuid4())[:8]
     with _db() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """INSERT INTO exit_application_requests
-                   (id, student_phone, cause, allowed_exit_time, created_at)
-                   VALUES (%s, %s, %s, %s, %s)
+                   (id, student_phone, cause, allowed_exit_time)
+                   VALUES (%s, %s, %s, %s)
                    ON CONFLICT DO NOTHING""",
-                (request_id, phone, cause, exit_time, now_str)
+                (request_id, phone, cause, exit_time)
             )
     try:
         url = f"{MY1409_BASE}/api/student/exit-request"
@@ -404,7 +403,7 @@ def student_get_exit_requests():
         items.append({
             "id": r["id"],
             "cause": r["cause"] or "",
-            "created_at": r["created_at"] or "",
+            "created_at": r["created_at"].strftime("%d.%m.%Y %H:%M") if r["created_at"] else "",
             "allowed_exit_time": r["allowed_exit_time"] or "",
             "is_rejected": r["is_rejected"],
             "teacher_name": r["teacher_name"] or "",
@@ -445,8 +444,8 @@ def student_get_exit_history():
         items.append({
             "id": c["id"],
             "cause": c["cause"] or "",
-            "created_at": c["created_at"] or "",
-            "used_at": c["used_at"],
+            "created_at": c["created_at"].strftime("%d.%m.%Y %H:%M") if c["created_at"] else "",
+            "used_at": c["used_at"].strftime("%d.%m.%Y %H:%M") if c["used_at"] else None,
             "allowed_exit_time": c["allowed_exit_time"] or "",
             "is_used": c["is_used"],
             "is_expired": c["is_expired"],
@@ -479,16 +478,15 @@ def student_cache_application(application_id):
                         cur.execute(
                             """INSERT INTO exit_applications
                                (id, student_phone, student_name, student_group,
-                                teacher_name, allowed_exit_time, created_at)
-                               VALUES (%s, %s, %s, %s, %s, %s, %s)
+                                teacher_name, allowed_exit_time)
+                               VALUES (%s, %s, %s, %s, %s, %s)
                                ON CONFLICT (id) DO UPDATE SET
                                 student_name = EXCLUDED.student_name,
                                 student_group = EXCLUDED.student_group,
                                 teacher_name = EXCLUDED.teacher_name,
                                 allowed_exit_time = EXCLUDED.allowed_exit_time""",
                             (application_id, phone, name, group,
-                             teacher, exit_time,
-                             datetime.now().strftime("%d.%m.%Y %H:%M"))
+                             teacher, exit_time)
                         )
                 return jsonify(body), r.status_code
     except Exception:
