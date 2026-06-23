@@ -34,12 +34,12 @@
   async function load(lang) {
     _current = lang;
     try {
-      const res = await fetch('/static/i18n/' + lang + '.json?v=1');
+      const res = await fetch('/s/i18n/' + lang + '.json?v=1');
       _dict = await res.json();
     } catch {
       if (lang !== 'ru') {
         try {
-          const res2 = await fetch('/static/i18n/ru.json?v=1');
+          const res2 = await fetch('/s/i18n/ru.json?v=1');
           _dict = await res2.json();
         } catch {}
       }

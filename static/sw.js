@@ -3,13 +3,13 @@ const CACHE_VERSION = 'v2';
 const CACHE_NAME    = `study1409-${CACHE_VERSION}`;
 
 const PRECACHE_ASSETS = [
-    '/static/favicon.png',
-    '/static/default_avatar.png',
-    '/static/manifest.json',
-    '/static/fonts/fonts.css',
-    '/static/lib/lucide.min.js',
-    '/static/lib/qrcode.min.js',
-    '/static/lib/font-awesome/all.min.css',
+    '/s/favicon.png',
+    '/s/default_avatar.png',
+    '/s/manifest.json',
+    '/s/fonts/fonts.css',
+    '/s/lib/lucide.min.js',
+    '/s/lib/qrcode.min.js',
+    '/s/lib/font-awesome/all.min.css',
     '/offline',
 ];
 
@@ -41,7 +41,7 @@ self.addEventListener('fetch', event => {
     if (request.method !== 'GET' || url.pathname.startsWith('/api/')) return;
 
     // Static assets → Cache First, fall back to network
-    if (url.pathname.startsWith('/static/')) {
+    if (url.pathname.startsWith('/s/')) {
         event.respondWith(
             caches.match(request).then(cached => {
                 if (cached) return cached;
@@ -80,8 +80,8 @@ self.addEventListener('push', event => {
     const title   = data.title || 'STUDY1409';
     const options = {
         body    : data.body    || '',
-        icon    : '/static/favicon.png',
-        badge   : '/static/favicon.png',
+        icon    : '/s/favicon.png',
+        badge   : '/s/favicon.png',
         tag     : data.tag     || 'study1409',
         renotify: !!data.tag,
         data    : { url: data.url || '/apps' },

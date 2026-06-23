@@ -215,7 +215,7 @@ def check_maintenance():
     path = request.path
     if session.get("admin"):
         return
-    if path in _MAINTENANCE_BYPASS or path.startswith("/static/"):
+    if path in _MAINTENANCE_BYPASS or path.startswith("/static/") or path.startswith("/s/"):
         return
     return render_template("maintenance.html"), 503
 
