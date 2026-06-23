@@ -1097,6 +1097,42 @@
                 grid-template-columns: 58% 1fr;
             }
         }
+
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 1400px;
+                padding: 40px 36px;
+            }
+
+            .desktop-grid {
+                grid-template-columns: 62% 1fr;
+                gap: 24px;
+            }
+
+            .left-col, .right-col { gap: 24px; }
+
+            .profile h1 { font-size: 46px; }
+
+            .sidebar {
+                width: 80px;
+                transition: width 0.2s ease;
+            }
+            .sidebar:hover { width: 88px; }
+
+            .sidebar-link, .sidebar-theme-btn {
+                width: 52px;
+                height: 52px;
+                font-size: 19px;
+            }
+
+            .card {
+                padding: 32px;
+                border-radius: 32px;
+            }
+
+            .card h2 { font-size: 24px; }
+            .schedule-name { font-size: 28px; }
+        }
     </style>
 </head>
 <body>

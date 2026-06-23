@@ -264,6 +264,23 @@
             .header h1 { font-size: 1.5rem; }
             .card { padding: 20px; }
         }
+
+        @media (min-width: 768px) {
+            .container { max-width: 750px; padding: 2rem; }
+            .card { padding: 28px; }
+            .header h1 { font-size: 2rem; }
+            .help-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container { max-width: 1000px; }
+            .card { padding: 32px; }
+            .help-grid { grid-template-columns: 1fr 1fr 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -279,74 +296,76 @@
             <p>Мы рядом, чтобы помочь</p>
         </div>
 
-        <div class="card">
-            <div class="help-card-content">
-                <div class="help-icon"><i class="fa-solid fa-robot"></i></div>
-                <h2>Телеграм-бот поддержки</h2>
-                <p>Быстро ответит на вопросы про заявки на выход, заказ карты, регистрацию на мероприятия и другие сервисы.</p>
-                <a href="https://t.me/dit1409_bot" target="_blank" class="btn">
-                    <i class="fa-solid fa-message"></i> Написать в бота
-                </a>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="help-card-content">
-                <div class="help-icon"><i class="fa-solid fa-door-open"></i></div>
-                <h2>Заявка на выход</h2>
-                <p>Чтобы выйти с уроков, создай заявку — учитель одобрит её, и ты сможешь показать охраннику.</p>
-                <a href="/create_application" class="btn">
-                    <i class="fa-solid fa-person-walking-arrow-right"></i> Создать заявку
-                </a>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="help-card-content">
-                <div class="help-icon"><i class="fa-solid fa-id-card"></i></div>
-                <h2>Заказ карты МЭШ</h2>
-                <p>Потерял карту? Нужна новая? Заполни заявку — и карта будет готова на следующий день.</p>
-                <a href="/new_card" class="btn">
-                    <i class="fa-solid fa-id-card"></i> Заказать карту
-                </a>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="help-card-content">
-                <div class="help-icon"><i class="fa-solid fa-gear"></i></div>
-                <h2>Настройки аккаунта</h2>
-                <p>Смени тему, класс, язык интерфейса или посмотри свои значки и регистрации.</p>
-                <a href="/account" class="btn">
-                    <i class="fa-solid fa-gear"></i> Открыть настройки
-                </a>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="help-card-content">
-                <div class="help-icon"><i class="fa-regular fa-lightbulb"></i></div>
-                <h2>Есть идея?</h2>
-                <p>Хочешь предложить новую функцию или улучшение? Напиши нам — мы всегда открыты к идеям!</p>
-                <a href="https://t.me/dit1409_bot" target="_blank" class="btn">
-                    <i class="fa-solid fa-lightbulb"></i> Предложить идею
-                </a>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="help-card-content">
-                <div class="help-icon" style="color: #dc3545;"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <h2>Экстренная ситуация</h2>
-                <p>Сообщить о глобальном сбое или инциденте в работе приложения.</p>
-                <button id="emergency-btn" class="btn btn-emergency">
-                    <i class="fa-solid fa-bell"></i> Сообщить
-                </button>
-                <div id="emergency-final-action">
-                    <p>Напишите в поддержку — мы решим проблему максимально быстро.</p>
+        <div class="help-grid">
+            <div class="card">
+                <div class="help-card-content">
+                    <div class="help-icon"><i class="fa-solid fa-robot"></i></div>
+                    <h2>Телеграм-бот поддержки</h2>
+                    <p>Быстро ответит на вопросы про заявки на выход, заказ карты, регистрацию на мероприятия и другие сервисы.</p>
                     <a href="https://t.me/dit1409_bot" target="_blank" class="btn">
-                        <i class="fa-solid fa-message"></i> Написать в поддержку
+                        <i class="fa-solid fa-message"></i> Написать в бота
                     </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="help-card-content">
+                    <div class="help-icon"><i class="fa-solid fa-door-open"></i></div>
+                    <h2>Заявка на выход</h2>
+                    <p>Чтобы выйти с уроков, создай заявку — учитель одобрит её, и ты сможешь показать охраннику.</p>
+                    <a href="/create_application" class="btn">
+                        <i class="fa-solid fa-person-walking-arrow-right"></i> Создать заявку
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="help-card-content">
+                    <div class="help-icon"><i class="fa-solid fa-id-card"></i></div>
+                    <h2>Заказ карты МЭШ</h2>
+                    <p>Потерял карту? Нужна новая? Заполни заявку — и карта будет готова на следующий день.</p>
+                    <a href="/new_card" class="btn">
+                        <i class="fa-solid fa-id-card"></i> Заказать карту
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="help-card-content">
+                    <div class="help-icon"><i class="fa-solid fa-gear"></i></div>
+                    <h2>Настройки аккаунта</h2>
+                    <p>Смени тему, класс, язык интерфейса или посмотри свои значки и регистрации.</p>
+                    <a href="/account" class="btn">
+                        <i class="fa-solid fa-gear"></i> Открыть настройки
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="help-card-content">
+                    <div class="help-icon"><i class="fa-regular fa-lightbulb"></i></div>
+                    <h2>Есть идея?</h2>
+                    <p>Хочешь предложить новую функцию или улучшение? Напиши нам — мы всегда открыты к идеям!</p>
+                    <a href="https://t.me/dit1409_bot" target="_blank" class="btn">
+                        <i class="fa-solid fa-lightbulb"></i> Предложить идею
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="help-card-content">
+                    <div class="help-icon" style="color: #dc3545;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h2>Экстренная ситуация</h2>
+                    <p>Сообщить о глобальном сбое или инциденте в работе приложения.</p>
+                    <button id="emergency-btn" class="btn btn-emergency">
+                        <i class="fa-solid fa-bell"></i> Сообщить
+                    </button>
+                    <div id="emergency-final-action">
+                        <p>Напишите в поддержку — мы решим проблему максимально быстро.</p>
+                        <a href="https://t.me/dit1409_bot" target="_blank" class="btn">
+                            <i class="fa-solid fa-message"></i> Написать в поддержку
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

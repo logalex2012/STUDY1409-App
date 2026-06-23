@@ -442,6 +442,15 @@
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
         }
+
+        @media (min-width: 1600px) {
+            .content {
+                max-width: 1400px;
+                margin: 0 auto;
+                width: 100%;
+            }
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
     </style>
 </head>
 <body>
