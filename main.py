@@ -323,35 +323,93 @@ def _student_obj(u: dict):
 
 
 def _sync_and_save_profile(phone: str, cookies: dict):
-    """Пытается получить профиль студента из my1409.ru и сохранить в БД."""
-    candidates = ["/api/student/profile", "/api/user/info", "/api/student/info"]
-    for path in candidates:
+    """Пытается получить профиль студента из my1409.ru (через существующие API) и сохранить в БД."""
+    surname = name = lastname = group_number = group_letter = class_teacher_name = ""
+
+    # 1) Пробуем получить teacher_name и application_id из exit-history
+    try:
+        r = http.get(f"{MY1409_BASE}/api/student/exit-history", cookies=cookies, timeout=5)
+        if r.ok:
+            history = r.json()
+            if isinstance(history, list) and history:
+                class_teacher_name = history[0].get("teacher_name", "")
+                # Пробуем получить имя/класс студента из деталей заявки (PUBLIC endpoint)
+                for entry in history[:3]:
+                    app_id = entry.get("id")
+                    if app_id:
+                        try:
+                            r2 = http.get(f"{MY1409_BASE}/api/student/application/{app_id}", timeout=5)
+                            if r2.ok:
+                                data = r2.json()
+                                if data.get("name"):
+                                    parts = data["name"].strip().split()
+                                    surname = parts[0] if len(parts) > 0 else ""
+                                    name = parts[1] if len(parts) > 1 else ""
+                                    lastname = parts[2] if len(parts) > 2 else ""
+                                if data.get("group"):
+                                    grp = data["group"].strip().split()
+                                    group_number = grp[0] if len(grp) > 0 else ""
+                                    group_letter = grp[1] if len(grp) > 1 else ""
+                                if not class_teacher_name:
+                                    class_teacher_name = data.get("teacher_name", "")
+                                break
+                        except:
+                            continue
+    except:
+        pass
+
+    # 2) Если не получили из exit-history — пробуем exit-requests
+    if not name and not surname:
         try:
-            r = http.get(f"{MY1409_BASE}{path}", cookies=cookies, timeout=5)
+            r = http.get(f"{MY1409_BASE}/api/student/exit-requests", cookies=cookies, timeout=5)
             if r.ok:
-                data = r.json()
-                prof = data.get("user", data)
-                if prof and (prof.get("surname") or prof.get("name")):
-                    with _db() as conn:
-                        with conn.cursor() as cur:
-                            cur.execute("""
-                                INSERT INTO student_profiles
-                                    (phone, surname, name, lastname, group_number, group_letter, class_teacher_name)
-                                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                                ON CONFLICT (phone) DO UPDATE SET
-                                    surname=EXCLUDED.surname, name=EXCLUDED.name,
-                                    lastname=EXCLUDED.lastname, group_number=EXCLUDED.group_number,
-                                    group_letter=EXCLUDED.group_letter,
-                                    class_teacher_name=EXCLUDED.class_teacher_name,
-                                    updated_at=NOW()
-                            """, (phone, prof.get("surname",""), prof.get("name",""),
-                                  prof.get("lastname",""), str(prof.get("group_number","")),
-                                  prof.get("group_letter",""), prof.get("class_teacher_name","")))
-                    session["user"] = prof
-                    session.modified = True
-                    return
+                reqs = r.json()
+                if isinstance(reqs, list) and reqs:
+                    if not class_teacher_name:
+                        class_teacher_name = reqs[0].get("teacher_name", "")
         except:
-            continue
+            pass
+
+    # 3) Если всё ещё нет — парсим /student_page HTML
+    if not surname and not name:
+        try:
+            r = http.get(f"{MY1409_BASE}/student_page", cookies=cookies, timeout=5)
+            if r.ok:
+                import re
+                html = r.text
+                m_name = re.search(r'<div class="greeting-name">([^<]+)</div>', html)
+                if m_name:
+                    parts = m_name.group(1).strip().split()
+                    surname = parts[0] if len(parts) > 0 else ""
+                    name = parts[1] if len(parts) > 1 else parts[0] if len(parts) > 0 else ""
+                    lastname = " ".join(parts[2:]) if len(parts) > 2 else ""
+                m_class = re.search(r'<div class="greeting-class">(\d+)\s*([А-ЯЁ])', html)
+                if m_class:
+                    group_number = m_class.group(1)
+                    group_letter = m_class.group(2)
+        except:
+            pass
+
+    if surname or name or group_number or class_teacher_name:
+        with _db() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO student_profiles
+                        (phone, surname, name, lastname, group_number, group_letter, class_teacher_name)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (phone) DO UPDATE SET
+                        surname=EXCLUDED.surname, name=EXCLUDED.name,
+                        lastname=EXCLUDED.lastname, group_number=EXCLUDED.group_number,
+                        group_letter=EXCLUDED.group_letter,
+                        class_teacher_name=EXCLUDED.class_teacher_name,
+                        updated_at=NOW()
+                """, (phone, surname, name, lastname, group_number, group_letter, class_teacher_name))
+        prof = {"surname": surname, "name": name, "lastname": lastname,
+                "group_number": group_number, "group_letter": group_letter,
+                "class_teacher_name": class_teacher_name, "phone": phone}
+        session["user"] = prof
+        session["phone"] = phone
+        session.modified = True
 
 
 # ── Авторизация ──────────────────────────────────────────────
@@ -791,9 +849,9 @@ def card():
 @_require_student
 def settings():
     u = session.get("user", {})
+    phone = session.get("phone", "")
     # Если в сессии нет данных — подтягиваем из БД
     if not u.get("surname"):
-        phone = session.get("phone", "")
         if phone:
             with _db() as conn:
                 with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
@@ -801,11 +859,34 @@ def settings():
                     row = cur.fetchone()
                     if row:
                         u = dict(row)
-                        session["user"] = u
-                        session.modified = True
+    # Если всё ещё пусто — пробуем вытащить из кэша exit_applications
+    if not u.get("surname") and phone:
+        with _db() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT student_name, student_group, teacher_name
+                    FROM exit_applications
+                    WHERE student_phone = %s AND student_name != ''
+                    ORDER BY created_at DESC LIMIT 1
+                """, (phone,))
+                row = cur.fetchone()
+                if row:
+                    # Парсим student_name вида "Фамилия Имя Отчество"
+                    parts = (row["student_name"] or "").strip().split()
+                    u["surname"] = parts[0] if len(parts) > 0 else ""
+                    u["name"] = parts[1] if len(parts) > 1 else ""
+                    u["lastname"] = parts[2] if len(parts) > 2 else ""
+                    # Парсим group вида "9 А"
+                    grp = (row["student_group"] or "").strip().split()
+                    u["group_number"] = grp[0] if len(grp) > 0 else ""
+                    u["group_letter"] = grp[1] if len(grp) > 1 else ""
+                    u["class_teacher_name"] = row["teacher_name"] or ""
+    if u.get("surname"):
+        session["user"] = u
+        session.modified = True
     # Подставляем телефон из сессии если в профиле нет
     if not u.get("phone"):
-        u["phone"] = session.get("phone", "")
+        u["phone"] = phone
     return render_template("account.html",
                            student=_student_obj(u),
                            class_teacher_name=u.get("class_teacher_name", ""))
