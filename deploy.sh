@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 set -e
 
-SERVER_USER="${DEPLOY_USER:-deploy}"
-SERVER_HOST="student.my1409.ru"
-SERVER_PORT=59002
-PROJECT_DIR="/opt/app/MY1409"
+PROJECT_DIR="/root/app-pwa/STUDY1409-App"
 
-ssh -p "${SERVER_PORT}" "${SERVER_USER}@${SERVER_HOST}" "
-cd ${PROJECT_DIR} || { echo 'Ошибка: Не удалось найти директорию ${PROJECT_DIR}. Прерываю выполнение.'; exit 1; }
+cd "${PROJECT_DIR}" || { echo "Ошибка: Не удалось найти директорию ${PROJECT_DIR}."; exit 1; }
+
+echo "--- Обновляю код из Git ---"
 git pull
-docker-compose up -d --build --force-recreate
-"
 
-echo "Развертывание успешно завершено!"
+echo "--- Настраиваю nginx ---"
+cp "${PROJECT_DIR}/nginx-study1409.conf" /etc/nginx/sites-available/study1409
+ln -sf /etc/nginx/sites-available/study1409 /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+
+echo "--- Развертывание успешно завершено! ---"
