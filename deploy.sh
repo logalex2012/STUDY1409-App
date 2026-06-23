@@ -8,8 +8,11 @@ cd "${PROJECT_DIR}" || { echo "Ошибка: Не удалось найти ди
 echo "--- Обновляю код из Git ---"
 git pull
 
-echo "--- Устанавливаю/обновляю зависимости ---"
-pip3 install -r "${PROJECT_DIR}/requirements.txt"
+echo "--- Устанавливаю/обновляю зависимости (venv) ---"
+if [ ! -d "${PROJECT_DIR}/venv" ]; then
+    python3 -m venv "${PROJECT_DIR}/venv"
+fi
+"${PROJECT_DIR}/venv/bin/pip" install -r "${PROJECT_DIR}/requirements.txt"
 
 echo "--- Настраиваю systemd-сервис (Flask работает 24/7) ---"
 cp "${PROJECT_DIR}/study1409-app.service" /etc/systemd/system/study1409-app.service

@@ -8,7 +8,7 @@ Type=simple
 User=root
 Group=root
 WorkingDirectory=/root/app-pwa/STUDY1409-App
-ExecStart=/usr/bin/python3 /root/app-pwa/STUDY1409-App/main.py
+ExecStart=/root/app-pwa/STUDY1409-App/venv/bin/python /root/app-pwa/STUDY1409-App/main.py
 Restart=always
 RestartSec=5
 
