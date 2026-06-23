@@ -11,27 +11,39 @@
 <style>
 :root {
     --bg-primary: #000;
-    --glass-bg: rgba(255,255,255,0.08);
-    --glass-border: rgba(255,255,255,0.15);
+    --bg-secondary: rgba(255,255,255,0.08);
+    --bg-hover: rgba(255,255,255,0.12);
     --text-primary: #fff;
     --text-secondary: rgba(255,255,255,0.7);
+    --text-muted: rgba(255,255,255,0.5);
+    --border-color: rgba(255,255,255,0.12);
+    --border-light: rgba(255,255,255,0.15);
     --accent: #4446E1;
     --accent-hover: #5a5cf5;
 
     --cloud1-color1: rgba(68, 70, 225, 0.4);
     --cloud1-color2: rgba(220, 53, 69, 0.35);
+    --cloud2-color1: rgba(100, 102, 255, 0.3);
+    --cloud2-color2: rgba(255, 80, 100, 0.25);
+    --shadow-color: rgba(0,0,0,0.3);
 }
 
 [data-theme="light"] {
     --bg-primary: #f5f7fa;
-    --glass-bg: rgba(255,255,255,0.8);
-    --glass-border: rgba(0,0,0,0.1);
+    --bg-secondary: rgba(255,255,255,0.9);
+    --bg-hover: rgba(255,255,255,1);
     --text-primary: #1a1a2e;
     --text-secondary: rgba(26,26,46,0.7);
+    --text-muted: rgba(26,26,46,0.5);
+    --border-color: rgba(0,0,0,0.08);
+    --border-light: rgba(0,0,0,0.1);
     --accent: #4446E1;
     --accent-hover: #3335c8;
-    --cloud1-color1: rgba(68,70,225,0.5);
-    --cloud1-color2: rgba(220,53,69,0.4);
+    --cloud1-color1: rgba(68,70,225,0.8);
+    --cloud1-color2: rgba(220,53,69,0.75);
+    --cloud2-color1: rgba(100,102,255,0.7);
+    --cloud2-color2: rgba(255,80,100,0.65);
+    --shadow-color: rgba(0,0,0,0.1);
 }
 
 [data-theme="light"] .card input {
@@ -44,14 +56,20 @@
 
 [data-theme="stranger"] {
     --bg-primary: #050005;
-    --glass-bg: rgba(180,0,15,0.12);
-    --glass-border: rgba(220,20,20,0.45);
+    --bg-secondary: rgba(180,0,15,0.12);
+    --bg-hover: rgba(180,0,15,0.2);
     --text-primary: #ffffff;
     --text-secondary: rgba(255,160,160,0.85);
+    --text-muted: rgba(255,160,160,0.55);
+    --border-color: rgba(220,20,20,0.3);
+    --border-light: rgba(220,20,20,0.45);
     --accent: #cc1500;
     --accent-hover: #a81000;
     --cloud1-color1: rgba(210,0,15,0.6);
     --cloud1-color2: rgba(100,0,140,0.5);
+    --cloud2-color1: rgba(200,0,20,0.4);
+    --cloud2-color2: rgba(120,0,100,0.35);
+    --shadow-color: rgba(200,0,20,0.3);
 }
 
 [data-theme="stranger"] .card h1 {
@@ -92,6 +110,7 @@ body {
     align-items: center;
     overflow: hidden;
     position: relative;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 body::before {
@@ -102,45 +121,85 @@ body::before {
     width: 200%;
     height: 200%;
     background:
-        radial-gradient(
-            ellipse 80% 60% at 30% 20%,
-            var(--cloud1-color1) 0%,
-            transparent 50%
-        ),
-        radial-gradient(
-            ellipse 60% 50% at 70% 30%,
-            var(--cloud1-color2) 0%,
-            transparent 50%
-        );
+        radial-gradient(ellipse 80% 60% at 30% 20%, var(--cloud1-color1) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
     z-index: -1;
     animation: cloudFloat 20s ease-in-out infinite;
 }
 
+body::after {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: -30%;
+    width: 160%;
+    height: 160%;
+    background:
+        radial-gradient(ellipse 50% 40% at 60% 25%, var(--cloud2-color1) 0%, transparent 45%),
+        radial-gradient(ellipse 40% 35% at 40% 35%, var(--cloud2-color2) 0%, transparent 40%);
+    z-index: -1;
+    animation: cloudFloat2 25s ease-in-out infinite reverse;
+}
+
 @keyframes cloudFloat {
-    0%,100% {
-        transform: translate(0,0) scale(1);
-    }
-    25% {
-        transform: translate(5%,3%) scale(1.05);
-    }
-    50% {
-        transform: translate(-3%,5%) scale(0.98);
-    }
-    75% {
-        transform: translate(-5%,-2%) scale(1.02);
-    }
+    0%,100% { transform: translate(0,0) scale(1); }
+    25% { transform: translate(5%,3%) scale(1.05); }
+    50% { transform: translate(-3%,5%) scale(0.98); }
+    75% { transform: translate(-5%,-2%) scale(1.02); }
+}
+
+@keyframes cloudFloat2 {
+    0%,100% { transform: translate(0,0) rotate(0deg); }
+    33% { transform: translate(-4%,4%) rotate(2deg); }
+    66% { transform: translate(4%,-3%) rotate(-2deg); }
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.logo-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo-header img {
+    height: 80px;
+    filter: drop-shadow(0 4px 15px rgba(0,0,0,0.3));
+    margin-bottom: 1rem;
+}
+
+.logo-header h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+[data-theme="light"] .logo-header h1 {
+    color: #1a1a2e;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .card {
-    width: 100%;
-    max-width: 420px;
-    padding: 35px;
-    border-radius: 24px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-secondary);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--border-color);
+    border-radius: 28px;
+    padding: 30px;
+    box-shadow: 0 20px 50px var(--shadow-color);
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0,0,0,.4);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card h1 {
@@ -156,51 +215,83 @@ body::before {
 
 .card input {
     width: 100%;
-    padding: 15px;
+    padding: 16px;
     border-radius: 14px;
-    border: 1px solid rgba(255,255,255,.15);
-    background: rgba(255,255,255,.05);
-    color: white;
+    border: 1px solid var(--border-light);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     font-size: 15px;
     font-family: 'Montserrat', sans-serif;
     outline: none;
     margin-bottom: 14px;
-    transition: border-color .2s;
+    transition: all 0.3s ease;
 }
 
-.card input:focus { border-color: var(--accent); }
-.card input::placeholder { color: rgba(255,255,255,.5); }
+.card input:focus {
+    border-color: var(--accent);
+    background: var(--bg-hover);
+    box-shadow: 0 0 0 4px rgba(68, 70, 225, 0.1);
+}
+
+[data-theme="stranger"] .card input:focus {
+    box-shadow: 0 0 0 4px rgba(200,0,20,0.15);
+}
+
+.card input::placeholder { color: var(--text-muted); }
 
 .card button {
     width: 100%;
-    padding: 15px;
+    padding: 16px;
     border: none;
     border-radius: 14px;
-    background: var(--accent);
+    background: linear-gradient(135deg, #4446E1 0%, #2E3192 100%);
     color: white;
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     font-family: 'Montserrat', sans-serif;
     cursor: pointer;
-    transition: .3s;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+[data-theme="stranger"] .card button {
+    background: linear-gradient(135deg, #cc1500 0%, #8a0e00 100%);
 }
 
 .card button:hover:not(:disabled) {
-    background: var(--accent-hover);
     transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(68, 70, 225, 0.4);
 }
 
-.card button:disabled { opacity: .6; cursor: not-allowed; }
+[data-theme="stranger"] .card button:hover:not(:disabled) {
+    box-shadow: 0 10px 25px rgba(200,0,20,0.4);
+}
+
+.card button:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
 
 .back-btn {
-    background: none;
+    background: none !important;
     border: none;
-    color: var(--text-secondary);
+    color: var(--text-muted);
     font-size: 13px;
     font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
     cursor: pointer;
     margin-top: 12px;
-    text-decoration: underline;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.back-btn:hover {
+    color: var(--text-primary);
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .error-msg {
@@ -209,6 +300,7 @@ body::before {
     border-radius: 10px;
     padding: 10px 14px;
     font-size: 13px;
+    font-weight: 600;
     color: #ff8080;
     margin-bottom: 14px;
     display: none;
@@ -217,40 +309,146 @@ body::before {
 .step { display: none; }
 .step.active { display: block; }
 
+/* Loading Overlay */
+.login-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(15px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.login-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255,255,255,0.1);
+    border-top: 4px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.overlay-text {
+    font-weight: 700;
+    color: white;
+    font-size: 16px;
+}
+
+/* Footer */
 footer {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    color: var(--text-secondary);
-    font-size: 13px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Page Loader */
+.page-loader {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--bg-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.page-loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader-content {
+    text-align: center;
+    animation: loaderPulse 1.5s ease-in-out infinite;
+}
+
+.loader-content img {
+    height: 80px;
+    margin-bottom: 1rem;
+}
+
+.loader-content .loader-title {
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+    font-size: 18px;
+}
+
+@keyframes loaderPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+}
+
+@media (max-width: 480px) {
+    .card { padding: 25px 20px; }
+    .logo-header h1 { font-size: 1.5rem; }
 }
 </style>
     <script src="/static/tg.js"></script>
     <script src="/static/i18n/i18n.js?v=2"></script>
 </head>
-
 <body>
 
-<canvas id="stParticles"></canvas>
-<div class="card">
-    <div class="error-msg" id="errMsg"></div>
+<div class="page-loader" id="pageLoader">
+    <div class="loader-content">
+        <img src="/static/favicon.png" alt="1409">
+        <div class="loader-title">STUDY1409</div>
+    </div>
+</div>
 
-    <!-- Шаг 1: телефон -->
-    <div class="step active" id="step1">
-        <h1 data-i18n="login.step1.title">Привет 👋</h1>
-        <p class="sub" data-i18n="login.step1.subtitle">Войдите в STUDY1409 по номеру телефона</p>
-        <input type="tel" id="phoneInput" placeholder="+7 (999) 000-00-00" autocomplete="tel" data-i18n="login.step1.phone_placeholder" data-i18n-placeholder="true">
-        <button id="sendBtn" onclick="sendCode()" data-i18n="login.step1.send_code">Получить код</button>
+<div id="loginOverlay" class="login-overlay">
+    <div class="spinner"></div>
+    <div class="overlay-text">Вход в аккаунт...</div>
+</div>
+
+<canvas id="stParticles"></canvas>
+
+<div class="login-wrapper">
+    <div class="logo-header">
+        <img src="/static/favicon.png" alt="1409">
     </div>
 
-    <!-- Шаг 2: код -->
-    <div class="step" id="step2">
-        <h1 data-i18n="login.step2.title">Введите код 🔑</h1>
-        <p class="sub" id="codeSub" data-i18n="login.step2.subtitle">Код отправлен в Telegram на ваш номер</p>
-        <input type="number" id="codeInput" placeholder="0000" maxlength="4" autocomplete="one-time-code" data-i18n="login.step2.code_placeholder" data-i18n-placeholder="true">
-        <button id="verifyBtn" onclick="verifyCode()" data-i18n="login.step2.login">Войти</button>
-        <button class="back-btn" onclick="backToPhone()" data-i18n="login.step2.change_number">← Изменить номер</button>
+    <div class="card">
+        <div class="error-msg" id="errMsg"></div>
+
+        <div class="step active" id="step1">
+            <h1 data-i18n="login.step1.title">Привет 👋</h1>
+            <p class="sub" data-i18n="login.step1.subtitle">Войдите в STUDY1409 по номеру телефона</p>
+            <input type="tel" id="phoneInput" placeholder="+7 (999) 000-00-00" autocomplete="tel" data-i18n="login.step1.phone_placeholder" data-i18n-placeholder="true">
+            <button id="sendBtn" onclick="sendCode()" data-i18n="login.step1.send_code">Получить код</button>
+        </div>
+
+        <div class="step" id="step2">
+            <h1 data-i18n="login.step2.title">Введите код 🔑</h1>
+            <p class="sub" id="codeSub" data-i18n="login.step2.subtitle">Код отправлен в Telegram на ваш номер</p>
+            <input type="number" id="codeInput" placeholder="0000" maxlength="4" autocomplete="one-time-code" data-i18n="login.step2.code_placeholder" data-i18n-placeholder="true">
+            <button id="verifyBtn" onclick="verifyCode()" data-i18n="login.step2.login">Войти</button>
+            <button class="back-btn" onclick="backToPhone()" data-i18n="login.step2.change_number">← Изменить номер</button>
+        </div>
     </div>
 </div>
 
@@ -259,12 +457,20 @@ footer {
 </footer>
 
 <script>
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.getElementById('pageLoader').classList.add('hidden');
+        }, 600);
+    });
+
     (function initTheme() {
         const saved = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', saved);
     })();
 
     let _phone = '';
+    const overlay = document.getElementById('loginOverlay');
+    const overlayText = document.querySelector('.overlay-text');
 
     function showError(msg) {
         const el = document.getElementById('errMsg');
@@ -278,6 +484,15 @@ footer {
         showError('');
     }
 
+    function showOverlay(text) {
+        overlayText.textContent = text || 'Вход в аккаунт...';
+        overlay.classList.add('active');
+    }
+
+    function hideOverlay() {
+        overlay.classList.remove('active');
+    }
+
     async function sendCode() {
         const phone = document.getElementById('phoneInput').value.trim();
         if (!phone) { showError(__('login.error.no_phone')); return; }
@@ -286,12 +501,14 @@ footer {
         btn.disabled = true;
         btn.textContent = __('login.sending');
         try {
+            showOverlay(__('login.sending'));
             const r = await fetch('/api/pwa/login/send-code', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({phone})
             });
             const data = await r.json();
+            hideOverlay();
             if (r.ok && data.status === 'success') {
                 document.getElementById('codeSub').textContent =
                     __('login.step2.subtitle_phone', {phone: phone});
@@ -301,6 +518,7 @@ footer {
                 showError(data.message || __('login.error.send_failed'));
             }
         } catch {
+            hideOverlay();
             showError(__('login.error.no_connection'));
         } finally {
             btn.disabled = false;
@@ -315,6 +533,7 @@ footer {
         btn.disabled = true;
         btn.textContent = __('login.checking');
         try {
+            showOverlay(__('login.checking'));
             const r = await fetch('/api/pwa/login/verify-code', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -324,11 +543,13 @@ footer {
             if (r.ok && data.status === 'success') {
                 window.location.href = '/apps';
             } else {
+                hideOverlay();
                 showError(data.message || __('login.error.wrong_code'));
                 btn.disabled = false;
                 btn.textContent = __('login.step2.login');
             }
         } catch {
+            hideOverlay();
             showError(__('login.error.no_connection'));
             btn.disabled = false;
             btn.textContent = __('login.step2.login');
@@ -337,7 +558,6 @@ footer {
 
     function backToPhone() { setStep(1); }
 
-    // Enter key support
     document.addEventListener('keydown', e => {
         if (e.key !== 'Enter') return;
         if (document.getElementById('step1').classList.contains('active')) sendCode();
@@ -346,6 +566,7 @@ footer {
 
     (function initParticles() {
         const canvas = document.getElementById('stParticles');
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
         let animId;
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -393,7 +614,6 @@ footer {
       }
     });
 
-    // Telegram Web App: на странице входа кнопку «назад» не показываем
     initTelegramWebApp({ backButton: false });
 </script>
 </body>

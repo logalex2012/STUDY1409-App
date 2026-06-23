@@ -205,7 +205,8 @@ def _delete_dead_subs(endpoints: list):
 
 # ── Maintenance middleware ─────────────────────────────────────
 _MAINTENANCE_BYPASS = {"/admin", "/admin/logout", "/sw.js", "/offline",
-                       "/static/favicon.png", "/static/manifest.json"}
+                       "/static/favicon.png", "/static/manifest.json",
+                       "/help"}
 
 @app.before_request
 def check_maintenance():
@@ -412,12 +413,20 @@ def proxy_card(subpath):
         return jsonify({"error": "upstream error"}), 502
 
 
+# ── Помощь / техподдержка ────────────────────────────────────
+@app.route("/help")
+@_require_student
+def help():
+    return render_template("help.html")
+
+
 # ── Главная (сервисы) ─────────────────────────────────────────
 @app.route("/apps")
+@app.route("/student_page")
 @_require_student
 def apps():
     u = session.get("user", {})
-    return render_template("apps.html", user=u)
+    return render_template("student_page.html", user=u)
 
 
 # ── Заявка на выход (для ученика) ────────────────────────────
@@ -441,9 +450,25 @@ def application_404():
     return render_template("application-404.html")
 
 
+# ── Страница QR-кода для входа на событие ────────────────────
+@app.route("/event_registration/<registration_id>")
+@_require_student
+def event_registration(registration_id):
+    u = session.get("user", {})
+    full_name = f'{u.get("surname","")} {u.get("name","")} {u.get("lastname","")}'.strip()
+    student_class = f'{u.get("group_number","")}{u.get("group_letter","")}'.strip()
+    phone = u.get("phone", "")
+    return render_template("event_registration.html",
+                          full_name=full_name,
+                          student_class=student_class,
+                          phone=phone,
+                          registration_id=registration_id)
+
+
 # ── Заказ карты МЭШ ──────────────────────────────────────────
 @app.route("/card")
 @app.route("/new_card")
+@app.route("/card_new")
 @_require_student
 def card():
     u = session.get("user", {})

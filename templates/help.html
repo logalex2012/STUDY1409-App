@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY1409 - Помощь</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link href="/static/fonts/fonts.css" rel="stylesheet">
+    <link href="/static/lib/font-awesome/custom.css" rel="stylesheet">
+    <script src="/static/tg.js"></script>
+    <script src="/static/lib/lucide.min.js"></script>
+    <script src="/static/i18n/i18n.js?v=2"></script>
+    <style>
+        :root {
+            --bg-primary: #000;
+            --glass-bg: rgba(255,255,255,0.08);
+            --glass-border: rgba(255,255,255,0.15);
+            --text-primary: #fff;
+            --text-secondary: rgba(255,255,255,0.7);
+            --accent: #4446E1;
+            --accent-hover: #5a5cf5;
+            --cloud1-color1: rgba(68, 70, 225, 0.4);
+            --cloud1-color2: rgba(220, 53, 69, 0.35);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --glass-bg: rgba(255,255,255,0.8);
+            --glass-border: rgba(0,0,0,0.1);
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(26,26,46,0.7);
+            --accent: #4446E1;
+            --accent-hover: #3335c8;
+            --cloud1-color1: rgba(68,70,225,0.5);
+            --cloud1-color2: rgba(220,53,69,0.4);
+        }
+
+        [data-theme="stranger"] {
+            --bg-primary: #050005;
+            --glass-bg: rgba(180,0,15,0.12);
+            --glass-border: rgba(220,20,20,0.45);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255,160,160,0.85);
+            --accent: #cc1500;
+            --accent-hover: #a81000;
+            --cloud1-color1: rgba(210,0,15,0.6);
+            --cloud1-color2: rgba(100,0,140,0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+
+        body {
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background:
+                radial-gradient(ellipse 80% 60% at 30% 20%, var(--cloud1-color1) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
+            z-index: -1;
+            animation: cloudFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes cloudFloat {
+            0%,100% { transform: translate(0,0) scale(1); }
+            25%  { transform: translate(5%,3%) scale(1.05); }
+            50%  { transform: translate(-3%,5%) scale(0.98); }
+            75%  { transform: translate(-5%,-2%) scale(1.02); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .nav-close {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 6px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 16px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .help-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .help-card-content {
+            text-align: center;
+        }
+
+        .help-card-content h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .help-card-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            text-decoration: none;
+            color: #FFF;
+            background: linear-gradient(135deg, #4446E1 0%, #2E3192 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(68,70,225,0.4);
+        }
+
+        .btn-emergency {
+            background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%);
+        }
+
+        .btn-emergency:hover {
+            box-shadow: 0 8px 25px rgba(220,53,69,0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal-content p {
+            font-size: 1rem;
+            margin-bottom: 24px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-buttons .btn { flex: 1; }
+
+        #emergency-final-action {
+            display: none;
+            margin-top: 16px;
+        }
+
+        #emergency-final-action .btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+        }
+
+        #emergency-final-action .btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        #emergency-final-action p {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .emergency-hidden { display: none; }
+
+        @media (max-width: 480px) {
+            .container { padding: 16px; }
+            .header h1 { font-size: 1.5rem; }
+            .card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <a href="/apps" class="nav-close">
+                <i data-lucide="home"></i>
+            </a>
+        </div>
+
+        <div class="header">
+            <h1>Помощь и поддержка</h1>
+            <p>Мы рядом, чтобы помочь</p>
+        </div>
+
+        <div class="card">
+            <div class="help-card-content">
+                <div class="help-icon"><i class="fa-solid fa-robot"></i></div>
+                <h2>Телеграм-бот поддержки</h2>
+                <p>Быстро ответит на вопросы про заявки на выход, заказ карты, регистрацию на мероприятия и другие сервисы.</p>
+                <a href="https://t.me/dit1409_bot" target="_blank" class="btn">
+                    <i class="fa-solid fa-message"></i> Написать в бота
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="help-card-content">
+                <div class="help-icon"><i class="fa-solid fa-door-open"></i></div>
+                <h2>Заявка на выход</h2>
+                <p>Чтобы выйти с уроков, создай заявку — учитель одобрит её, и ты сможешь показать охраннику.</p>
+                <a href="/create_application" class="btn">
+                    <i class="fa-solid fa-person-walking-arrow-right"></i> Создать заявку
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="help-card-content">
+                <div class="help-icon"><i class="fa-solid fa-id-card"></i></div>
+                <h2>Заказ карты МЭШ</h2>
+                <p>Потерял карту? Нужна новая? Заполни заявку — и карта будет готова на следующий день.</p>
+                <a href="/new_card" class="btn">
+                    <i class="fa-solid fa-id-card"></i> Заказать карту
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="help-card-content">
+                <div class="help-icon"><i class="fa-solid fa-gear"></i></div>
+                <h2>Настройки аккаунта</h2>
+                <p>Смени тему, класс, язык интерфейса или посмотри свои значки и регистрации.</p>
+                <a href="/account" class="btn">
+                    <i class="fa-solid fa-gear"></i> Открыть настройки
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="help-card-content">
+                <div class="help-icon"><i class="fa-regular fa-lightbulb"></i></div>
+                <h2>Есть идея?</h2>
+                <p>Хочешь предложить новую функцию или улучшение? Напиши нам — мы всегда открыты к идеям!</p>
+                <a href="https://t.me/dit1409_bot" target="_blank" class="btn">
+                    <i class="fa-solid fa-lightbulb"></i> Предложить идею
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="help-card-content">
+                <div class="help-icon" style="color: #dc3545;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h2>Экстренная ситуация</h2>
+                <p>Сообщить о глобальном сбое или инциденте в работе приложения.</p>
+                <button id="emergency-btn" class="btn btn-emergency">
+                    <i class="fa-solid fa-bell"></i> Сообщить
+                </button>
+                <div id="emergency-final-action">
+                    <p>Напишите в поддержку — мы решим проблему максимально быстро.</p>
+                    <a href="https://t.me/dit1409_bot" target="_blank" class="btn">
+                        <i class="fa-solid fa-message"></i> Написать в поддержку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="emergency-modal">
+        <div class="modal-content">
+            <p>Вы уверены, что ситуация действительно экстренная и требует немедленного вмешательства?</p>
+            <div class="modal-buttons">
+                <button id="confirm-emergency" class="btn btn-emergency">Да, уверен</button>
+                <button id="cancel-emergency" class="btn" style="background: var(--glass-bg); color: var(--text-primary); border: 1px solid var(--glass-border);">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+        }
+        initTheme();
+        lucide.createIcons();
+
+        const emergencyBtn = document.getElementById('emergency-btn');
+        const modal = document.getElementById('emergency-modal');
+        const confirmBtn = document.getElementById('confirm-emergency');
+        const cancelBtn = document.getElementById('cancel-emergency');
+        const finalAction = document.getElementById('emergency-final-action');
+
+        emergencyBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            emergencyBtn.style.display = 'none';
+            finalAction.style.display = 'block';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        initTelegramWebApp();
+    </script>
+</body>
+</html>

@@ -410,6 +410,20 @@
 
         .reg-item:last-child { border-bottom: none; }
 
+        a.reg-item {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.2s ease;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 0 -12px;
+        }
+
+        a.reg-item:hover {
+            background: var(--bg-secondary);
+        }
+
         .reg-event-name {
             font-weight: 700;
             font-size: 0.95rem;
@@ -537,6 +551,9 @@
         <div class="top-nav">
             <a href="/apps" class="nav-close">
                 <i data-lucide="home"></i>
+            </a>
+            <a href="/help" class="nav-close" style="margin-left:auto;">
+                <i data-lucide="circle-help"></i>
             </a>
         </div>
 
@@ -871,15 +888,18 @@
                     const locationInfo = reg.is_online
                         ? __('account.registration_online')
                         : `📍 ${reg.event_location}`;
+                    const regId = reg.registration_id || reg.id || '';
+                    const href = regId ? `/event_registration/${regId}` : '#';
+                    const _h = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
                     return `
-                        <div class="reg-item">
-                            <div class="reg-event-name">${reg.event_name}</div>
+                        <a class="reg-item" href="${_h(href)}">
+                            <div class="reg-event-name">${_h(reg.event_name)}</div>
                             <div class="reg-meta">
-                                <span>📅 ${reg.event_date}, ${reg.event_time}</span>
+                                <span>📅 ${_h(reg.event_date)}, ${_h(reg.event_time)}</span>
                                 <span>${locationInfo}</span>
                             </div>
                             <div style="margin-top:6px;">${presentBadge}</div>
-                        </div>`;
+                        </a>`;
                 }).join('');
             } catch (e) {}
         }

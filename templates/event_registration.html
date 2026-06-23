@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title data-i18n="event_registration.title">STUDY1409 - Вход на событие</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link href="/static/fonts/fonts.css" rel="stylesheet">
+    <script src="/static/tg.js"></script>
+    <script src="/static/lib/lucide.min.js"></script>
+    <script src="/static/lib/qrcode.min.js"></script>
+    <script src="/static/i18n/i18n.js?v=2"></script>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: rgba(255, 255, 255, 0.08);
+            --bg-tertiary: rgba(255, 255, 255, 0.06);
+            --bg-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --border-light: rgba(255, 255, 255, 0.15);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --cloud1-color1: rgba(68, 70, 225, 0.4);
+            --cloud1-color2: rgba(220, 53, 69, 0.35);
+            --cloud2-color1: rgba(100, 102, 255, 0.3);
+            --cloud2-color2: rgba(255, 80, 100, 0.25);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent: #4446E1;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: rgba(255, 255, 255, 0.9);
+            --bg-tertiary: rgba(255, 255, 255, 0.95);
+            --bg-hover: rgba(255, 255, 255, 1);
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(26, 26, 46, 0.7);
+            --text-muted: rgba(26, 26, 46, 0.5);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-light: rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --cloud1-color1: rgba(68, 70, 225, 0.8);
+            --cloud1-color2: rgba(220, 53, 69, 0.75);
+            --cloud2-color1: rgba(100, 102, 255, 0.7);
+            --cloud2-color2: rgba(255, 80, 100, 0.65);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background:
+                radial-gradient(ellipse 80% 60% at 30% 20%, var(--cloud1-color1) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 50% at 70% 30%, var(--cloud1-color2) 0%, transparent 50%);
+            z-index: -1;
+            animation: cloudFloat 20s ease-in-out infinite;
+            transition: background 0.3s ease;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -30%; left: -30%;
+            width: 160%; height: 160%;
+            background:
+                radial-gradient(ellipse 50% 40% at 60% 25%, var(--cloud2-color1) 0%, transparent 45%),
+                radial-gradient(ellipse 40% 35% at 40% 35%, var(--cloud2-color2) 0%, transparent 40%);
+            z-index: -1;
+            animation: cloudFloat2 25s ease-in-out infinite reverse;
+            transition: background 0.3s ease;
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(5%, 3%) scale(1.05); }
+            50% { transform: translate(-3%, 5%) scale(0.98); }
+            75% { transform: translate(-5%, -2%) scale(1.02); }
+        }
+
+        @keyframes cloudFloat2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-4%, 4%) rotate(2deg); }
+            66% { transform: translate(4%, -3%) rotate(-2deg); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            align-items: stretch;
+        }
+
+        .nav-close {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .card {
+            background: var(--bg-tertiary);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            margin-bottom: 20px;
+        }
+
+        /* Event Photo */
+        .event-photo {
+            width: 100%;
+            height: 200px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 0;
+            background: linear-gradient(135deg, #4446E1 0%, #2E3192 50%, #1a1a4e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .event-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .event-photo-placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .event-photo-placeholder i {
+            width: 48px;
+            height: 48px;
+            opacity: 0.6;
+        }
+
+        /* Section title */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .section-title i {
+            width: 20px;
+            height: 20px;
+            color: var(--accent);
+        }
+
+        /* Info rows */
+        .info-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            gap: 12px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .info-icon i {
+            width: 18px;
+            height: 18px;
+            color: var(--accent);
+        }
+
+        .info-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 2px;
+            word-break: break-word;
+        }
+
+        .info-value .class-badge {
+            display: inline-block;
+            background: rgba(68, 70, 225, 0.15);
+            color: #7b7ef5;
+            padding: 2px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        /* QR Section */
+        .qr-section {
+            text-align: center;
+        }
+
+        #qrcode {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        #qrcode img, #qrcode canvas {
+            display: block;
+        }
+
+        .qr-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(68, 70, 225, 0.12);
+            border: 1px solid rgba(68, 70, 225, 0.25);
+            color: #7b7ef5;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .status-badge i {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 3000;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            backdrop-filter: blur(20px);
+            white-space: nowrap;
+        }
+
+        .toast.success {
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+        }
+
+        .toast.error {
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+        }
+
+        .toast.shown {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 0.8rem; }
+            .card { padding: 18px; }
+            .event-photo { height: 160px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <a href="/apps" class="nav-close" title="На главную">
+                <i data-lucide="home"></i>
+            </a>
+            <a href="/help" class="nav-close" style="margin-left:auto;" title="Помощь">
+                <i data-lucide="circle-help"></i>
+            </a>
+        </div>
+
+        <!-- Event Photo -->
+        <div class="card" style="padding:0;overflow:hidden;">
+            <div class="event-photo" id="eventPhoto">
+                <div class="event-photo-placeholder">
+                    <i data-lucide="image"></i>
+                    <span data-i18n="event_registration.photo_placeholder">Фото события</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guest Info -->
+        <div class="card">
+            <div class="section-title">
+                <i data-lucide="user"></i>
+                <span data-i18n="event_registration.guest_title">Гость</span>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">
+                    <i data-lucide="badge-check"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label" data-i18n="event_registration.fio">ФИО</div>
+                    <div class="info-value" id="guestName">{{ full_name }}</div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">
+                    <i data-lucide="graduation-cap"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label" data-i18n="event_registration.class">Класс</div>
+                    <div class="info-value">
+                        {% if student_class %}
+                        <span class="class-badge">{{ student_class }}</span>
+                        {% else %}
+                        <span style="color:var(--text-muted);font-weight:400;" data-i18n="event_registration.no_class">Не указан</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">
+                    <i data-lucide="phone"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label" data-i18n="event_registration.phone">Телефон</div>
+                    <div class="info-value" id="guestPhone">{{ phone }}</div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">
+                    <i data-lucide="mail"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label" data-i18n="event_registration.email">Почта</div>
+                    <div class="info-value" id="guestEmail" data-i18n="event_registration.email_placeholder">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="card">
+            <div class="section-title" style="justify-content:center;margin-bottom:20px;">
+                <i data-lucide="qr-code"></i>
+                <span data-i18n="event_registration.qr_title">QR-код для входа</span>
+            </div>
+            <div class="qr-section">
+                <div id="qrcode"></div>
+                <div class="status-badge">
+                    <i data-lucide="check-circle"></i>
+                    <span data-i18n="event_registration.registered">Регистрация подтверждена</span>
+                </div>
+                <p class="qr-label" data-i18n="event_registration.qr_hint">Покажите этот код при входе на мероприятие</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+        }
+        initTheme();
+
+        initTelegramWebApp();
+        lucide.createIcons();
+
+        const registrationId = window.location.pathname.split('/').filter(Boolean).pop();
+
+        if (registrationId) {
+            new QRCode(document.getElementById('qrcode'), {
+                text: 'event:' + registrationId,
+                width: 180,
+                height: 180,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        function showToast(message, type) {
+            const t = document.getElementById('toast');
+            t.textContent = message;
+            t.className = 'toast ' + (type || 'success') + ' shown';
+            setTimeout(function() {
+                t.classList.remove('shown');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
