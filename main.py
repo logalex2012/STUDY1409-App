@@ -17,7 +17,7 @@ from flask import (Flask, render_template, redirect, url_for,
                    request, session, jsonify, Response)
 
 # Инициализация Flask приложения #
-app = Flask(__name__)
+app = Flask(__name__, static_folder='s', static_url_path='/s')
 _IS_DEV = os.environ.get("FLASK_DEBUG", "0") == "1"
 
 app.config.update(SECRET_KEY=config.SECRET_KEY)
@@ -870,12 +870,6 @@ def push_send():
         _delete_dead_subs(dead)
 
     return jsonify({"sent": sent, "removed": len(dead)})
-
-
-@app.route("/s/<path:filename>")
-def serve_static(filename):
-    return app.send_static_file(filename)
-
 
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG", "0") == "1", port=1090)

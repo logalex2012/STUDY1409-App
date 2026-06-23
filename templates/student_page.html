@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="app.title.apps">STUDY1409 - Кабинет учащегося</title>
-    <link rel="icon" href="/s/favicon.png">
-    <link rel="apple-touch-icon" href="/s/favicon.png">
-    <link rel="manifest" href="/s/manifest.json">
+    <link rel="icon" href="/s/favicon.png?v=1">
+    <link rel="apple-touch-icon" href="/s/favicon.png?v=1">
+    <link rel="manifest" href="/s/manifest.json?v=1">
     <meta name="theme-color" content="#4446E1">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="STUDY1409">
-    <link href="/s/fonts/fonts.css" rel="stylesheet">
-    <link href="/s/lib/font-awesome/custom.css" rel="stylesheet">
-    <script src="/s/tg.js"></script>
+    <link href="/s/fonts/fonts.css?v=1" rel="stylesheet">
+    <link href="/s/lib/font-awesome/custom.css?v=1" rel="stylesheet">
+    <script src="/s/tg.js?v=1"></script>
     <script src="/s/i18n/i18n.js?v=2"></script>
     <style>
         :root {
@@ -1103,7 +1103,7 @@
 
 <!-- ── Боковая навигация (desktop) ────────────────────────── -->
 <nav class="sidebar">
-    <img src="/s/favicon.png">
+    <img src="/s/favicon.png?v=1">
 
     <a class="sidebar-link active" href="/" data-tip="Главная" data-i18n-tip="apps.sidebar_home">
         <i class="fa-solid fa-house"></i>
@@ -1477,7 +1477,7 @@
         wrap.appendChild(skel);
         img.style.opacity = '0';
 
-        const src = localStorage.getItem('user_avatar') || localStorage.getItem('tg_avatar') || '/s/default_avatar.png';
+        const src = localStorage.getItem('user_avatar') || localStorage.getItem('tg_avatar') || '/s/default_avatar.png?v=1';
         const onReady = () => { img.style.opacity = '1'; skel.remove(); };
         img.addEventListener('load',  onReady, { once: true });
         img.addEventListener('error', onReady, { once: true });
@@ -1615,8 +1615,8 @@
         _lastSchedNotif = key;
         new Notification(__('apps.notification_title'), {
             body : __('apps.notification_body', {name: slot.name}),
-            icon : '/s/favicon.png',
-            badge: '/s/favicon.png',
+            icon : '/s/favicon.png?v=1',
+            badge: '/s/favicon.png?v=1',
             tag  : 'schedule-reminder',
         });
     }
