@@ -872,5 +872,10 @@ def push_send():
     return jsonify({"sent": sent, "removed": len(dead)})
 
 
+@app.route("/s/<path:filename>")
+def serve_static(filename):
+    return app.send_static_file(filename)
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG", "0") == "1", port=1090)
