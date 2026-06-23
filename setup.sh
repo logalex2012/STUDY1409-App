@@ -2,27 +2,18 @@
 set -e
 
 PROJECT_DIR="/root/app-pwa/STUDY1409-App"
-DOMAIN="student.my1409.ru"
 
-echo "=== Установка nginx и SSL для ${DOMAIN} ==="
+echo "=== Установка nginx для student.my1409.ru ==="
 
 if ! command -v nginx &>/dev/null; then
   apt update && apt install -y nginx
 fi
 
-if ! command -v certbot &>/dev/null; then
-  apt install -y certbot
-fi
+# Удаляем старый битый конфиг если был
+rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/student.my1409.ru
 
-# Получаем SSL-сертификат (standalone — не трогает конфиг nginx)
-systemctl stop nginx
-certbot certonly --standalone -d ${DOMAIN} --non-interactive --agree-tos -m admin@${DOMAIN} || \
-  certbot certonly --standalone -d ${DOMAIN}
-systemctl start nginx
-
-# Устанавливаем конфиг nginx из репозитория
 cp "${PROJECT_DIR}/nginx-study1409.conf" /etc/nginx/sites-available/study1409
 ln -sf /etc/nginx/sites-available/study1409 /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
 
-echo "=== Готово! https://${DOMAIN} ==="
+echo "=== Готово! http://student.my1409.ru ==="
