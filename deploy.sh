@@ -1,22 +1,16 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
 
-SERVER_USER="${DEPLOY_USER:-deploy}"
-SERVER_HOST="student.my1409.ru"
-SERVER_DIR="/var/www/study1409"
-SERVICE_NAME="study1409"
+PROJECT_DIR="/root/app-pwa/STUDY1409-App"
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${PROJECT_DIR}" || { echo "Ошибка: Не удалось найти директорию ${PROJECT_DIR}."; exit 1; }
 
-rsync -avz --delete \
-  --exclude='.git' \
-  --exclude='__pycache__' \
-  --exclude='*.pyc' \
-  --exclude='.env' \
-  "${DIR}/" \
-  "${SERVER_USER}@${SERVER_HOST}:${SERVER_DIR}/"
+echo "--- Обновляю код из Git ---"
+git pull
 
-ssh "${SERVER_USER}@${SERVER_HOST}" \
-  "sudo systemctl restart ${SERVICE_NAME} && sudo systemctl is-active ${SERVICE_NAME}"
+echo "--- Настраиваю nginx ---"
+cp "${PROJECT_DIR}/nginx-study1409.conf" /etc/nginx/sites-available/study1409
+ln -sf /etc/nginx/sites-available/study1409 /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
 
-echo "Done: https://${SERVER_HOST}"
+echo "--- Развертывание успешно завершено! ---"
