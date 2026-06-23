@@ -369,7 +369,7 @@ def pwa_login_verify():
 # ── Student: локальные endpoints для заявок на выход ──────────
 @app.route("/api/student/exit-request", methods=["POST"])
 def student_create_exit_request():
-    if not session.get("my1409_cookie"):
+    if not session.get("phone"):
         return jsonify({"error": "unauthorized"}), 401
     data = request.json or {}
     cause = data.get("cause", "")
@@ -476,8 +476,6 @@ def student_get_exit_history():
 
 @app.route("/api/student/application/<application_id>")
 def student_cache_application(application_id):
-    if not session.get("my1409_cookie"):
-        return jsonify({"error": "not found"}), 404
     phone = session.get("phone", "")
     url = f"{MY1409_BASE}/api/student/application/{application_id}"
     cookies = _my1409_cookies()
