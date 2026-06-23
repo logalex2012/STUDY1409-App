@@ -1,22 +1,15 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
 
 SERVER_USER="${DEPLOY_USER:-deploy}"
 SERVER_HOST="student.my1409.ru"
-SERVER_DIR="/var/www/study1409"
-SERVICE_NAME="study1409"
+SERVER_PORT=59002
+PROJECT_DIR="/opt/app/MY1409"
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ssh -p "${SERVER_PORT}" "${SERVER_USER}@${SERVER_HOST}" "
+cd ${PROJECT_DIR} || { echo 'Ошибка: Не удалось найти директорию ${PROJECT_DIR}. Прерываю выполнение.'; exit 1; }
+git pull
+docker-compose up -d --build --force-recreate
+"
 
-rsync -avz --delete \
-  --exclude='.git' \
-  --exclude='__pycache__' \
-  --exclude='*.pyc' \
-  --exclude='.env' \
-  "${DIR}/" \
-  "${SERVER_USER}@${SERVER_HOST}:${SERVER_DIR}/"
-
-ssh "${SERVER_USER}@${SERVER_HOST}" \
-  "sudo systemctl restart ${SERVICE_NAME} && sudo systemctl is-active ${SERVICE_NAME}"
-
-echo "Done: https://${SERVER_HOST}"
+echo "Развертывание успешно завершено!"
