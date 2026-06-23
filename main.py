@@ -368,6 +368,20 @@ def student_create_exit_request():
                    ON CONFLICT DO NOTHING""",
                 (request_id, phone, cause, exit_time, now_str)
             )
+    try:
+        url = f"{MY1409_BASE}/api/student/exit-request"
+        cookies = _my1409_cookies()
+        r = http.post(url, json=data, cookies=cookies, timeout=8)
+        new_c = r.cookies.get("session")
+        if new_c:
+            session["my1409_cookie"] = new_c
+        if r.ok:
+            try:
+                return jsonify(r.json()), r.status_code
+            except Exception:
+                pass
+    except Exception:
+        pass
     return jsonify({"status": "success", "message": "Заявка отправлена", "id": request_id}), 200
 
 
@@ -401,6 +415,19 @@ def student_get_exit_requests():
 @app.route("/api/student/exit-history")
 def student_get_exit_history():
     phone = session.get("phone", "")
+    try:
+        url = f"{MY1409_BASE}/api/student/exit-history"
+        cookies = _my1409_cookies()
+        r = http.get(url, cookies=cookies, timeout=8)
+        if r.ok:
+            try:
+                data = r.json()
+                if isinstance(data, list):
+                    return jsonify(data), 200
+            except Exception:
+                pass
+    except Exception:
+        pass
     with _db() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
