@@ -336,7 +336,7 @@ def sync_user():
     if not session.get("my1409_cookie"):
         return jsonify({"error": "unauthorized"}), 401
     cookies = _my1409_cookies()
-    candidates = ["/api/user/info", "/api/student/info", "/api/student/profile"]
+    candidates = ["/api/student/profile", "/api/user/info", "/api/student/info"]
     for path in candidates:
         try:
             r = http.get(f"{MY1409_BASE}{path}", cookies=cookies, timeout=5)
