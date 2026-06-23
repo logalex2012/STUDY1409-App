@@ -7,9 +7,9 @@ import psycopg2.extras
 import psycopg2.pool
 import requests as http
 import time
+import uuid
 from collections import defaultdict
 from contextlib import contextmanager
-import uuid
 from datetime import datetime, timedelta
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -104,33 +104,48 @@ def _init_db():
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS exit_applications (
                     id               TEXT PRIMARY KEY,
-                    student_id       TEXT,
-                    student_name     TEXT NOT NULL,
-                    student_group    TEXT NOT NULL,
-                    teacher_name     TEXT NOT NULL,
-                    teacher_id       TEXT,
-                    cause            TEXT NOT NULL,
-                    allowed_exit_time TEXT,
+                    student_phone    TEXT NOT NULL DEFAULT '',
+                    student_name     TEXT NOT NULL DEFAULT '',
+                    student_group    TEXT NOT NULL DEFAULT '',
+                    teacher_name     TEXT NOT NULL DEFAULT '',
+                    cause            TEXT NOT NULL DEFAULT '',
+                    allowed_exit_time TEXT DEFAULT NULL,
                     is_show          BOOLEAN DEFAULT FALSE,
                     is_used          BOOLEAN DEFAULT FALSE,
-                    is_deleted       BOOLEAN DEFAULT FALSE,
-                    created_at       TIMESTAMPTZ DEFAULT NOW()
+                    is_expired       BOOLEAN DEFAULT FALSE,
+                    created_at       TEXT DEFAULT NULL,
+                    used_at          TEXT DEFAULT NULL
                 )
+            """)
+            cur.execute("""
+                ALTER TABLE exit_applications
+                ADD COLUMN IF NOT EXISTS student_phone TEXT NOT NULL DEFAULT ''
+            """)
+            cur.execute("""
+                ALTER TABLE exit_applications
+                ADD COLUMN IF NOT EXISTS is_expired BOOLEAN DEFAULT FALSE
+            """)
+            cur.execute("""
+                ALTER TABLE exit_applications
+                ADD COLUMN IF NOT EXISTS used_at TEXT DEFAULT NULL
             """)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS exit_application_requests (
                     id               TEXT PRIMARY KEY,
-                    student_id       TEXT NOT NULL,
-                    student_name     TEXT NOT NULL,
-                    student_group    TEXT NOT NULL,
-                    teacher_name     TEXT DEFAULT 'Ожидает подтверждения',
-                    teacher_id       TEXT,
+                    student_phone    TEXT NOT NULL,
+                    student_name     TEXT NOT NULL DEFAULT '',
+                    student_group    TEXT NOT NULL DEFAULT '',
                     cause            TEXT NOT NULL,
-                    allowed_exit_time TEXT,
+                    allowed_exit_time TEXT NOT NULL,
                     is_rejected      BOOLEAN DEFAULT FALSE,
                     is_deleted       BOOLEAN DEFAULT FALSE,
-                    created_at       TIMESTAMPTZ DEFAULT NOW()
+                    created_at       TEXT DEFAULT NULL,
+                    teacher_name     TEXT NOT NULL DEFAULT ''
                 )
+            """)
+            cur.execute("""
+                ALTER TABLE exit_application_requests
+                ADD COLUMN IF NOT EXISTS student_phone TEXT NOT NULL DEFAULT ''
             """)
 
 
@@ -182,9 +197,8 @@ def _set_flag(key: str, value: bool):
 
 def _log_activity(action: str, details: str = ""):
     try:
-        u = session.get("user", {}) if session else {}
-        phone = u.get("phone", "")
-        grp   = f"{u.get('group_number','')}{u.get('group_letter','')}"
+        phone = session.get("phone", "")
+        grp   = ""
         with _db() as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -288,6 +302,7 @@ def login():
 def logout():
     session.pop("my1409_cookie", None)
     session.pop("user", None)
+    session.pop("phone", None)
     return redirect(url_for("login"))
 
 
@@ -323,7 +338,7 @@ def pwa_login_verify():
                 session.clear()
                 session.permanent = True
                 session["my1409_cookie"] = cookie
-                # Данные пользователя (phone-check теперь возвращает их)
+                session["phone"] = phone
                 session["user"] = body.get("user", {})
                 _log_activity("login", phone)
         return jsonify(body), r.status_code
@@ -331,191 +346,140 @@ def pwa_login_verify():
         return jsonify({"status": "error", "message": "Сервер my1409 недоступен"}), 503
 
 
-# ── Student: заявки на выход (локально, не прокси) ────────────
-@app.route("/api/student/application/<application_id>")
-def student_get_application(application_id):
-    with _db() as conn:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute(
-                "SELECT * FROM exit_applications WHERE id = %s AND is_deleted = FALSE AND is_used = FALSE",
-                (application_id,)
-            )
-            app = cur.fetchone()
-    if not app:
-        return jsonify({"error": "not found"}), 404
-    return jsonify({
-        "name": app["student_name"],
-        "group": app["student_group"],
-        "teacher_name": app["teacher_name"],
-        "cause": app["cause"],
-        "allowed_exit_time": app["allowed_exit_time"]
-    })
-
-
-@app.route("/api/student/application/<application_id>/show", methods=["POST"])
-def student_show_application(application_id):
-    with _db() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "UPDATE exit_applications SET is_show = TRUE WHERE id = %s AND is_deleted = FALSE AND is_used = FALSE",
-                (application_id,)
-            )
-            if cur.rowcount == 0:
-                return jsonify({"error": "not found"}), 404
-    return "ok!"
-
-
+# ── Student: локальные endpoints для заявок на выход ──────────
 @app.route("/api/student/exit-request", methods=["POST"])
-@_require_student
 def student_create_exit_request():
-    u = session.get("user", {})
+    if not session.get("my1409_cookie"):
+        return jsonify({"error": "unauthorized"}), 401
     data = request.json or {}
-    cause = data.get("cause")
-    exit_time = data.get("exit_time")
+    cause = data.get("cause", "")
+    exit_time = data.get("exit_time", "")
     if not cause or not exit_time:
         return jsonify({"status": "error", "message": "Неверные данные"}), 400
-
-    student_fio = f'{u.get("surname","")} {u.get("name","")} {u.get("lastname","")}'.strip()
-    student_group = f'{u.get("group_number","")}{u.get("group_letter","")}'
-    app_id = str(uuid.uuid4())
-
+    phone = session.get("phone", "")
+    now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
+    request_id = str(uuid.uuid4())[:8]
     with _db() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """INSERT INTO exit_application_requests
-                   (id, student_id, student_name, student_group, cause, allowed_exit_time)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
-                (app_id, u.get("phone", ""), student_fio, student_group, cause, exit_time)
+                   (id, student_phone, cause, allowed_exit_time, created_at)
+                   VALUES (%s, %s, %s, %s, %s)
+                   ON CONFLICT DO NOTHING""",
+                (request_id, phone, cause, exit_time, now_str)
             )
-    return jsonify({"status": "success", "message": "Заявка отправлена"}), 200
+    return jsonify({"status": "success", "message": "Заявка отправлена", "id": request_id}), 200
 
 
-@app.route("/api/student/exit-history", methods=["GET"])
-@_require_student
-def student_exit_history():
-    student_id = session.get("user", {}).get("phone", "")
+@app.route("/api/student/exit-requests")
+def student_get_exit_requests():
+    phone = session.get("phone", "")
     with _db() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
-                """SELECT id, cause, created_at, allowed_exit_time, is_used, teacher_name
-                   FROM exit_applications
-                   WHERE student_id = %s AND is_deleted = FALSE
-                   ORDER BY created_at DESC""",
-                (student_id,)
-            )
-            apps = cur.fetchall()
-    history = []
-    for app in apps:
-        history.append({
-            "id": app["id"],
-            "cause": app["cause"],
-            "created_at": app["created_at"].strftime("%d.%m.%Y %H:%M") if app["created_at"] else "",
-            "used_at": None,
-            "allowed_exit_time": app["allowed_exit_time"] or "",
-            "is_used": app["is_used"],
-            "is_expired": False,
-            "teacher_name": app["teacher_name"] or "Неизвестно"
-        })
-    return jsonify(history), 200
-
-
-@app.route("/api/student/exit-requests", methods=["GET"])
-@_require_student
-def student_exit_requests():
-    student_id = session.get("user", {}).get("phone", "")
-    with _db() as conn:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute(
-                """SELECT id, cause, created_at, allowed_exit_time, is_rejected, teacher_name
+                """SELECT id, cause, created_at, allowed_exit_time,
+                          is_rejected, teacher_name
                    FROM exit_application_requests
-                   WHERE student_id = %s AND is_deleted = FALSE
+                   WHERE student_phone = %s AND is_deleted = FALSE
                    ORDER BY created_at DESC""",
-                (student_id,)
+                (phone,)
             )
-            reqs = cur.fetchall()
-    requests = []
-    for req in reqs:
-        requests.append({
-            "id": req["id"],
-            "cause": req["cause"],
-            "created_at": req["created_at"].strftime("%d.%m.%Y %H:%M") if req["created_at"] else "",
-            "allowed_exit_time": req["allowed_exit_time"] or "",
-            "is_rejected": req["is_rejected"],
-            "teacher_name": req["teacher_name"] or "Неизвестно"
-        })
-    return jsonify(requests), 200
-
-
-# ── Admin: заявки на выход ─────────────────────────────────────
-@app.route("/api/admin/exit-requests")
-def admin_exit_requests():
-    if not session.get("admin"):
-        return jsonify({"error": "forbidden"}), 403
-    with _db() as conn:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute(
-                """SELECT id, student_name, student_group, cause, allowed_exit_time,
-                          created_at AT TIME ZONE 'Europe/Moscow' AS created_at
-                   FROM exit_application_requests
-                   WHERE is_deleted = FALSE AND is_rejected = FALSE
-                   ORDER BY created_at DESC"""
-            )
-            reqs = cur.fetchall()
-    items = [
-        {
+            rows = cur.fetchall()
+    items = []
+    for r in rows:
+        items.append({
             "id": r["id"],
-            "student_name": r["student_name"],
-            "student_group": r["student_group"],
-            "cause": r["cause"],
+            "cause": r["cause"] or "",
+            "created_at": r["created_at"] or "",
             "allowed_exit_time": r["allowed_exit_time"] or "",
-            "created_at": r["created_at"].strftime("%d.%m.%Y %H:%M") if r["created_at"] else "",
-        }
-        for r in reqs
-    ]
-    return jsonify({"items": items})
+            "is_rejected": r["is_rejected"],
+            "teacher_name": r["teacher_name"] or "",
+        })
+    return jsonify(items), 200
 
 
-@app.route("/api/admin/exit-requests/<request_id>/approve", methods=["POST"])
-def admin_approve_exit_request(request_id):
-    if not session.get("admin"):
-        return jsonify({"error": "forbidden"}), 403
+@app.route("/api/student/exit-history")
+def student_get_exit_history():
+    phone = session.get("phone", "")
     with _db() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
-                "SELECT * FROM exit_application_requests WHERE id = %s AND is_deleted = FALSE AND is_rejected = FALSE",
-                (request_id,)
+                """SELECT id, student_name, student_group, teacher_name, cause,
+                          allowed_exit_time, is_show, is_used, is_expired,
+                          created_at, used_at
+                   FROM exit_applications
+                   WHERE student_phone = %s
+                   ORDER BY created_at DESC""",
+                (phone,)
             )
-            req = cur.fetchone()
-            if not req:
-                return jsonify({"error": "not found"}), 404
-            new_id = str(uuid.uuid4())
-            cur.execute(
-                """INSERT INTO exit_applications
-                   (id, student_id, student_name, student_group, teacher_name, cause, allowed_exit_time)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                (new_id, req["student_id"], req["student_name"], req["student_group"],
-                 req["teacher_name"], req["cause"], req["allowed_exit_time"])
-            )
-            cur.execute(
-                "UPDATE exit_application_requests SET is_deleted = TRUE WHERE id = %s",
-                (request_id,)
-            )
-    return jsonify({"status": "success", "application_id": new_id}), 200
+            cached = cur.fetchall()
+    items = []
+    for c in cached:
+        items.append({
+            "id": c["id"],
+            "cause": c["cause"] or "",
+            "created_at": c["created_at"] or "",
+            "used_at": c["used_at"],
+            "allowed_exit_time": c["allowed_exit_time"] or "",
+            "is_used": c["is_used"],
+            "is_expired": c["is_expired"],
+            "teacher_name": c["teacher_name"] or "",
+        })
+    return jsonify(items), 200
 
 
-@app.route("/api/admin/exit-requests/<request_id>/reject", methods=["POST"])
-def admin_reject_exit_request(request_id):
-    if not session.get("admin"):
-        return jsonify({"error": "forbidden"}), 403
+@app.route("/api/student/application/<application_id>")
+def student_cache_application(application_id):
+    if not session.get("my1409_cookie"):
+        return jsonify({"error": "not found"}), 404
+    phone = session.get("phone", "")
+    url = f"{MY1409_BASE}/api/student/application/{application_id}"
+    cookies = _my1409_cookies()
+    try:
+        r = http.get(url, cookies=cookies, timeout=8)
+        if r.ok:
+            try:
+                body = r.json()
+            except Exception:
+                body = None
+            if body and isinstance(body, dict) and body.get("name"):
+                name = body.get("name", "")
+                group = body.get("group", "")
+                teacher = body.get("teacher_name", "")
+                exit_time = body.get("allowed_exit_time", "")
+                with _db() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            """INSERT INTO exit_applications
+                               (id, student_phone, student_name, student_group,
+                                teacher_name, allowed_exit_time, created_at)
+                               VALUES (%s, %s, %s, %s, %s, %s, %s)
+                               ON CONFLICT (id) DO UPDATE SET
+                                student_name = EXCLUDED.student_name,
+                                student_group = EXCLUDED.student_group,
+                                teacher_name = EXCLUDED.teacher_name,
+                                allowed_exit_time = EXCLUDED.allowed_exit_time""",
+                            (application_id, phone, name, group,
+                             teacher, exit_time,
+                             datetime.now().strftime("%d.%m.%Y %H:%M"))
+                        )
+                return jsonify(body), r.status_code
+    except Exception:
+        pass
     with _db() as conn:
-        with conn.cursor() as cur:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
-                "UPDATE exit_application_requests SET is_rejected = TRUE WHERE id = %s",
-                (request_id,)
+                "SELECT * FROM exit_applications WHERE id = %s", (application_id,)
             )
-            if cur.rowcount == 0:
-                return jsonify({"error": "not found"}), 404
-    return jsonify({"status": "success"}), 200
+            cached = cur.fetchone()
+    if cached:
+        return jsonify({
+            "name": cached["student_name"],
+            "group": cached["student_group"],
+            "teacher_name": cached["teacher_name"],
+            "allowed_exit_time": cached["allowed_exit_time"],
+        })
+    return jsonify({"error": "not found"}), 404
 
 
 # ── Proxy: /api/student/* и /api/vote/* → my1409.ru ──────────
@@ -532,11 +496,9 @@ def proxy_student(subpath):
                              cookies=cookies, timeout=8)
         else:
             r = http.get(url, params=request.args, cookies=cookies, timeout=8)
-        # Если my1409 обновил куку — сохраняем
         new_c = r.cookies.get("session")
         if new_c:
             session["my1409_cookie"] = new_c
-        # После успешного обновления класса — синхронизируем сессию
         if r.ok and subpath == "update-class" and request.method == "POST":
             data = request.get_json(silent=True) or {}
             if "group_number" in data:
@@ -544,7 +506,10 @@ def proxy_student(subpath):
             if "group_letter" in data:
                 session["user"]["group_letter"] = data["group_letter"]
             session.modified = True
-        return jsonify(r.json()), r.status_code
+        try:
+            return jsonify(r.json()), r.status_code
+        except Exception:
+            return Response(r.text, status=r.status_code, mimetype=r.headers.get('content-type', 'text/plain'))
     except http.RequestException:
         return jsonify({"error": "upstream error"}), 502
 
