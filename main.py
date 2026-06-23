@@ -151,6 +151,22 @@ def _init_db():
                 ALTER TABLE exit_application_requests
                 ALTER COLUMN student_id DROP NOT NULL
             """)
+            cur.execute("""
+                ALTER TABLE exit_application_requests
+                ALTER COLUMN student_name SET DEFAULT ''
+            """)
+            cur.execute("""
+                ALTER TABLE exit_application_requests
+                ALTER COLUMN student_group SET DEFAULT ''
+            """)
+            cur.execute("""
+                ALTER TABLE exit_application_requests
+                ALTER COLUMN student_name DROP NOT NULL
+            """)
+            cur.execute("""
+                ALTER TABLE exit_application_requests
+                ALTER COLUMN student_group DROP NOT NULL
+            """)
 
 
 _init_db()
