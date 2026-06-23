@@ -317,9 +317,39 @@ def proxy_student(subpath):
         new_c = r.cookies.get("session")
         if new_c:
             session["my1409_cookie"] = new_c
+        # После успешного обновления класса — синхронизируем сессию
+        if r.ok and subpath == "update-class" and request.method == "POST":
+            data = request.get_json(silent=True) or {}
+            if "group_number" in data:
+                session["user"]["group_number"] = data["group_number"]
+            if "group_letter" in data:
+                session["user"]["group_letter"] = data["group_letter"]
+            session.modified = True
         return jsonify(r.json()), r.status_code
     except http.RequestException:
         return jsonify({"error": "upstream error"}), 502
+
+
+# ── Proxy: /api/user/sync → обновление session["user"] из my1409.ru ─
+@app.route("/api/user/sync")
+def sync_user():
+    if not session.get("my1409_cookie"):
+        return jsonify({"error": "unauthorized"}), 401
+    cookies = _my1409_cookies()
+    candidates = ["/api/user/info", "/api/student/info", "/api/student/profile"]
+    for path in candidates:
+        try:
+            r = http.get(f"{MY1409_BASE}{path}", cookies=cookies, timeout=5)
+            if r.ok:
+                data = r.json()
+                user = data.get("user", data)
+                if user and user.get("group_number"):
+                    session["user"] = user
+                    session.modified = True
+                    return jsonify({"status": "ok", "source": path, "user": user})
+        except:
+            continue
+    return jsonify({"status": "unchanged"})
 
 
 @app.route("/api/vote/<path:subpath>", methods=["GET", "POST"])
