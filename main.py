@@ -167,6 +167,18 @@ def _init_db():
                 ALTER TABLE exit_application_requests
                 ALTER COLUMN student_group DROP NOT NULL
             """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS student_profiles (
+                    phone           TEXT PRIMARY KEY,
+                    surname         TEXT NOT NULL DEFAULT '',
+                    name            TEXT NOT NULL DEFAULT '',
+                    lastname        TEXT NOT NULL DEFAULT '',
+                    group_number    TEXT NOT NULL DEFAULT '',
+                    group_letter    TEXT NOT NULL DEFAULT '',
+                    class_teacher_name TEXT NOT NULL DEFAULT '',
+                    updated_at      TIMESTAMPTZ DEFAULT NOW()
+                )
+            """)
 
 
 _init_db()
@@ -310,6 +322,38 @@ def _student_obj(u: dict):
     return Student()
 
 
+def _sync_and_save_profile(phone: str, cookies: dict):
+    """Пытается получить профиль студента из my1409.ru и сохранить в БД."""
+    candidates = ["/api/student/profile", "/api/user/info", "/api/student/info"]
+    for path in candidates:
+        try:
+            r = http.get(f"{MY1409_BASE}{path}", cookies=cookies, timeout=5)
+            if r.ok:
+                data = r.json()
+                prof = data.get("user", data)
+                if prof and (prof.get("surname") or prof.get("name")):
+                    with _db() as conn:
+                        with conn.cursor() as cur:
+                            cur.execute("""
+                                INSERT INTO student_profiles
+                                    (phone, surname, name, lastname, group_number, group_letter, class_teacher_name)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                                ON CONFLICT (phone) DO UPDATE SET
+                                    surname=EXCLUDED.surname, name=EXCLUDED.name,
+                                    lastname=EXCLUDED.lastname, group_number=EXCLUDED.group_number,
+                                    group_letter=EXCLUDED.group_letter,
+                                    class_teacher_name=EXCLUDED.class_teacher_name,
+                                    updated_at=NOW()
+                            """, (phone, prof.get("surname",""), prof.get("name",""),
+                                  prof.get("lastname",""), str(prof.get("group_number","")),
+                                  prof.get("group_letter",""), prof.get("class_teacher_name","")))
+                    session["user"] = prof
+                    session.modified = True
+                    return
+        except:
+            continue
+
+
 # ── Авторизация ──────────────────────────────────────────────
 @app.route("/")
 def login():
@@ -359,8 +403,11 @@ def pwa_login_verify():
                 session.permanent = True
                 session["my1409_cookie"] = cookie
                 session["phone"] = phone
-                session["user"] = body.get("user", {})
+                user = body.get("user", {})
+                session["user"] = user
                 _log_activity("login", phone)
+                # Сразу подтягиваем профиль ученика (my1409.ru не возвращает user для student)
+                _sync_and_save_profile(phone, {"session": cookie})
         return jsonify(body), r.status_code
     except Exception:
         return jsonify({"status": "error", "message": "Сервер my1409 недоступен"}), 503
@@ -560,22 +607,24 @@ def proxy_student(subpath):
 # ── Proxy: /api/user/sync → обновление session["user"] из my1409.ru ─
 @app.route("/api/user/sync")
 def sync_user():
-    if not session.get("my1409_cookie"):
-        return jsonify({"error": "unauthorized"}), 401
+    phone = session.get("phone", "")
     cookies = _my1409_cookies()
-    candidates = ["/api/student/profile", "/api/user/info", "/api/student/info"]
-    for path in candidates:
-        try:
-            r = http.get(f"{MY1409_BASE}{path}", cookies=cookies, timeout=5)
-            if r.ok:
-                data = r.json()
-                user = data.get("user", data)
-                if user and user.get("group_number"):
+    if cookies:
+        _sync_and_save_profile(phone, cookies)
+    # Если всё ещё нет данных в сессии — отдаём из БД
+    user = session.get("user", {})
+    if user.get("surname") and user.get("group_number"):
+        return jsonify({"status": "ok", "source": "session", "user": user})
+    if phone:
+        with _db() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("SELECT * FROM student_profiles WHERE phone = %s", (phone,))
+                row = cur.fetchone()
+                if row:
+                    user = dict(row)
                     session["user"] = user
                     session.modified = True
-                    return jsonify({"status": "ok", "source": path, "user": user})
-        except:
-            continue
+                    return jsonify({"status": "ok", "source": "db", "user": user})
     return jsonify({"status": "unchanged"})
 
 
@@ -742,6 +791,21 @@ def card():
 @_require_student
 def settings():
     u = session.get("user", {})
+    # Если в сессии нет данных — подтягиваем из БД
+    if not u.get("surname"):
+        phone = session.get("phone", "")
+        if phone:
+            with _db() as conn:
+                with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                    cur.execute("SELECT * FROM student_profiles WHERE phone = %s", (phone,))
+                    row = cur.fetchone()
+                    if row:
+                        u = dict(row)
+                        session["user"] = u
+                        session.modified = True
+    # Подставляем телефон из сессии если в профиле нет
+    if not u.get("phone"):
+        u["phone"] = session.get("phone", "")
     return render_template("account.html",
                            student=_student_obj(u),
                            class_teacher_name=u.get("class_teacher_name", ""))
