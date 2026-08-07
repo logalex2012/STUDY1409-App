@@ -159,6 +159,16 @@ class MainActivity : AppCompatActivity() {
                 handler.proceed()
             }
         }
+
+        web.webChromeClient = object : WebChromeClient() {
+            override fun onProgressChanged(view: WebView, newProgress: Int) {
+                binding.progressBar.progress = newProgress
+                if (newProgress >= 100) {
+                    binding.progressBar.visibility = View.INVISIBLE
+                    binding.swipeRefresh.isRefreshing = false
+                }
+            }
+        }
     }
 
     private fun setupRefresh() {
