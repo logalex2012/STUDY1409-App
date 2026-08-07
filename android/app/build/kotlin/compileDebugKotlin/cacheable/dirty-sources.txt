@@ -1,1 +1,0 @@
-/Users/alekseyloginov/App pwa/android/app/src/main/java/ru/study1409/student/MainActivity.kt
