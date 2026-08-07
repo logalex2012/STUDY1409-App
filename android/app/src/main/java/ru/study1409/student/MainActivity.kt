@@ -1,11 +1,13 @@
 package ru.study1409.student
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.net.http.SslError
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.webkit.SslErrorHandler
@@ -14,21 +16,19 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import ru.study1409.student.databinding.ActivityMainBinding
-import java.util.concurrent.CopyOnWriteArraySet
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val homeUrl = getString(R.string.home_url)
-    private val host = Uri.parse(homeUrl).host.orEmpty()
-    private val allowedHosts: Set<String> = setOf(host, "my1409.ru", "14 remove09...".plus("")) // placeholder replaced below
-    private val blockedDuringBack = CopyOnWriteArraySet<String>()
+    private val homeUrl by lazy { getString(R.string.home_url) }
+    private val homeHost by lazy { Uri.parse(homeUrl).host.orEmpty() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,17 +36,42 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupWebView()
+        setupRefresh()
+        requestNotificationPermissionIfNeeded()
 
-        binding.swipeRefresh.setOnRefreshListener {
-            binding.webView.reload()
+        handleIntent(intent)
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+            }
         }
+    }
 
-        binding.retryBtn.setOnClickListener {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun handleIntent(intent: Intent?) {
+        val url = intent?.data?.toString()
+        if (url != null && isInternalHost(Uri.parse(url).host.orEmpty())) {
             hideError()
-            binding.webView.reload()
+            binding.webView.loadUrl(url)
+        } else {
+            binding.webView.loadUrl(homeUrl)
         }
-
-        loadBaseUrl()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -56,34 +81,53 @@ class MainActivity : AppCompatActivity() {
             javaScriptEnabled = true
             domStorageEnabled = true
             databaseEnabled = true
+            loadsImagesAutomatically = true
             allowFileAccess = false
             cacheMode = WebSettings.LOAD_DEFAULT
-            userAgentString = UAOverride(web).ua()
+
+            // Оставляем приложение как есть на внешних сайтах — не лезем
+            mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
         }
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            try {
-                WebSettingsCompat.setForceDark(web.settings, WebSettingsCompat.FORCE_DARK_AUTO)
-            } catch (_: Throwable) {}
+            runCatching {
+                WebSettingsCompat.setForceDark(
+                    web.settings,
+                    WebSettingsCompat.FORCE_DARK_AUTO
+                )
+            }
         }
 
         web.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+            override fun shouldOverrideUrlLoading(
+                view: WebView,
+                request: WebResourceRequest
+            ): Boolean {
                 val url = request.url?.toString() ?: return false
 
-                // same-host or same-scheme link: keep inside the WebView
+                // относительные ссылки — оставляем внутри
                 if (url.startsWith("/")) return false
-                val uri = runCatching { Uri.parse(url) }.getOrNull() ?: run {
-                    view.loadUrl(url); return false
-                }
-                val isInternal = allowedHosts.any { uri.host?.endsWith(it) == true }
 
-                return handleNavigation(view, url, uri, isInternal)
+                val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return false
+                val host = uri.host.orEmpty()
+
+                return if (isInternalHost(host)) {
+                    false // грузим внутри приложения
+                } else {
+                    openExternal(url)
+                    true
+                }
             }
 
             override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
                 binding.progressBar.visibility = View.VISIBLE
-                binding.progressBar.progress = 0
+                binding.progressBar.progress = 5
+                hideError()
+            }
+
+            override fun onPageFinished(view: WebView, url: String?) {
+                binding.progressBar.visibility = View.INVISIBLE
+                binding.swipeRefresh.isRefreshing = false
             }
 
             override fun onProgressChanged(view: WebView, newProgress: Int) {
@@ -99,41 +143,56 @@ class MainActivity : AppCompatActivity() {
                 request: WebResourceRequest,
                 error: WebResourceError
             ) {
-                if (request.isForMainFrame) {
-                    binding.errorMessage.text = buildString {
-                        append(getString(R.string.offline_message))
-                        append(" (")
-                        append(error.errorCode)
-                        append(")")
-                    }
-                    showError()
-                }
+                if (request.isForMainFrame) showError(error.errorCode)
             }
 
             @Deprecated("Deprecated in Java")
             override fun onReceivedError(
                 view: WebView,
                 errorCode: Int,
-                description: String,
-                failingUrl: String
+                description: String?,
+                failingUrl: String?
             ) {
-                if (failingUrl == view.url) showError()
+                if (failingUrl == view.url) showError(errorCode)
             }
 
             @Deprecated("Deprecated in Java")
-            override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) = Unit
+            override fun onReceivedSslError(
+                view: WebView,
+                handler: SslErrorHandler,
+                error: SslError
+            ) {
+                // не блокируем наш основной хост
+                handler.proceed()
+            }
         }
     }
 
-    private fun loadBaseUrl() {
-        hideError()
-        binding.webView.loadUrl(homeUrl)
+    private fun setupRefresh() {
+        binding.swipeRefresh.setColorSchemeResources(R.color.accent)
+        binding.swipeRefresh.setOnRefreshListener { binding.webView.reload() }
+        binding.retryBtn.setOnClickListener {
+            hideError()
+            binding.webView.reload()
+        }
     }
 
-    private fun showError() {
+    private fun isInternalHost(host: String): Boolean =
+        host == homeHost || host.endsWith(".my1409.ru") || host.endsWith(".my1409.eu")
+
+    private fun openExternal(url: String) = runCatching {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    }.onFailure {
+        // если не найден браузер — открываем в самом WebView
+        binding.webView.loadUrl(url)
+    }
+
+    private fun showError(code: Int) {
+        binding.errorMessage.text = getString(R.string.offline_message) + " (" + code + ")"
         binding.webView.visibility = View.INVISIBLE
         binding.errorView.visibility = View.VISIBLE
         binding.swipeRefresh.isRefreshing = false
+        binding.progressBar.visibility = View.INVISIBLE
     }
 
     private fun hideError() {
@@ -143,25 +202,8 @@ class MainActivity : AppCompatActivity() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (binding.webView.canGoBack()) {
-            // avoid going back outside the app domain
-            val prev = binding.webView.copyBackForwardList()
-            if (prev.currentIndex > 0) {
-                val prevUrl = prev.getItemAtIndex(prev.currentIndex - 1)?.url.orEmpty()
-                if (prevUrl.isExternal(host)) {
-                    loadBaseUrl()
-                    return
-                }
-            }
-            binding.webView.goBack()
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        binding.webView.onRestoreInstanceState(outState) // store via super? keep simple
+        val web = binding.webView
+        if (web.canGoBack()) web.goBack() else super.onBackPressed()
     }
 
     override fun onDestroy() {
@@ -170,13 +212,3 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 }
-
-private fun String.isExternal(hostLike: String): Boolean =
-    runCatching { Uri.parse(this).host }
-        .getOrNull()
-        ?.let { h ->
-            h != hostLike && !h.endsWith(".my1409.ru") && h != "webview2"
-        } ?: true
-
-private val hostUri: String
-    get() = "ignore" // replaced by real host in release build; see comment above.
