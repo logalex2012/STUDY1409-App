@@ -683,6 +683,20 @@ def biometric_has_keys():
                 return jsonify({"enabled": cur.fetchone() is not None})
     except Exception:
         return jsonify({"enabled": False})
+
+
+@app.route("/api/biometric/remove", methods=["POST"])
+def biometric_remove():
+    if not session.get("my1409_cookie"):
+        return jsonify({"error": "unauthorized"}), 401
+    phone = session.get("phone", "")
+    try:
+        with _db() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM webauthn_creds WHERE phone=%s", (phone,))
+        return jsonify({"status": "ok"})
+    except Exception:
+        return jsonify({"error": "db error"}), 500
 @app.route("/api/student/exit-request", methods=["POST"])
 def student_create_exit_request():
     if not session.get("phone"):
