@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#4446E1</color>
+    <color name="accent_dark">#2E3192</color>
+    <color name="progress_bar">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <string name="app_name">СТУДИ 1409</string>
+    <string name="home_url">https://student.my1409.ru</string>
+    <string name="load_error_retry">Повторить</string>
+    <string name="load_error_title">Не удалось загрузить страницу</string>
+    <string name="loading">Загрузка…</string>
+    <string name="offline_message">Проверьте подключение к интернету.</string>
+    <string name="offline_title">Нет соединения</string>
+    <string name="unsupported_url">Сторонняя ссылка открыта во внешнем браузере</string>
+    <style name="Theme.Study1409" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor">@color/accent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
