@@ -751,6 +751,20 @@
                 <option value="tr">Türkçe</option>
             </select>
 
+            <!-- Вход по биометрии (WebAuthn) -->
+            <div style="height:1px; background:var(--border-color); margin-bottom:16px;"></div>
+            <label style="margin-bottom:12px; display:block;" data-i18n="account.biometric_label">Вход по Face ID / Touch ID</label>
+            <div class="toggle-item" id="biometricRow" style="display:none;">
+                <div>
+                    <div class="toggle-title" data-i18n="account.biometric_hint">Входить без SMS-кода</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="biometricToggle" onchange="biometricToggleChange(this)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="toggle-hint" id="biometricStatus" style="margin-top:8px;"></div>
+
             <!-- Настройки Stranger Things (видны только в этой теме) -->
             <div id="strangerSettings" style="display:none;">
                 <div style="height:1px; background:var(--border-color); margin-bottom:16px;"></div>
@@ -973,6 +987,116 @@
         document.getElementById('logoutModal').addEventListener('click', (e) => {
             if (e.target.id === 'logoutModal') closeLogoutModal();
         });
+
+        // ── Вход по биометрии (WebAuthn) ──────────────
+        const b64urlA = (buf) => {
+            const bytes = new Uint8Array(buf);
+            let s = '';
+            const CHUNK = 0x8000;
+            for (let i = 0; i < bytes.length; i += CHUNK) {
+                s += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+            }
+            return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        };
+        const fromB64url = (s) =>
+            Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)).buffer;
+
+        const biometricRow = document.getElementById('biometricRow');
+        const biometricStatus = document.getElementById('biometricStatus');
+
+        async function initBiometric() {
+            if (!biometricRow || !window.PublicKeyCredential) return;
+            try {
+                const avail = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                if (!avail) return;
+            } catch { return; }
+            biometricRow.style.display = '';
+            try {
+                const r = await fetch('/api/biometric/has-keys');
+                const data = await r.json();
+                biometricToggle.checked = !!data.enabled;
+                refreshBiometricStatus(data.enabled);
+            } catch {}
+        }
+
+        function refreshBiometricStatus(enabled) {
+            const sel = enabled ? 'account.biometric_enabled' : 'account.biometric_disabled';
+            biometricStatus.textContent = __(sel);
+        }
+
+        async function biometricToggleChange(cb) {
+            if (cb.checked) {
+                await biometricEnable();
+            } else {
+                await biometricDisable();
+            }
+        }
+
+        async function biometricEnable() {
+            try {
+                const optRes = await fetch('/api/biometric/register/options', { method: 'POST' });
+                const opts = await optRes.json();
+                if (!optRes.ok) throw new Error(opts.error || 'options');
+                const cred = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: fromB64url(opts.challenge),
+                        rp: { id: opts.rpId, name: 'STUDY1409' },
+                        user: {
+                            id: fromB64url(opts.userId),
+                            name: opts.user.name || opts.user.displayName,
+                            displayName: opts.user.displayName || opts.user.name
+                        },
+                        pubKeyCredParams: opts.pubKeyCredParams || [{ type: 'public-key', alg: -7 }],
+                        timeout: 60000,
+                        attestation: 'none'
+                    }
+                });
+                const att = cred.response;
+                const payload = {
+                    id: b64urlA(cred.rawId),
+                    response: {
+                        clientDataJSON: b64urlA(att.clientDataJSON),
+                        attestationObject: b64urlA(att.attestationObject),
+                        transports: cred.response.getTransports ? cred.response.getTransports() : []
+                    }
+                };
+                const r = await fetch('/api/biometric/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await r.json();
+                if (r.ok && data.status === 'ok') {
+                    showToast(__('account.bi_enabled'), 'success');
+                    refreshBiometricStatus(true);
+                } else {
+                    cb.checked = false;
+                    showToast(data.error || __('account.bi_error'), 'error');
+                }
+            } catch (e) {
+                cb.checked = false;
+                showToast(e.name === 'NotAllowedError' ? __('account.bi_cancel') : __('account.bi_error'), 'error');
+            }
+        }
+
+        async function biometricDisable() {
+            try {
+                const r = await fetch('/api/biometric/remove', { method: 'POST' });
+                const data = await r.json();
+                if (r.ok && data.status === 'ok') {
+                    showToast(__('account.bi_disabled'), 'success');
+                    refreshBiometricStatus(false);
+                } else {
+                    biometricToggle.checked = true;
+                    showToast(data.error || __('account.bi_error'), 'error');
+                }
+            } catch {
+                biometricToggle.checked = true;
+                showToast(__('account.bi_error'), 'error');
+            }
+        }
+
+        initBiometric();
 
         async function loadMyRegistrations() {
             try {
