@@ -1,6 +1,26 @@
 /* ── STUDY1409 — Telegram Web App integration ──────────────── */
 (function () {
     var tg = window.Telegram?.WebApp;
+
+    // ── Safe-area адаптация для всех режимов (PWA standalone и др.)
+    //    Работает вне зависимости от наличия Telegram — кнопки «назад»/
+    //    шапки не уходят под статус-бар на девайсе с вырезом.
+    (function injectSafeArea() {
+        var s = document.createElement('style');
+        s.textContent = [
+            '@media (display-mode: standalone) {',
+            '  body {',
+            '    padding-top: env(safe-area-inset-top, 0px);',
+            '    padding-bottom: env(safe-area-inset-bottom, 0px);',
+            '  }',
+            '  .tg-header, .top-nav {',
+            '    padding-top: env(safe-area-inset-top, 0px);',
+            '  }',
+            '}',
+        ].join('\n');
+        document.head.appendChild(s);
+    })();
+
     if (!tg) return;
 
     // ── Базовая инициализация ─────────────────────────────────

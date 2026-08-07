@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">СТУДИ 1409</string>
+    <string name="app_name">STUDENT1409</string>
     <string name="home_url">https://student.my1409.ru</string>
     <string name="loading">Загрузка…</string>
     <string name="load_error_title">Не удалось загрузить страницу</string>
