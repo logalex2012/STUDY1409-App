@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
+import android.webkit.WebChromeClient
 import ru.study1409.student.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
