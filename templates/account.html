@@ -374,6 +374,56 @@
         .toast.error { background: rgba(220, 53, 69, 0.9); color: white; }
         .toast.shown { opacity: 1; visibility: visible; }
 
+        /* ── Модальное окно ──────────────────────────────────── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 4000;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            opacity: 0; visibility: hidden;
+            transition: all 0.25s ease;
+        }
+        .modal-overlay.shown { opacity: 1; visibility: visible; }
+
+        .modal-box {
+            width: 100%; max-width: 360px;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 26px;
+            text-align: center;
+            transform: translateY(20px) scale(0.96);
+            transition: all 0.25s ease;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+        .modal-overlay.shown .modal-box { transform: translateY(0) scale(1); }
+
+        .modal-box .modal-icon {
+            width: 60px; height: 60px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            background: rgba(220,53,69,0.15);
+            color: #ff4d4d;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+        }
+        .modal-box h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .modal-box p {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btns .btn { flex: 1; }
+
         /* Значки */
         .badges-list {
             display: flex;
@@ -761,6 +811,19 @@
 
     <div class="toast" id="toast"></div>
 
+    <!-- Модальное окно: подтверждение выхода -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-box">
+            <div class="modal-icon"><i data-lucide="log-out"></i></div>
+            <h3 data-i18n="account.logout_confirm_title">Выйти из аккаунта?</h3>
+            <p data-i18n="account.logout_confirm">Вы будете отключены от своего профиля STUDY1409. Вход потребуется снова.</p>
+            <div class="modal-btns">
+                <button class="btn btn-secondary" onclick="closeLogoutModal()" data-i18n="account.logout_cancel">Отмена</button>
+                <button class="btn btn-danger" onclick="confirmLogout()" data-i18n="account.logout_yes">Выйти</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
@@ -893,8 +956,22 @@
         }
 
         function logout() {
-            if (confirm(__('account.logout_confirm'))) window.location.href = '/logout';
+            openLogoutModal();
         }
+
+        function openLogoutModal() {
+            lucide.createIcons();
+            document.getElementById('logoutModal').classList.add('shown');
+        }
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').classList.remove('shown');
+        }
+        function confirmLogout() {
+            window.location.href = '/logout';
+        }
+        document.getElementById('logoutModal').addEventListener('click', (e) => {
+            if (e.target.id === 'logoutModal') closeLogoutModal();
+        });
 
         async function loadMyRegistrations() {
             try {

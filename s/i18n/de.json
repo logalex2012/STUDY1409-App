@@ -1,6 +1,5 @@
 {
   "lang_name": "Deutsch",
-
   "app.title.403": "STUDY1409 — 403 Zugriff verweigert",
   "app.title.404": "STUDY1409 — 404",
   "app.title.500": "STUDY1409 — 500 Serverfehler",
@@ -16,40 +15,33 @@
   "app.title.card": "STUDY1409 - Kartenbestellung MES",
   "app.title.admin": "STUDY1409 — Admin-Panel",
   "app.title.admin_login": "STUDY1409 — Admin-Anmeldung",
-
   "error.403.title": "Zugriff verweigert",
   "error.403.desc": "Du hast keine Berechtigung, diese Seite anzusehen. Melde dich an oder wende dich an den Administrator.",
   "error.403.login": "Einloggen",
   "error.403.back": "Zurück",
-
   "error.404.title": "Seite nicht gefunden",
   "error.404.desc": "Diese Seite existiert nicht. Möglicherweise ist der Link veraltet oder wurde entfernt.",
   "error.404.home": "Startseite",
   "error.404.back": "Zurück",
-
   "error.500.title": "Serverfehler",
   "error.500.desc": "Bei uns ist etwas schiefgelaufen. Versuche, die Seite zu aktualisieren oder komm später wieder.",
   "error.500.refresh": "↻ Aktualisieren",
   "error.500.home": "Startseite",
-
   "error.502.title": "my1409.ru nicht erreichbar",
   "error.502.desc": "Der Schulserver antwortet vorübergehend nicht. Das ist kein App-Fehler — versuche es später noch einmal.",
   "error.502.retry": "↻ Erneut versuchen",
   "error.502.home": "Startseite",
   "error.502.auto_check": "Automatische Prüfung in",
   "error.502.sec": "Sek.",
-
   "maintenance.title": "Wartungsarbeiten",
   "maintenance.desc": "Wir aktualisieren die App. In Kürze ist alles wieder verfügbar — normalerweise dauert es nur ein paar Minuten.",
   "maintenance.eta": "Bald zurück",
   "maintenance.check_again": "↻ Erneut prüfen",
   "maintenance.auto_refresh": "Autoaktualisierung in",
   "maintenance.sec": "Sek.",
-
   "offline.title": "Keine Verbindung",
   "offline.desc": "Überprüfe deine Internetverbindung und versuche es erneut. Zwischengespeicherte Seiten sind offline verfügbar.",
   "offline.retry": "↻ Wiederholen",
-
   "login.step1.title": "Hallo 👋",
   "login.step1.subtitle": "Melde dich bei STUDY1409 mit deiner Telefonnummer an",
   "login.step1.phone_placeholder": "+7 (999) 000-00-00",
@@ -68,7 +60,6 @@
   "login.error.no_connection": "Keine Verbindung zum Server",
   "login.sending": "Senden…",
   "login.checking": "Prüfen…",
-
   "account.title": "Kontoeinstellungen",
   "account.avatar_change_title": "Foto ändern",
   "account.avatar_change_hint": "Zum Ändern klicken",
@@ -105,7 +96,10 @@
   "account.report_bug": "Fehler melden",
   "account.support": "Support",
   "account.logout": "Abmelden",
-  "account.logout_confirm": "Wirklich abmelden?",
+  "account.logout_confirm_title": "Wirklich abmelden?",
+  "account.logout_confirm": "Du wirst von deinem STUDY1409-Profil getrennt. Die Anmeldung ist erneut erforderlich.",
+  "account.logout_yes": "Abmelden",
+  "account.logout_cancel": "Abbrechen",
   "account.badge_voter_2026": "Wahlteilnehmer 2026",
   "account.registration_present": "Anwesend",
   "account.registration_absent": "Nicht vermerkt",
@@ -113,7 +107,6 @@
   "account.avatar_too_large": "Datei zu groß (max. 5 MB)",
   "account.avatar_updated": "Foto aktualisiert",
   "account.lang_label": "Sprache",
-
   "apps.greeting": "Startseite",
   "apps.class_display": "{number}. {letter} Klasse",
   "apps.sidebar_home": "Startseite",
@@ -201,7 +194,6 @@
   "apps.notification_body": "{name} endet in 5 Minuten",
   "apps.schedule_notification_title": "STUDY1409 — Stundenplan",
   "apps.weather_wind": "Wind: {wind} m/s",
-
   "create_app.title": "Ausgangsantrag",
   "create_app.new_title": "Neuer Antrag",
   "create_app.reason_label": "Grund",
@@ -237,7 +229,6 @@
   "create_app.details": "Zeit: {time} | KL: {teacher}",
   "create_app.details_with_used": "Zeit: {time} | Lehrer: {teacher}{used}",
   "create_app.lift_details": "Bis: {deadline} | Fahrten: {remaining} von {total} | {teacher}",
-
   "application.title": "Ausgangserlaubnis",
   "application.back": "Zurück",
   "application.loading": "Laden...",
@@ -256,7 +247,6 @@
   "application.popup_confirm": "Ja, bin ich",
   "application.toast_success": "Benachrichtigung an die Sicherheit gesendet",
   "application.toast_error": "Daten konnten nicht gesendet werden",
-
   "app404.title": "Erlaubnis nicht mehr gültig",
   "app404.subtitle": "Wurde bereits genutzt oder storniert",
   "app404.hint": "Wenn du denkst, das ist ein Fehler — wende dich an den Lehrer.",
@@ -269,7 +259,6 @@
   "app404.popup_title": "Danke für die Bewertung!",
   "app404.survey": "Kurze Umfrage ausfüllen",
   "app404.close": "Schließen",
-
   "card.title": "Kartenbestellung MES",
   "card.order_title": "Antrag auf Ausstellung der MES-Karte",
   "card.order_subtitle": "Fülle die folgenden Felder aus. Nach dem Absenden wird der Antrag an den Systemadministrator weitergeleitet.",
@@ -285,12 +274,12 @@
   "card.reason_enrollment": "Einschulung",
   "card.back": "Zurück",
   "card.submit": "Absenden",
+  "card.sending": "Senden...",
   "card.done_title": "Antrag gesendet",
   "card.done_desc": "Die Karte ist am nächsten Tag fertig und wartet in der speziellen Zone an der Sicherheit. Die alte Karte wird deaktiviert.",
   "card.done_home": "Startseite",
   "card.error_prefix": "Fehler: ",
   "card.error_generic": "Beim Senden des Antrags ist ein Fehler aufgetreten.",
-
   "admin.title": "Admin-Panel",
   "admin.logo_sub": "Admin-Panel",
   "admin.nav_overview": "Übersicht",
@@ -445,12 +434,10 @@
   "admin.alert_generation_error": "Generierungsfehler",
   "admin.confirm_revoke_pin": "Dieses Abzeichen widerrufen?",
   "admin.generating": "Generiere...",
-
   "admin_login.title": "Admin-Panel",
   "admin_login.subtitle": "STUDY1409 · Nur für Mitarbeiter",
   "admin_login.password_placeholder": "Passwort",
   "admin_login.login": "Einloggen",
-
   "activity.sports": "Sportveranstaltung",
   "activity.creative": "Kreativwettbewerb",
   "activity.olympiad": "Olympiade",
@@ -461,6 +448,5 @@
   "activity.class_activist": "Klassenaktivität",
   "activity.school_event": "Schulveranstaltung",
   "activity.other": "Sonstiges",
-
   "manifest_description": "Portal der Schule Nr. 1409"
 }

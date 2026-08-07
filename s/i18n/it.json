@@ -1,6 +1,5 @@
 {
   "lang_name": "Italiano",
-
   "app.title.403": "STUDY1409 — 403 Accesso negato",
   "app.title.404": "STUDY1409 — 404",
   "app.title.500": "STUDY1409 — 500 Errore del server",
@@ -16,40 +15,33 @@
   "app.title.card": "STUDY1409 - Ordine carta MES",
   "app.title.admin": "STUDY1409 — Pannello Admin",
   "app.title.admin_login": "STUDY1409 — Accesso admin",
-
   "error.403.title": "Accesso negato",
   "error.403.desc": "Non hai i permessi per visualizzare questa pagina. Accedi o contatta l'amministratore.",
   "error.403.login": "Accedi",
   "error.403.back": "Indietro",
-
   "error.404.title": "Pagina non trovata",
   "error.404.desc": "Questa pagina non esiste. Il link potrebbe essere scaduto o essere stato rimosso.",
   "error.404.home": "Home",
   "error.404.back": "Indietro",
-
   "error.500.title": "Errore del server",
   "error.500.desc": "Qualcosa è andato storto dal nostro lato. Prova ad aggiornare la pagina o riprova più tardi.",
   "error.500.refresh": "↻ Aggiorna",
   "error.500.home": "Home",
-
   "error.502.title": "my1409.ru non disponibile",
   "error.502.desc": "Il server della scuola temporaneamente non risponde. Non è un errore dell'app — riprova più tardi.",
   "error.502.retry": "↻ Riprova",
   "error.502.home": "Home",
   "error.502.auto_check": "Controllo automatico tra",
   "error.502.sec": "sec",
-
   "maintenance.title": "Manutenzione in corso",
   "maintenance.desc": "Stiamo aggiornando l'app. Tornerà attiva a breve — di solito bastano pochi minuti.",
   "maintenance.eta": "Presto di nuovo attivi",
   "maintenance.check_again": "↻ Controlla di nuovo",
   "maintenance.auto_refresh": "Aggiornamento tra",
   "maintenance.sec": "sec",
-
   "offline.title": "Nessuna connessione",
   "offline.desc": "Controlla la connessione a Internet e riprova. Le pagine nella cache sono disponibili offline.",
   "offline.retry": "↻ Riprova",
-
   "login.step1.title": "Ciao 👋",
   "login.step1.subtitle": "Accedi a STUDY1409 con il numero di telefono",
   "login.step1.phone_placeholder": "+7 (999) 000-00-00",
@@ -68,7 +60,6 @@
   "login.error.no_connection": "Nessuna connessione al server",
   "login.sending": "Invio in corso…",
   "login.checking": "Verifica in corso…",
-
   "account.title": "Impostazioni account",
   "account.avatar_change_title": "Cambia foto",
   "account.avatar_change_hint": "Clicca per cambiare",
@@ -105,7 +96,10 @@
   "account.report_bug": "Segnala un problema",
   "account.support": "Supporto tecnico",
   "account.logout": "Esci",
-  "account.logout_confirm": "Uscire dall'account?",
+  "account.logout_confirm_title": "Uscire dall'account?",
+  "account.logout_confirm": "Verrà disconnesso dal tuo profilo STUDY1409. Dovrai accedere di nuovo.",
+  "account.logout_yes": "Esci",
+  "account.logout_cancel": "Annulla",
   "account.badge_voter_2026": "Partecipante elezioni 2026",
   "account.registration_present": "Presente",
   "account.registration_absent": "Non registrato",
@@ -113,7 +107,6 @@
   "account.avatar_too_large": "File troppo grande (max 5 MB)",
   "account.avatar_updated": "Foto aggiornata",
   "account.lang_label": "Lingua",
-
   "apps.greeting": "Home",
   "apps.class_display": "{number}{letter} classe",
   "apps.sidebar_home": "Home",
@@ -201,7 +194,6 @@
   "apps.notification_body": "{name} termina tra 5 minuti",
   "apps.schedule_notification_title": "STUDY1409 — Orario",
   "apps.weather_wind": "Vento: {wind} m/s",
-
   "create_app.title": "Richiesta uscita",
   "create_app.new_title": "Nuova richiesta",
   "create_app.reason_label": "Motivo",
@@ -237,7 +229,6 @@
   "create_app.details": "Orario: {time} | Ins.: {teacher}",
   "create_app.details_with_used": "Orario: {time} | Insegnante: {teacher}{used}",
   "create_app.lift_details": "Fino: {deadline} | Corse: {remaining} di {total} | {teacher}",
-
   "application.title": "Permesso uscita",
   "application.back": "Indietro",
   "application.loading": "Caricamento...",
@@ -256,7 +247,6 @@
   "application.popup_confirm": "Sì, sono qui",
   "application.toast_success": "Notifica inviata alla guardiola",
   "application.toast_error": "Impossibile inviare i dati",
-
   "app404.title": "Il permesso non è più valido",
   "app404.subtitle": "È già stato usato o annullato",
   "app404.hint": "Se pensi sia un errore, contatta l'insegnante.",
@@ -269,7 +259,6 @@
   "app404.popup_title": "Grazie per la valutazione!",
   "app404.survey": "Partecipa al sondaggio rapido",
   "app404.close": "Chiudi",
-
   "card.title": "Ordine carta MES",
   "card.order_title": "Richiesta emissione carta «MES»",
   "card.order_subtitle": "Compila i campi sottostanti. Dopo l'invio, la richiesta sarà inoltrata all'amministratore di sistema.",
@@ -285,12 +274,12 @@
   "card.reason_enrollment": "Iscrizione a scuola",
   "card.back": "Indietro",
   "card.submit": "Invia",
+  "card.sending": "Invio...",
   "card.done_title": "Richiesta inviata",
   "card.done_desc": "La carta sarà pronta il giorno successivo e ti aspetterà in un'apposita zona presso la guardiola. La vecchia carta non sarà più valida.",
   "card.done_home": "Home",
   "card.error_prefix": "Errore: ",
   "card.error_generic": "Si è verificato un errore durante l'invio della richiesta.",
-
   "admin.title": "Pannello Admin",
   "admin.logo_sub": "Pannello Admin",
   "admin.nav_overview": "Panoramica",
@@ -445,12 +434,10 @@
   "admin.alert_generation_error": "Errore di generazione",
   "admin.confirm_revoke_pin": "Revocare questo distintivo?",
   "admin.generating": "Generazione in corso...",
-
   "admin_login.title": "Pannello Admin",
   "admin_login.subtitle": "STUDY1409 · Solo per personale",
   "admin_login.password_placeholder": "Password",
   "admin_login.login": "Accedi",
-
   "activity.sports": "Evento sportivo",
   "activity.creative": "Concorso creativo",
   "activity.olympiad": "Olimpiade",
@@ -461,6 +448,5 @@
   "activity.class_activist": "Attività di classe",
   "activity.school_event": "Evento scolastico",
   "activity.other": "Altro",
-
   "manifest_description": "Portale della Scuola N. 1409"
 }

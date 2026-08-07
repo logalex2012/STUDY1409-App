@@ -297,13 +297,38 @@
             background: var(--bg-hover);
         }
 
-        /* Done layer */
+        /* Success layer */
         #done-layer { display: none; text-align: center; }
         #done-layer .done-icon { font-size: 4rem; margin-bottom: 1rem; }
         #done-layer h1 { margin-bottom: 1rem; }
         #done-layer p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6; }
         #done-layer .done-icon { margin-bottom: 1rem; }
         #done-layer .actions { justify-content: center; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-12px);
+            max-width: calc(100% - 32px);
+            padding: 13px 20px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            color: #fff;
+            z-index: 4000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+            text-align: center;
+        }
+        .toast.shown { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        .toast.success { background: rgba(40,167,69,0.95); }
+        .toast.error   { background: rgba(220,53,69,0.95); }
 
         @media (max-width: 480px) {
             .container { padding: 0.8rem; }
@@ -326,6 +351,7 @@
     </style>
 </head>
 <body>
+    <div id="toast" class="toast"></div>
     <div class="container">
         <div class="top-nav">
             <a href="/apps" class="nav-close">
@@ -397,12 +423,22 @@
         initTheme();
         lucide.createIcons();
 
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + (type || 'error') + ' shown';
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => t.classList.remove('shown'), 3000);
+        }
+
         document.getElementById('mesh-form').addEventListener('submit', function(e) {
             e.preventDefault();
             if (this.checkValidity()) {
                 const fio = document.getElementById('fio').value;
                 const student_class = document.getElementById('class').value;
                 const reason = document.getElementById('reason').value;
+                const btn = document.querySelector('#mesh-form .btn-primary');
+                if (btn) { btn.disabled = true; btn.textContent = __('card.sending'); }
 
                 fetch('/api/card/new', {
                     method: 'POST',
@@ -415,10 +451,13 @@
                         document.getElementById('order-layer').style.display = 'none';
                         document.getElementById('done-layer').style.display = 'block';
                     } else {
-                        alert(__('card.error_prefix') + data.message);
+                        showToast(__('card.error_prefix') + data.message, 'error');
                     }
                 })
-                .catch(() => alert(__('card.error_generic')));
+                .catch(() => showToast(__('card.error_generic'), 'error'))
+                .finally(() => {
+                    if (btn) { btn.disabled = false; btn.textContent = __('card.submit'); }
+                });
             }
         });
 

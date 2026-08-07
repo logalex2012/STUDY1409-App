@@ -1,6 +1,5 @@
 {
   "lang_name": "Русский",
-
   "app.title.403": "STUDY1409 — 403 Доступ запрещён",
   "app.title.404": "STUDY1409 — 404",
   "app.title.500": "STUDY1409 — 500 Ошибка сервера",
@@ -16,40 +15,33 @@
   "app.title.card": "STUDY1409 - Заказ карты МЭШ",
   "app.title.admin": "STUDY1409 — Админ панель",
   "app.title.admin_login": "STUDY1409 — Вход для администратора",
-
   "error.403.title": "Доступ запрещён",
   "error.403.desc": "У тебя нет прав для просмотра этой страницы. Войди в аккаунт или обратись к администратору.",
   "error.403.login": "Войти",
   "error.403.back": "Назад",
-
   "error.404.title": "Страница не найдена",
   "error.404.desc": "Такой страницы не существует. Возможно, ссылка устарела или была удалена.",
   "error.404.home": "На главную",
   "error.404.back": "Назад",
-
   "error.500.title": "Ошибка сервера",
   "error.500.desc": "Что-то пошло не так на нашей стороне. Попробуй обновить страницу или зайди позже.",
   "error.500.refresh": "↻ Обновить",
   "error.500.home": "На главную",
-
   "error.502.title": "my1409.ru недоступен",
   "error.502.desc": "Сервер школы временно не отвечает. Это не ошибка приложения — попробуй чуть позже.",
   "error.502.retry": "↻ Попробовать снова",
   "error.502.home": "На главную",
   "error.502.auto_check": "Автоматическая проверка через",
   "error.502.sec": "сек",
-
   "maintenance.title": "Технические работы",
   "maintenance.desc": "Мы обновляем приложение. Совсем скоро всё заработает — обычно это занимает не больше нескольких минут.",
   "maintenance.eta": "Скоро вернёмся",
   "maintenance.check_again": "↻ Проверить снова",
   "maintenance.auto_refresh": "Автообновление через",
   "maintenance.sec": "сек",
-
   "offline.title": "Нет соединения",
   "offline.desc": "Проверь подключение к интернету и попробуй снова. Кэшированные страницы доступны в офлайн-режиме.",
   "offline.retry": "↻ Повторить",
-
   "login.step1.title": "Привет 👋",
   "login.step1.subtitle": "Войдите в STUDY1409 по номеру телефона",
   "login.step1.phone_placeholder": "+7 (999) 000-00-00",
@@ -68,7 +60,6 @@
   "login.error.no_connection": "Нет соединения с сервером",
   "login.sending": "Отправляем…",
   "login.checking": "Проверяем…",
-
   "account.title": "Настройки аккаунта",
   "account.avatar_change_title": "Сменить фото",
   "account.avatar_change_hint": "Нажмите для смены",
@@ -105,7 +96,10 @@
   "account.report_bug": "Сообщить о баге",
   "account.support": "Техническая поддержка",
   "account.logout": "Выйти из аккаунта",
-  "account.logout_confirm": "Выйти из аккаунта?",
+  "account.logout_confirm_title": "Выйти из аккаунта?",
+  "account.logout_confirm": "Вы будете отключены от своего профиля STUDY1409. Вход потребуется снова.",
+  "account.logout_yes": "Выйти",
+  "account.logout_cancel": "Отмена",
   "account.badge_voter_2026": "Участник выборов 2026",
   "account.registration_present": "Присутствовал",
   "account.registration_absent": "Не отмечен",
@@ -113,7 +107,6 @@
   "account.avatar_too_large": "Файл слишком большой (макс. 5 МБ)",
   "account.avatar_updated": "Фото обновлено",
   "account.lang_label": "Язык",
-
   "apps.greeting": "Главная",
   "apps.class_display": "{number}{letter} класс",
   "apps.sidebar_home": "Главная",
@@ -201,7 +194,6 @@
   "apps.notification_body": "{name} заканчивается через 5 минут",
   "apps.schedule_notification_title": "STUDY1409 — Расписание",
   "apps.weather_wind": "Ветер: {wind} м/с",
-
   "create_app.title": "Заявка на выход",
   "create_app.new_title": "Новая заявка",
   "create_app.reason_label": "Причина",
@@ -237,7 +229,6 @@
   "create_app.details": "Время: {time} | КР: {teacher}",
   "create_app.details_with_used": "Время: {time} | Учитель: {teacher}{used}",
   "create_app.lift_details": "До: {deadline} | Поездок: {remaining} из {total} | {teacher}",
-
   "application.title": "Разрешение на выход",
   "application.back": "Назад",
   "application.loading": "Загрузка...",
@@ -256,7 +247,6 @@
   "application.popup_confirm": "Да, я тут",
   "application.toast_success": "Уведомление отправлено охране",
   "application.toast_error": "Не удалось отправить данные",
-
   "app404.title": "Разрешение больше не действует",
   "app404.subtitle": "Оно уже использовано или отменено",
   "app404.hint": "Если считаете, что это ошибка — обратитесь к учителю.",
@@ -269,7 +259,6 @@
   "app404.popup_title": "Спасибо за оценку!",
   "app404.survey": "Пройти быстрый опрос",
   "app404.close": "Закрыть",
-
   "card.title": "Заказ карты МЭШ",
   "card.order_title": "Заявка на выпуск карты «МЭШ»",
   "card.order_subtitle": "Заполните поля ниже. После отправки заявка уйдёт системному администратору.",
@@ -285,12 +274,12 @@
   "card.reason_enrollment": "Зачисление в школу",
   "card.back": "Назад",
   "card.submit": "Отправить",
+  "card.sending": "Отправка...",
   "card.done_title": "Заявка отправлена",
   "card.done_desc": "Карта будет готова на следующий день и будет ждать в специальной зоне на охране. Старая карта перестанет действовать.",
   "card.done_home": "На главную",
   "card.error_prefix": "Ошибка: ",
   "card.error_generic": "Произошла ошибка при отправке заявки.",
-
   "admin.title": "Панель администратора",
   "admin.logo_sub": "Панель администратора",
   "admin.nav_overview": "Обзор",
@@ -445,12 +434,10 @@
   "admin.alert_generation_error": "Ошибка генерации",
   "admin.confirm_revoke_pin": "Отозвать этот значок?",
   "admin.generating": "Генерация...",
-
   "admin_login.title": "Панель администратора",
   "admin_login.subtitle": "STUDY1409 · Только для сотрудников",
   "admin_login.password_placeholder": "Пароль",
   "admin_login.login": "Войти",
-
   "activity.sports": "Спортивное мероприятие",
   "activity.creative": "Творческий конкурс",
   "activity.olympiad": "Олимпиада",
@@ -461,6 +448,5 @@
   "activity.class_activist": "Актив класса",
   "activity.school_event": "Школьное мероприятие",
   "activity.other": "Другое",
-
   "manifest_description": "Порта школы №1409"
 }

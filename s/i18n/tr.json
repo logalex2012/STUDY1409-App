@@ -1,6 +1,5 @@
 {
   "lang_name": "Türkçe",
-
   "app.title.403": "STUDY1409 — 403 Erişim Engellendi",
   "app.title.404": "STUDY1409 — 404",
   "app.title.500": "STUDY1409 — 500 Sunucu Hatası",
@@ -16,40 +15,33 @@
   "app.title.card": "STUDY1409 - MES Kart Siparişi",
   "app.title.admin": "STUDY1409 — Yönetici Paneli",
   "app.title.admin_login": "STUDY1409 — Yönetici Girişi",
-
   "error.403.title": "Erişim Engellendi",
   "error.403.desc": "Bu sayfayı görüntüleme yetkiniz yok. Hesabınıza giriş yapın veya yöneticinize başvurun.",
   "error.403.login": "Giriş yap",
   "error.403.back": "Geri",
-
   "error.404.title": "Sayfa Bulunamadı",
   "error.404.desc": "Bu sayfa mevcut değil. Bağlantı güncelliğini yitirmiş veya kaldırılmış olabilir.",
   "error.404.home": "Ana sayfa",
   "error.404.back": "Geri",
-
   "error.500.title": "Sunucu Hatası",
   "error.500.desc": "Bizim tarafımızda bir sorun oluştu. Sayfayı yenilemeyi deneyin veya daha sonra tekrar gelin.",
   "error.500.refresh": "↻ Yenile",
   "error.500.home": "Ana sayfa",
-
   "error.502.title": "my1409.ru kullanılamıyor",
   "error.502.desc": "Okul sunucusu geçici olarak yanıt vermiyor. Bu bir uygulama hatası değil — lütfen daha sonra tekrar deneyin.",
   "error.502.retry": "↻ Tekrar dene",
   "error.502.home": "Ana sayfa",
   "error.502.auto_check": "Otomatik kontrol",
   "error.502.sec": "sn",
-
   "maintenance.title": "Bakım Çalışması",
   "maintenance.desc": "Uygulamayı güncelliyoruz. Çok kısa sürede her şey çalışmaya devam edecek — genellikle birkaç dakikadan uzun sürmez.",
   "maintenance.eta": "Hemen döneceğiz",
   "maintenance.check_again": "↻ Tekrar kontrol et",
   "maintenance.auto_refresh": "Otomatik yenileme",
   "maintenance.sec": "sn",
-
   "offline.title": "Bağlantı Yok",
   "offline.desc": "İnternet bağlantınızı kontrol edin ve tekrar deneyin. Önbelleğe alınmış sayfalar çevrimdışı modda kullanılabilir.",
   "offline.retry": "↻ Tekrar dene",
-
   "login.step1.title": "Merhaba 👋",
   "login.step1.subtitle": "STUDY1409'a telefon numaranızla giriş yapın",
   "login.step1.phone_placeholder": "+7 (999) 000-00-00",
@@ -68,7 +60,6 @@
   "login.error.no_connection": "Sunucuya bağlanılamıyor",
   "login.sending": "Gönderiliyor…",
   "login.checking": "Kontrol ediliyor…",
-
   "account.title": "Hesap Ayarları",
   "account.avatar_change_title": "Fotoğrafı değiştir",
   "account.avatar_change_hint": "Değiştirmek için tıklayın",
@@ -105,7 +96,10 @@
   "account.report_bug": "Hata bildir",
   "account.support": "Teknik Destek",
   "account.logout": "Çıkış yap",
-  "account.logout_confirm": "Çıkış yapmak istiyor musunuz?",
+  "account.logout_confirm_title": "Çıkış yapmak istiyor musunuz?",
+  "account.logout_confirm": "STUDY1409 profilinizden ayrılacaksınız. Tekrar giriş yapmanız gerekecek.",
+  "account.logout_yes": "Çıkış yap",
+  "account.logout_cancel": "İptal",
   "account.badge_voter_2026": "2026 Seçim Katılımcısı",
   "account.registration_present": "Katıldı",
   "account.registration_absent": "İşaretlenmedi",
@@ -113,7 +107,6 @@
   "account.avatar_too_large": "Dosya çok büyük (maks. 5 MB)",
   "account.avatar_updated": "Fotoğraf güncellendi",
   "account.lang_label": "Dil",
-
   "apps.greeting": "Ana sayfa",
   "apps.class_display": "{number}{letter} sınıfı",
   "apps.sidebar_home": "Ana sayfa",
@@ -201,7 +194,6 @@
   "apps.notification_body": "{name} 5 dakika içinde bitiyor",
   "apps.schedule_notification_title": "STUDY1409 — Ders Programı",
   "apps.weather_wind": "Rüzgar: {wind} m/s",
-
   "create_app.title": "Çıkış İzni",
   "create_app.new_title": "Yeni başvuru",
   "create_app.reason_label": "Sebep",
@@ -237,7 +229,6 @@
   "create_app.details": "Saat: {time} | Sınıf Öğrt.: {teacher}",
   "create_app.details_with_used": "Saat: {time} | Öğretmen: {teacher}{used}",
   "create_app.lift_details": "Son: {deadline} | Kullanım: {remaining}/{total} | {teacher}",
-
   "application.title": "Çıkış İzni",
   "application.back": "Geri",
   "application.loading": "Yükleniyor...",
@@ -256,7 +247,6 @@
   "application.popup_confirm": "Evet, buradayım",
   "application.toast_success": "Güvenliğe bildirim gönderildi",
   "application.toast_error": "Veri gönderilemedi",
-
   "app404.title": "İzin artık geçerli değil",
   "app404.subtitle": "Zaten kullanıldı veya iptal edildi",
   "app404.hint": "Bunun bir hata olduğunu düşünüyorsanız öğretmeninize başvurun.",
@@ -269,7 +259,6 @@
   "app404.popup_title": "Puanınız için teşekkürler!",
   "app404.survey": "Hızlı ankete katıl",
   "app404.close": "Kapat",
-
   "card.title": "MES Kart Siparişi",
   "card.order_title": "MES Kartı Çıkarma Başvurusu",
   "card.order_subtitle": "Aşağıdaki alanları doldurun. Gönderdikten sonra başvuru sistem yöneticisine iletilecektir.",
@@ -285,12 +274,12 @@
   "card.reason_enrollment": "Okula kayıt",
   "card.back": "Geri",
   "card.submit": "Gönder",
+  "card.sending": "Gönderiliyor...",
   "card.done_title": "Başvuru gönderildi",
   "card.done_desc": "Kart ertesi gün hazır olacak ve güvenlikteki özel alanda sizi bekleyecektir. Eski kart kullanılamaz hale gelecektir.",
   "card.done_home": "Ana sayfa",
   "card.error_prefix": "Hata: ",
   "card.error_generic": "Başvuru gönderilirken bir hata oluştu.",
-
   "admin.title": "Yönetici Paneli",
   "admin.logo_sub": "Yönetici Paneli",
   "admin.nav_overview": "Genel Bakış",
@@ -445,12 +434,10 @@
   "admin.alert_generation_error": "Oluşturma hatası",
   "admin.confirm_revoke_pin": "Bu rozeti iptal etmek istiyor musunuz?",
   "admin.generating": "Oluşturuluyor...",
-
   "admin_login.title": "Yönetici Paneli",
   "admin_login.subtitle": "STUDY1409 · Yalnızca personel",
   "admin_login.password_placeholder": "Şifre",
   "admin_login.login": "Giriş yap",
-
   "activity.sports": "Spor etkinliği",
   "activity.creative": "Yaratıcı yarışma",
   "activity.olympiad": "Olimpiyat",
@@ -461,6 +448,5 @@
   "activity.class_activist": "Sınıf etkinliği",
   "activity.school_event": "Okul etkinliği",
   "activity.other": "Diğer",
-
   "manifest_description": "1409 Nolu Okul Portalı"
 }

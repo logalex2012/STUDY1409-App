@@ -1,6 +1,5 @@
 {
   "lang_name": "English",
-
   "app.title.403": "STUDY1409 — 403 Access Denied",
   "app.title.404": "STUDY1409 — 404",
   "app.title.500": "STUDY1409 — 500 Server Error",
@@ -16,40 +15,33 @@
   "app.title.card": "STUDY1409 - MES Card Order",
   "app.title.admin": "STUDY1409 — Admin Panel",
   "app.title.admin_login": "STUDY1409 — Admin Login",
-
   "error.403.title": "Access Denied",
   "error.403.desc": "You don't have permission to view this page. Log in to your account or contact the administrator.",
   "error.403.login": "Log in",
   "error.403.back": "Back",
-
   "error.404.title": "Page Not Found",
   "error.404.desc": "This page doesn't exist. The link may be outdated or has been removed.",
   "error.404.home": "Home",
   "error.404.back": "Back",
-
   "error.500.title": "Server Error",
   "error.500.desc": "Something went wrong on our end. Try refreshing the page or come back later.",
   "error.500.refresh": "↻ Refresh",
   "error.500.home": "Home",
-
   "error.502.title": "my1409.ru is unavailable",
   "error.502.desc": "The school server is temporarily not responding. This is not an app error — please try again later.",
   "error.502.retry": "↻ Try again",
   "error.502.home": "Home",
   "error.502.auto_check": "Auto-check in",
   "error.502.sec": "s",
-
   "maintenance.title": "Maintenance",
   "maintenance.desc": "We're updating the app. Everything will be back shortly — it usually takes just a few minutes.",
   "maintenance.eta": "Be right back",
   "maintenance.check_again": "↻ Check again",
   "maintenance.auto_refresh": "Auto-refresh in",
   "maintenance.sec": "s",
-
   "offline.title": "No Connection",
   "offline.desc": "Check your internet connection and try again. Cached pages are available in offline mode.",
   "offline.retry": "↻ Retry",
-
   "login.step1.title": "Hi there 👋",
   "login.step1.subtitle": "Sign in to STUDY1409 with your phone number",
   "login.step1.phone_placeholder": "+7 (999) 000-00-00",
@@ -68,7 +60,6 @@
   "login.error.no_connection": "No connection to server",
   "login.sending": "Sending…",
   "login.checking": "Checking…",
-
   "account.title": "Account Settings",
   "account.avatar_change_title": "Change photo",
   "account.avatar_change_hint": "Tap to change",
@@ -105,7 +96,10 @@
   "account.report_bug": "Report a bug",
   "account.support": "Support",
   "account.logout": "Log out",
-  "account.logout_confirm": "Log out of account?",
+  "account.logout_confirm_title": "Log out of account?",
+  "account.logout_confirm": "You will be disconnected from your STUDY1409 profile. You will need to sign in again.",
+  "account.logout_yes": "Log out",
+  "account.logout_cancel": "Cancel",
   "account.badge_voter_2026": "2026 Election Participant",
   "account.registration_present": "Present",
   "account.registration_absent": "Not marked",
@@ -113,7 +107,6 @@
   "account.avatar_too_large": "File too large (max. 5 MB)",
   "account.avatar_updated": "Photo updated",
   "account.lang_label": "Language",
-
   "apps.greeting": "Home",
   "apps.class_display": "{number}{letter} class",
   "apps.sidebar_home": "Home",
@@ -201,7 +194,6 @@
   "apps.notification_body": "{name} ends in 5 minutes",
   "apps.schedule_notification_title": "STUDY1409 — Schedule",
   "apps.weather_wind": "Wind: {wind} m/s",
-
   "create_app.title": "Exit Pass",
   "create_app.new_title": "New Pass Request",
   "create_app.reason_label": "Reason",
@@ -237,7 +229,6 @@
   "create_app.details": "Time: {time} | CT: {teacher}",
   "create_app.details_with_used": "Time: {time} | Teacher: {teacher}{used}",
   "create_app.lift_details": "Until: {deadline} | Rides: {remaining} of {total} | {teacher}",
-
   "application.title": "Exit Permit",
   "application.back": "Back",
   "application.loading": "Loading...",
@@ -256,7 +247,6 @@
   "application.popup_confirm": "Yes, I'm here",
   "application.toast_success": "Notification sent to security",
   "application.toast_error": "Failed to send data",
-
   "app404.title": "Permit is no longer valid",
   "app404.subtitle": "It has already been used or cancelled",
   "app404.hint": "If you think this is a mistake, contact your teacher.",
@@ -269,7 +259,6 @@
   "app404.popup_title": "Thanks for the rating!",
   "app404.survey": "Take a quick survey",
   "app404.close": "Close",
-
   "card.title": "MES Card Order",
   "card.order_title": "MES Card Issue Request",
   "card.order_subtitle": "Fill in the fields below. After submission, the request will be sent to the system administrator.",
@@ -285,12 +274,12 @@
   "card.reason_enrollment": "School Enrollment",
   "card.back": "Back",
   "card.submit": "Submit",
+  "card.sending": "Sending...",
   "card.done_title": "Request sent",
   "card.done_desc": "The card will be ready the next day and will be waiting in the designated area at security. The old card will be deactivated.",
   "card.done_home": "Home",
   "card.error_prefix": "Error: ",
   "card.error_generic": "An error occurred while submitting the request.",
-
   "admin.title": "Admin Panel",
   "admin.logo_sub": "Admin Panel",
   "admin.nav_overview": "Overview",
@@ -445,12 +434,10 @@
   "admin.alert_generation_error": "Generation error",
   "admin.confirm_revoke_pin": "Revoke this badge?",
   "admin.generating": "Generating...",
-
   "admin_login.title": "Admin Panel",
   "admin_login.subtitle": "STUDY1409 · Staff only",
   "admin_login.password_placeholder": "Password",
   "admin_login.login": "Log in",
-
   "activity.sports": "Sports Event",
   "activity.creative": "Creative Contest",
   "activity.olympiad": "Olympiad",
@@ -461,6 +448,5 @@
   "activity.class_activist": "Class Activist",
   "activity.school_event": "School Event",
   "activity.other": "Other",
-
   "manifest_description": "School No.1409 Portal"
 }
