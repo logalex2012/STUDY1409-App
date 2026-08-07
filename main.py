@@ -79,6 +79,17 @@ def _init_db():
                 )
             """)
             cur.execute("""
+                CREATE TABLE IF NOT EXISTS bug_reports (
+                    id          SERIAL PRIMARY KEY,
+                    ts          TIMESTAMPTZ DEFAULT NOW(),
+                    phone       TEXT DEFAULT '',
+                    grp         TEXT DEFAULT '',
+                    page        TEXT DEFAULT '',
+                    message     TEXT NOT NULL,
+                    status      TEXT DEFAULT 'new'
+                )
+            """)
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS activity_log (
                     id      SERIAL PRIMARY KEY,
                     ts      TIMESTAMPTZ DEFAULT NOW(),
@@ -782,6 +793,35 @@ def proxy_card(subpath):
 @_require_student
 def help():
     return render_template("help.html")
+
+
+# ── О приложении ─────────────────────────────────────────────
+@app.route("/about")
+@_require_student
+def about():
+    u = session.get("user", {})
+    return render_template("about.html", user=u)
+
+
+# ── Отчёт о баге / проблеме ──────────────────────────────────
+@app.route("/api/report", methods=["POST"])
+@_require_student
+def api_report():
+    data = request.json or {}
+    message = (data.get("message") or "").strip()
+    if not message:
+        return jsonify({"status": "error", "message": "Опишите проблему"}), 400
+    u = session.get("user", {})
+    phone = u.get("phone", "")
+    grp = f'{u.get("group_number", "")}{u.get("group_letter", "")}'.strip()
+    page = (data.get("page") or "").strip()[:200]
+    with _db() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO bug_reports (phone, grp, page, message, status) VALUES (%s, %s, %s, %s, 'new')",
+                (phone, grp, page, message[:2000]),
+            )
+    return jsonify({"status": "success", "message": "Спасибо! Мы получили ваш отчёт."}), 200
 
 
 # ── Главная (сервисы) ─────────────────────────────────────────

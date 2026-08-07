@@ -744,6 +744,12 @@
 
         <!-- Действия -->
         <div style="display: grid; gap: 10px;">
+            <a href="/about" class="btn btn-secondary">
+                <i data-lucide="info"></i> <span>О приложении</span>
+            </a>
+            <button class="btn btn-secondary" onclick="window.open('/about?report=1', '_self')">
+                <i data-lucide="flag"></i> <span data-i18n="account.report_bug">Сообщить о баге</span>
+            </button>
             <button class="btn btn-secondary" onclick="window.open('https://t.me/dit1409_bot', '_blank')">
                 <i data-lucide="message-circle"></i> <span data-i18n="account.support">Техническая поддержка</span>
             </button>

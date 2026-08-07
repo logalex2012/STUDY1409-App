@@ -221,6 +221,55 @@
             transform: scale(1.1) rotate(20deg);
         }
 
+        /* Быстрые настройки (модуль «щит») */
+        .quick-backdrop {
+            position: fixed; inset: 0; z-index: 1400;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            align-items: flex-end; justify-content: center;
+            animation: qfade .2s ease-out;
+        }
+        @keyframes qfade { from{opacity:0} to{opacity:1} }
+        @keyframes qslide { from{transform:translateY(100%)} to{transform:none} }
+        .quick-sheet {
+            width: 100%; max-width: 500px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-top-left-radius: 24px; border-top-right-radius: 24px;
+            padding: 16px 20px calc(22px + env(safe-area-inset-bottom));
+            animation: qslide .3s ease-out;
+        }
+        .quick-handle { width: 44px; height: 4px; border-radius: 2px; background: var(--text-muted); margin: 0 auto 16px; }
+        .quick-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .quick-section { margin-bottom: 14px; }
+        .quick-label { font-size: .8rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
+        .quick-theme-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .quick-theme-btn {
+            padding: 13px; border-radius: 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            font-weight: 600; font-family: 'Montserrat', sans-serif; font-size: .95rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all .25s ease;
+        }
+        .quick-theme-btn:hover { transform: translateY(-2px); }
+        .quick-theme-btn.active { background: linear-gradient(135deg, #4446E1, #2E3192); border-color: transparent; color: #fff; }
+        .quick-settings-link {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 13px; border-radius: 12px;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            color: var(--text-primary); text-decoration: none; font-weight: 600;
+            margin-bottom: 10px; transition: all .25s ease;
+        }
+        .quick-settings-link:hover { background: var(--accent); color: #fff; }
+        .quick-close {
+            width: 100%; padding: 12px; border: none; border-radius: 12px;
+            background: transparent; color: var(--text-muted); font-weight: 600;
+            font-family: 'Montserrat', sans-serif; cursor: pointer;
+        }
+
         .avatar-wrap {
             position: relative;
             width: 72px;
@@ -1171,6 +1220,29 @@
 <div class="ptr-spinner" id="ptrSpinner"><i class="fa-solid fa-rotate" id="ptrIcon"></i></div>
 
 <canvas id="stParticles"></canvas>
+
+<!-- Быстрые настройки (модуль «щит») -->
+<div class="quick-backdrop" id="quickBackdrop" style="display:none;">
+    <div class="quick-sheet" id="quickSheet">
+        <div class="quick-handle"></div>
+        <div class="quick-title"><i class="fa-solid fa-shield-halved"></i> Быстрые настройки</div>
+        <div class="quick-section">
+            <div class="quick-label">Тема</div>
+            <div class="quick-theme-row">
+                <button class="quick-theme-btn" id="qThemeDark" onclick="quickTheme('dark')">
+                    <i class="fa-solid fa-moon"></i> Тёмная
+                </button>
+                <button class="quick-theme-btn" id="qThemeLight" onclick="quickTheme('light')">
+                    <i class="fa-solid fa-sun"></i> Светлая
+                </button>
+            </div>
+        </div>
+        <a href="/account" class="quick-settings-link">
+            <i class="fa-solid fa-gear"></i> Открыть все настройки
+        </a>
+        <button class="quick-close" onclick="closeQuickSettings()">Закрыть</button>
+    </div>
+</div>
 <div class="container">
 
     <!-- Баннер недоступности my1409 -->
@@ -1200,6 +1272,9 @@
             {% endif %}
         </div>
         <div class="profile-right">
+            <button class="theme-toggle" id="shieldBtn" onclick="openQuickSettings()" title="Быстрые настройки">
+                <i class="fa-solid fa-shield-halved" id="shieldIcon"></i>
+            </button>
             <button class="theme-toggle" id="themeToggle" onclick="cycleTheme()" title="Сменить тему" data-i18n-title="apps.change_theme">
                 <i class="fa-solid fa-moon" id="themeIcon"></i>
             </button>
@@ -1502,6 +1577,30 @@
 
     function initTheme() {
         applyTheme(localStorage.getItem('theme') || 'dark');
+        setQuickHighlight();
+    }
+
+    // ── Быстрые настройки (модуль «щит») ─────────────────────
+    function openQuickSettings() {
+        const b = document.getElementById('quickBackdrop');
+        setQuickHighlight();
+        b.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closeQuickSettings() {
+        document.getElementById('quickBackdrop').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    function quickTheme(t) {
+        applyTheme(t);
+        setQuickHighlight();
+    }
+    function setQuickHighlight() {
+        const cur = localStorage.getItem('theme') || 'dark';
+        const dark = document.getElementById('qThemeDark');
+        const light = document.getElementById('qThemeLight');
+        if (dark) dark.classList.toggle('active', cur === 'dark');
+        if (light) light.classList.toggle('active', cur === 'light');
     }
 
     // ── Аватар + skeleton ──────────────────────────────────────
