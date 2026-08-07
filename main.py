@@ -489,6 +489,17 @@ def pwa_login_verify():
             # Сохраняем сессионную куку my1409.ru
             cookie = r.cookies.get("session")
             if cookie:
+                # Бекапим cookie для биометрического входа (WebAuthn)
+                try:
+                    with _db() as conn:
+                        with conn.cursor() as cur:
+                            cur.execute("""
+                                INSERT INTO webauthn_sessions (phone, mycookie)
+                                VALUES (%s, %s)
+                                ON CONFLICT (phone) DO UPDATE SET mycookie=EXCLUDED.mycookie, updated_at=NOW()
+                            """, (phone, cookie))
+                except Exception:
+                    pass
                 # Пересоздаём сессию чтобы предотвратить session fixation
                 session.clear()
                 session.permanent = True
