@@ -511,11 +511,188 @@ def pwa_login_verify():
                 # Сразу подтягиваем профиль ученика (my1409.ru не возвращает user для student)
                 _sync_and_save_profile(phone, {"session": cookie})
         return jsonify(body), r.status_code
+    return jsonify({"status": "error", "message": "Сервер my1409 недоступен"}), 503
+
+
+# ── WebAuthn: биометрический вход (Face ID / Touch ID) ────────
+def _wa_store_challenge(chal: str, entry: dict):
+    with _WA_LOCK:
+        now = time.time()
+        # очистка протухших
+        for k in [k for k, v in list(_WA_CHALLENGES.items()) if now - v.get("ts", 0) > 360]:
+            _WA_CHALLENGES.pop(k, None)
+        _WA_CHALLENGES[chal] = {**entry, "ts": now}
+
+
+@app.route("/api/biometric/register-options", methods=["GET"])
+def biometric_register_options():
+    if not session.get("my1409_cookie"):
+        return jsonify({"error": "unauthorized"}), 401
+    phone = session.get("phone", "")
+    chal = wa.new_challenge()
+    _wa_store_challenge(chal, {"action": "register", "phone": phone})
+    return jsonify({
+        "challenge": chal,
+        "rpId": request.host,
+        "rpName": "STUDENT1409",
+        "userId": wa.b64url(phone.encode("utf-8")),
+        "userName": phone,
+        "displayName": phone,
+        "userVerification": "required",
+    })
+
+
+@app.route("/api/biometric/register", methods=["POST"])
+def biometric_register():
+    if not session.get("my1409_cookie"):
+        return jsonify({"error": "unauthorized"}), 401
+    phone = session.get("phone", "")
+    data = request.json or {}
+    try:
+        client_raw = wa.b64url_bytes(data["response"]["clientDataJSON"])
+        cd = wa.parse_client_data(client_raw)
+        if cd.get("type") != "webauthn.create":
+            return jsonify({"error": "Неверный тип запроса"}), 400
+        chal = cd.get("challenge", "")
+        with _WA_LOCK:
+            entry = _WA_CHALLENGES.get(chal)
+        if not entry or entry.get("action") != "register" or entry.get("phone") != phone:
+            return jsonify({"error": "Челлендж недействителен"}), 400
+
+        att_raw = wa.b64url_bytes(data["response"]["attestationObject"])
+        import cbor2
+        att = cbor2.loads(att_raw)
+        auth_data = bytes(att.get("authData", b""))
+        flags, _, cred_id, cose = wa.parse_auth_data(auth_data)
+        if not (flags & 0x01):
+            return jsonify({"error": "Нет подтверждения (UP)"}), 400
+        if not cred_id or cose is None:
+            return jsonify({"error": "Нет данных удостоверения"}), 400
+
+        pub_key = wa.decode_cose_pubkey(cose)
+        from cryptography.hazmat.primitives import serialization
+        pub_pem = pub_key.public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        with _db() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO webauthn_creds (credential_id, phone, public_key, sign_count)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (credential_id) DO UPDATE SET public_key=EXCLUDED.public_key
+                """, (psycopg2.Binary(cred_id), phone, pub_pem_bytes(pub_key), 0))
+        return jsonify({"status": "ok", "name": phone})
+    except Exception as e:
+        return jsonify({"error": f"Ошибка регистрации: {type(e).__name__}"}), 400
+
+
+def pub_pem_bytes(pub_key) -> bytes:
+    from cryptography.hazmat.primitives import serialization
+    return pub_key.public_bytes(
+        serialization.Encoding.PEM,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+
+
+@app.route("/api/biometric/login/options", methods=["GET", "POST"])
+def biometric_login_options():
+    chal = wa.new_challenge()
+    _wa_store_challenge(chal, {"action": "login"})
+    return jsonify({
+        "challenge": chal,
+        "rpId": request.host,
+        "userVerification": "required",
+        "allowCredentials": [],
+    })
+
+
+@app.route("/api/biometric/login", methods=["POST"])
+def biometric_login():
+    data = request.json or {}
+    try:
+        client_raw = wa.b64url_bytes(data["response"]["clientDataJSON"])
+        cd = wa.parse_client_data(client_raw)
+        if cd.get("type") != "webauthn.get":
+            return jsonify({"error": "Неверный тип запроса"}), 400
+        chal = cd.get("challenge", "")
+        with _WA_LOCK:
+            entry = _WA_CHALLENGES.get(chal)
+        if not entry or entry.get("action") != "login":
+            return jsonify({"error": "Челлендж недействителен"}), 400
+
+        cred_id = wa.b64url_bytes(data["id"])
+        auth_raw = wa.b64url_bytes(data["response"]["authenticatorData"])
+        flags, sign_count, _, _ = wa.parse_auth_data(auth_raw)
+        if not (flags & 0x01):
+            return jsonify({"error": "Устройство не подтвердило вход (UP)"}), 400
+
+        signature = data["response"]["signature"]
+        client_hash = wa.client_data_hash(client_raw)
+
+        with _db() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT phone, public_key, sign_count FROM webauthn_creds WHERE credential_id=%s",
+                            (psycopg2.Binary(cred_id),))
+                row = cur.fetchone()
+            if not row:
+                return jsonify({"error": "Биометрия не найдена"}), 404
+            phone, pem, stored_count = row
+            if stored_count and sign_count and sign_count <= stored_count:
+                return jsonify({"error": "Устройство использовано повторно"}), 400
+
+            # Проверка подписи
+            try:
+                from cryptography.hazmat.primitives import serialization
+                pub = serialization.load_pem_public_key(pem_from_str(pem_to_str(pem, public_key)))
+            except Exception:
+                pass
+            ok = wa.verify_signature(pub, auth_raw, client_hash, signature)
+            if not ok:
+                return jsonify({"error": "Подпись не подтверждена"}), 400
+
+            # Обновить счётчик
+            with _db() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("UPDATE webauthn_creds SET sign_count=%s WHERE credential_id=%s",
+                                (sign_count, psycopg2.Binary(cred_id)))
+            # Получить забекапленную куку
+            cookie = None
+            with _db() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT mycookie FROM webauthn_sessions WHERE phone=%s", (phone,))
+                    r2 = cur.fetchone()
+                    if r2:
+                        cookie = r2[0]
+            if not cookie:
+                return jsonify({"error": "Нет сохранённого доступа для биометрии"}), 400
+
+            session.clear()
+            session.permanent = True
+            session["my1409_cookie"] = cookie
+            session["phone"] = phone
+            _log_activity("login_biometric", phone)
+            try:
+                _sync_and_save_profile(phone, {"session": cookie})
+            except Exception:
+                pass
+            return jsonify({"status": "success", "redirect": "/apps"})
+    except Exception as e:
+        return jsonify({"error": f"Ошибка входа: {type(e).__name__}"}), 400
+
+
+@app.route("/api/biometric/has-keys")
+def biometric_has_keys():
+    if not session.get("my1409_cookie"):
+        return jsonify({"enabled": False})
+    phone = session.get("phone", "")
+    try:
+        with _db() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1 FROM webauthn_creds WHERE phone=%s LIMIT 1", (phone,))
+                return jsonify({"enabled": cur.fetchone() is not None})
     except Exception:
-        return jsonify({"status": "error", "message": "Сервер my1409 недоступен"}), 503
-
-
-# ── Student: локальные endpoints для заявок на выход ──────────
+        return jsonify({"enabled": False})
 @app.route("/api/student/exit-request", methods=["POST"])
 def student_create_exit_request():
     if not session.get("phone"):
