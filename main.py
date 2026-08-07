@@ -1,6 +1,8 @@
 import config
 import hashlib
 import json
+
+import webauthn_util as wa
 import os
 import psycopg2
 import psycopg2.extras
@@ -37,6 +39,10 @@ MY1409_BASE = _base
 _ADMIN_PW_HASH = config.ADMIN_PW_HASH
 
 _MAINTENANCE_FILE = os.path.join(os.path.dirname(__file__), "maintenance.lock")
+
+# WebAuthn challenges (in-memory, short-lived)
+_WA_CHALLENGES = {}
+_WA_LOCK = Lock()
 
 VAPID_PUBLIC_KEY   = os.environ.get("VAPID_PUBLIC_KEY", "")
 VAPID_PRIVATE_KEY  = os.environ.get("VAPID_PRIVATE_KEY", "")
@@ -139,6 +145,22 @@ def _init_db():
             cur.execute("""
                 ALTER TABLE exit_applications
                 ADD COLUMN IF NOT EXISTS used_at TEXT DEFAULT NULL
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS webauthn_creds (
+                    credential_id BYTEA PRIMARY KEY,
+                    phone         TEXT NOT NULL,
+                    public_key    BYTEA NOT NULL,
+                    sign_count    BIGINT NOT NULL DEFAULT 0,
+                    created_at    TIMESTAMPTZ DEFAULT NOW()
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS webauthn_sessions (
+                    phone      TEXT PRIMARY KEY,
+                    mycookie   TEXT NOT NULL,
+                    updated_at TIMESTAMPTZ DEFAULT NOW()
+                )
             """)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS exit_application_requests (
