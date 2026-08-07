@@ -131,14 +131,6 @@ class MainActivity : AppCompatActivity() {
                 binding.swipeRefresh.isRefreshing = false
             }
 
-            override fun onProgressChanged(view: WebView, newProgress: Int) {
-                binding.progressBar.progress = newProgress
-                if (newProgress >= 100) {
-                    binding.progressBar.visibility = View.INVISIBLE
-                    binding.swipeRefresh.isRefreshing = false
-                }
-            }
-
             override fun onReceivedError(
                 view: WebView,
                 request: WebResourceRequest,
