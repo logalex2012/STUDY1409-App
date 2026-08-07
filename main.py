@@ -511,7 +511,8 @@ def pwa_login_verify():
                 # Сразу подтягиваем профиль ученика (my1409.ru не возвращает user для student)
                 _sync_and_save_profile(phone, {"session": cookie})
         return jsonify(body), r.status_code
-    return jsonify({"status": "error", "message": "Сервер my1409 недоступен"}), 503
+    except Exception:
+        return jsonify({"status": "error", "message": "Сервер my1409 недоступен"}), 503
 
 
 # ── WebAuthn: биометрический вход (Face ID / Touch ID) ────────
@@ -581,18 +582,10 @@ def biometric_register():
                     INSERT INTO webauthn_creds (credential_id, phone, public_key, sign_count)
                     VALUES (%s, %s, %s, %s)
                     ON CONFLICT (credential_id) DO UPDATE SET public_key=EXCLUDED.public_key
-                """, (psycopg2.Binary(cred_id), phone, pub_pem_bytes(pub_key), 0))
+                """, (psycopg2.Binary(cred_id), phone, pub_pem, 0))
         return jsonify({"status": "ok", "name": phone})
     except Exception as e:
         return jsonify({"error": f"Ошибка регистрации: {type(e).__name__}"}), 400
-
-
-def pub_pem_bytes(pub_key) -> bytes:
-    from cryptography.hazmat.primitives import serialization
-    return pub_key.public_bytes(
-        serialization.Encoding.PEM,
-        serialization.PublicFormat.SubjectPublicKeyInfo,
-    )
 
 
 @app.route("/api/biometric/login/options", methods=["GET", "POST"])
@@ -642,11 +635,8 @@ def biometric_login():
                 return jsonify({"error": "Устройство использовано повторно"}), 400
 
             # Проверка подписи
-            try:
-                from cryptography.hazmat.primitives import serialization
-                pub = serialization.load_pem_public_key(pem_from_str(pem_to_str(pem, public_key)))
-            except Exception:
-                pass
+            from cryptography.hazmat.primitives import serialization
+            pub = serialization.load_pem_public_key(bytes(pem))
             ok = wa.verify_signature(pub, auth_raw, client_hash, signature)
             if not ok:
                 return jsonify({"error": "Подпись не подтверждена"}), 400
